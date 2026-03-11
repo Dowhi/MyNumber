@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Number Match - Premium</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <div class="app-container">
+
+        <!-- START SCREEN -->
+        <div id="home-screen" class="screen active home-screen">
+            <nav class="top-nav" style="margin-bottom: 10px;">
+                <div style="flex: 1;"></div>
+                <div class="coin-pill">
+                    <span class="coin-star">⭐</span>
+                    <span id="home-coin-count">1</span>
+                </div>
+                <div style="flex: 1; display: flex; justify-content: flex-end;">
+                    <button class="nav-btn-icon"><span class="gear-icon">⚙️</span></button>
+                </div>
+            </nav>
+
+            <div class="cards-container">
+                <!-- Replacement for Red Circles -->
+                <div class="card card-blue">
+                    <div>
+                        <div class="card-icon">🌀</div>
+                        <p class="card-title">Modo Clásico</p>
+                    </div>
+                    <div>
+                        <p class="card-val">Nivel Inicial</p>
+                        <button class="card-btn" onclick="GAME.startNewGame()">Jugar</button>
+                    </div>
+                </div>
+                <div class="card card-orange">
+                    <div>
+                        <div class="card-icon">⚡</div>
+                        <p class="card-title">Maratón</p>
+                    </div>
+                    <div>
+                        <p class="card-val">Sin Límites</p>
+                        <button class="card-btn" onclick="GAME.startNewGame()">Jugar</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="main-title-container">
+                <h1 class="main-title">Number Match</h1>
+                <p class="all-time-label">Mejor puntuación de todos los tiempos</p>
+                <div class="main-hs">🏆 <span id="home-high-score">4.957</span></div>
+            </div>
+
+            <div class="home-buttons">
+                <button class="btn-primary" onclick="GAME.switchScreen('game')">Continuar la partida</button>
+                <button class="btn-secondary" onclick="GAME.startNewGame()">Nueva partida</button>
+            </div>
+
+            <div class="bottom-nav">
+                <a href="#" class="tab-item active" onclick="GAME.switchScreen('home')">
+                    <span class="tab-icon">🏠</span>
+                    <span class="tab-label">Inicio</span>
+                </a>
+                <a href="#" class="tab-item" onclick="GAME.switchScreen('ranking'); return false;">
+                    <span class="tab-icon">🗓️</span>
+                    <span class="tab-label">Ranking</span>
+                </a>
+                <a href="#" class="tab-item">
+                    <span class="tab-icon">👤</span>
+                    <span class="tab-label">Yo</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- GAME SCREEN -->
+        <div id="game-screen" class="screen">
+            <nav class="top-nav">
+                <button class="nav-btn-icon back-btn" onclick="GAME.switchScreen('home')">
+                    <span class="chevron-left"></span>
+                </button>
+                <div class="coin-pill">
+                    <span class="coin-star">⭐</span>
+                    <span id="game-coin-count">1</span>
+                </div>
+                <button class="nav-btn-icon settings-btn">
+                    <span class="gear-icon">⚙️</span>
+                </button>
+            </nav>
+
+            <div class="score-display">
+                <span id="score">0</span>
+            </div>
+
+            <div class="meta-stats-row">
+                <div class="stat-group fase-group">
+                    <label>Fase</label>
+                    <span id="fase" class="fase-val">1</span>
+                </div>
+                <div class="stat-group eliminated-group">
+                    <label>Números eliminados</label>
+                    <div class="eliminated-numbers">
+                        <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span>
+                    </div>
+                </div>
+                <div class="stat-group today-group">
+                    <label>Hoy</label>
+                    <div class="high-score-today">
+                        <span class="trophy-icon">🏆</span>
+                        <span id="high-score" class="hs-val">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <main class="grid-section" style="position: relative;">
+                <div id="game-board" class="number-grid"></div>
+                <div id="hint-overlay"></div>
+            </main>
+
+            <footer class="bottom-actions">
+                <div class="action-wrapper">
+                    <button id="add-btn" class="action-btn"><span class="plus-sign">+</span></button>
+                    <div class="action-badge" id="add-count">5</div>
+                </div>
+                <div class="action-wrapper">
+                    <button id="hint-btn" class="action-btn"><span class="hint-lamp">💡</span></button>
+                    <div class="action-badge" id="hint-count">5</div>
+                </div>
+            </footer>
+        </div>
+
+        <!-- RANKING SCREEN -->
+        <div id="ranking-screen" class="screen">
+            <nav class="top-nav">
+                <button class="nav-btn-icon" onclick="GAME.switchScreen('home')">
+                    <span class="chevron-left"></span>
+                </button>
+                <h2 style="font-size: 18px; font-weight: 800;">Ranking</h2>
+                <div style="width: 20px;"></div>
+            </nav>
+            <div id="ranking-list" class="ranking-list">
+                <!-- Ranking items injected by JS -->
+            </div>
+        </div>
+
+        <!-- OVERLAYS -->
+        <div id="game-over-overlay" class="overlay">
+            <h2>FIN DE PARTIDA</h2>
+            <p>No quedan movimientos posibles.</p>
+            <h3 id="final-score" style="font-size: 40px; margin-bottom: 20px;">0</h3>
+            <button class="btn-primary" onclick="GAME.startNewGame()" style="width: 100%;">Nueva Partida</button>
+            <button class="btn-secondary" onclick="GAME.switchScreen('home')"
+                style="width: 100%; margin-top: 10px;">Volver al Inicio</button>
+        </div>
+
+    </div>
+
+    <script src="game.js"></script>
+</body>
+
+</html>
