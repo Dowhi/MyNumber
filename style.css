@@ -337,19 +337,18 @@ body {
 }
 
 .grid-cell.selected {
-    transform: scale(1.15);
+    transform: scale(1.08) translateY(-4px);
     background: white;
-    box-shadow: 0 8px 25px rgba(0, 122, 255, 0.3);
-    z-index: 20;
+    box-shadow: 0 15px 35px rgba(0, 122, 255, 0.4), 0 0 0 2px var(--blue-primary);
+    z-index: 30;
     color: var(--blue-primary) !important;
-    border-radius: 8px;
-    border-color: rgba(0, 122, 255, 0.2);
+    border-radius: 12px;
 }
 
 .cell-eliminated {
-    opacity: 0 !important;
+    color: transparent !important;
     pointer-events: none;
-    transform: scale(0.5);
+    background: transparent !important;
 }
 
 .hint-cell-highlight {

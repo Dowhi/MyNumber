@@ -544,8 +544,8 @@ class MyNumberGame {
         this.showToast(`🎉 ¡FASE ${this.fase} ALCANZADA! 🎉`);
         
         // Premium Celebration: Confetti
-        for (let i = 0; i < 50; i++) {
-            this.createParticle(window.innerWidth / 2, -20);
+        for (let i = 0; i < 60; i++) {
+            this.createParticle(Math.random() * window.innerWidth, -20, true);
         }
     }
 
@@ -561,7 +561,8 @@ class MyNumberGame {
             
             this.score += pointsForLine;
             this.stats.totalPoints += pointsForLine;
-            this.board.splice(rowIndex * GRID_COLS, GRID_COLS);
+            // Desactivamos el splice para mantener la rejilla intacta según petición
+            // this.board.splice(rowIndex * GRID_COLS, GRID_COLS);
             this.stats.linesCleared++;
             
             this.showToast(`✨ LÍNEA COMPLETADA +${pointsForLine} ✨`);
@@ -711,7 +712,7 @@ class MyNumberGame {
             const rect = c.getBoundingClientRect();
             const dx = midX - (rect.left + rect.width / 2);
             const dy = midY - (rect.top + rect.height / 2);
-            c.style.transition = 'transform 0.4s cubic-bezier(0.5, 0, 0.5, 1)';
+            c.style.transition = 'transform 0.4s cubic-bezier(0.5, 0, 0.5, 1), opacity 0.4s ease-out';
             c.style.transform = `translate(${dx}px, ${dy}px) scale(0.2)`;
             c.style.opacity = '0';
         });
@@ -721,25 +722,30 @@ class MyNumberGame {
         }
     }
 
-    createParticle(x, y) {
+    createParticle(x, y, isConfetti = false) {
         const p = document.createElement('div');
         p.className = 'particle';
-        const colors = ['#007aff', '#5ac8fa', '#00f2fe', '#ffffff'];
+        const colors = isConfetti ? ['#ff2d55', '#34c759', '#007aff', '#ffcc00', '#ff9500', '#af52de'] : ['#007aff', '#5ac8fa', '#00f2fe', '#ffffff'];
         p.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
         p.style.left = x + 'px';
         p.style.top = y + 'px';
+        if (isConfetti) {
+            p.style.width = '10px';
+            p.style.height = '10px';
+            p.style.borderRadius = '50%';
+        }
         document.body.appendChild(p);
 
-        const angle = Math.random() * Math.PI * 2;
-        const dist = 20 + Math.random() * 50;
+        const angle = isConfetti ? (Math.PI / 4 + Math.random() * Math.PI / 2) : (Math.random() * Math.PI * 2);
+        const dist = isConfetti ? (400 + Math.random() * 400) : (20 + Math.random() * 50);
         const tx = Math.cos(angle) * dist;
-        const ty = Math.sin(angle) * dist;
+        const ty = isConfetti ? (window.innerHeight + 100) : (Math.sin(angle) * dist);
 
         p.animate([
-            { transform: 'translate(0, 0) scale(1)', opacity: 1 },
-            { transform: `translate(${tx}px, ${ty}px) scale(0)`, opacity: 0 }
+            { transform: 'translate(0, 0) rotate(0deg) scale(1)', opacity: 1 },
+            { transform: `translate(${tx}px, ${ty}px) rotate(${Math.random() * 360}deg) scale(${isConfetti ? 0.5 : 0})`, opacity: isConfetti ? 0.7 : 0 }
         ], {
-            duration: 600 + Math.random() * 400,
+            duration: isConfetti ? (1500 + Math.random() * 1000) : (600 + Math.random() * 400),
             easing: 'cubic-bezier(0.1, 0.8, 0.3, 1)'
         }).onfinish = () => p.remove();
     }
@@ -840,14 +846,21 @@ class MyNumberGame {
             div.innerText = cell.value;
             div.addEventListener('click', () => {
                 if (cell.state !== STATE.ACTIVE) return;
-                if (this.selectedIndices.includes(index)) this.selectedIndices = [];
-                else if (this.selectedIndices.length === 0) this.selectedIndices.push(index);
-                else {
+                let matchMade = false;
+                if (this.selectedIndices.includes(index)) {
+                     this.selectedIndices = [];
+                } else if (this.selectedIndices.length === 0) {
+                     this.selectedIndices.push(index);
+                } else {
                     const info = this.getMatchInfo(this.selectedIndices[0], index);
-                    if (info.matchable) this.executeMatch(this.selectedIndices[0], index, info.points, info.special);
-                    else this.selectedIndices = [index];
+                    if (info.matchable) {
+                        this.executeMatch(this.selectedIndices[0], index, info.points, info.special);
+                        matchMade = true;
+                    } else {
+                        this.selectedIndices = [index];
+                    }
                 }
-                this.render();
+                if (!matchMade) this.render();
             });
             this.gridElement.appendChild(div);
         });
