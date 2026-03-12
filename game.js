@@ -185,7 +185,15 @@ class MyNumberGame {
     }
 
     showBienVisto() {
-        this.showToast("🥳 -- BIEN VISTO -- 🎉");
+        const msgs = [
+            "¡Movimiento MAESTRO! 🧠⚡",
+            "¡Bien visto, GENIO! 🧐🌟",
+            "¡Jugada PREMIUM! 💎🔥",
+            "¡Qué puntería! 🎯✨",
+            "¡Estrategia IMPECABLE! 🛡️🔝"
+        ];
+        const randomMsg = msgs[Math.floor(Math.random() * msgs.length)];
+        this.showToast(randomMsg);
     }
 
     initBoard() {
