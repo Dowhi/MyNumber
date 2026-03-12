@@ -64,6 +64,10 @@ body {
 
 .screen.active { display: flex; }
 
+#game-screen {
+    padding: 15px 12px; /* Reducimos padding lateral para ganar ancho de rejilla */
+}
+
 /* Home Screen Styles */
 .home-screen { padding: 40px 20px 20px; }
 
@@ -261,8 +265,8 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: clamp(14px, 3.5vw, 22px);
-    font-weight: 200;
+    font-size: clamp(20px, 6vw, 28px); /* Aumentado de 14px/3.5vw */
+    font-weight: 400; /* Aumentado grosor de 200 a 400 */
     border: 0.1px solid rgba(0,0,0,0.05);
     color: var(--text-primary);
     transition: all 0.2s;
