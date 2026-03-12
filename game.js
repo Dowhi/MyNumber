@@ -373,7 +373,7 @@ class MyNumberGame {
             this.updateHighScores();
             this.render();
             this.saveBoard();
-        }, 500); 
+        }, 600); 
 
         // Scoring and Persistence
         this.stats.matches++;
@@ -424,9 +424,10 @@ class MyNumberGame {
         
         const centerX = (r1.left + r2.left) / 2 + r1.width / 2;
         const centerY = (r1.top + r2.top) / 2 + r1.height / 2;
-        
-        label.style.left = `${centerX}px`;
-        label.style.top = `${centerY}px`;
+        const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
+        const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+        label.style.left = `${centerX + scrollX}px`;
+        label.style.top = `${centerY + scrollY}px`;
         document.body.appendChild(label);
 
         // 2. Trajectory towards the goal (after a small pause for pop animation)
@@ -559,10 +560,9 @@ class MyNumberGame {
             const rowIndex = rowsToRemove[i];
             const pointsForLine = 20 * this.fase;
             
+            this.board.splice(rowIndex * GRID_COLS, GRID_COLS);
             this.score += pointsForLine;
             this.stats.totalPoints += pointsForLine;
-            // Desactivamos el splice para mantener la rejilla intacta según petición
-            // this.board.splice(rowIndex * GRID_COLS, GRID_COLS);
             this.stats.linesCleared++;
             
             this.showToast(`✨ LÍNEA COMPLETADA +${pointsForLine} ✨`);
@@ -712,8 +712,8 @@ class MyNumberGame {
             const rect = c.getBoundingClientRect();
             const dx = midX - (rect.left + rect.width / 2);
             const dy = midY - (rect.top + rect.height / 2);
-            c.style.transition = 'transform 0.4s cubic-bezier(0.5, 0, 0.5, 1), opacity 0.4s ease-out';
-            c.style.transform = `translate(${dx}px, ${dy}px) scale(0.2)`;
+            c.style.transition = 'transform 0.5s cubic-bezier(0.6, -0.28, 0.735, 0.045), opacity 0.4s ease-out';
+            c.style.transform = `translate(${dx}px, ${dy}px) scale(0.1) rotate(180deg)`;
             c.style.opacity = '0';
         });
 
@@ -727,8 +727,10 @@ class MyNumberGame {
         p.className = 'particle';
         const colors = isConfetti ? ['#ff2d55', '#34c759', '#007aff', '#ffcc00', '#ff9500', '#af52de'] : ['#007aff', '#5ac8fa', '#00f2fe', '#ffffff'];
         p.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-        p.style.left = x + 'px';
-        p.style.top = y + 'px';
+        const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
+        const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+        p.style.left = (x + scrollX) + 'px';
+        p.style.top = (y + scrollY) + 'px';
         if (isConfetti) {
             p.style.width = '10px';
             p.style.height = '10px';

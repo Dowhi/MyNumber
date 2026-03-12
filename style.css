@@ -337,10 +337,10 @@ body {
 }
 
 .grid-cell.selected {
-    transform: scale(1.08) translateY(-4px);
+    transform: scale(1.1) translateY(-10px);
     background: white;
-    box-shadow: 0 15px 35px rgba(0, 122, 255, 0.4), 0 0 0 2px var(--blue-primary);
-    z-index: 30;
+    box-shadow: 0 20px 40px rgba(0, 122, 255, 0.6), 0 0 0 2px var(--blue-primary);
+    z-index: 50;
     color: var(--blue-primary) !important;
     border-radius: 12px;
 }
