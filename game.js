@@ -75,15 +75,17 @@ class MyNumberGame {
     }
 
     saveBoard() {
-        const boardData = {
+        const data = {
             board: this.board,
             score: this.score,
             fase: this.fase,
             addCount: this.addCount,
             hintCount: this.hintCount,
-            groupCount: this.groupCount
+            groupCount: this.groupCount,
+            duelMode: this.duelMode,
+            visualScore: this.visualScore
         };
-        localStorage.setItem('myNumberBoard', JSON.stringify(boardData));
+        localStorage.setItem('myNumberBoard', JSON.stringify(data));
     }
 
     loadBoard() {
@@ -320,26 +322,7 @@ class MyNumberGame {
         localStorage.setItem('myNumberStats', JSON.stringify(this.stats));
     }
 
-    saveBoard() {
-        const data = {
-            board: this.board,
-            score: this.score,
-            fase: this.fase,
-            addCount: this.addCount,
-            hintCount: this.hintCount,
-            groupCount: this.groupCount,
-            duelMode: this.duelMode,
-            visualScore: this.visualScore
-        };
-        localStorage.setItem('myNumberBoard', JSON.stringify(data));
-    }
-
-    checkNumberEliminated(val) {
-        const stillExists = this.board.some(c => c.state === STATE.ACTIVE && Number(c.value) === Number(val));
-        if (!stillExists) {
-            this.showToast(`🔥 ¡NÚMERO ${val} ELIMINADO! 🔥`);
-        }
-    }
+    // Metodos de persistencia centralizados arriba
 
     updatePlaytime() {
         const now = Date.now();
@@ -454,26 +437,28 @@ class MyNumberGame {
         }
         this.lastMatchTimestamp = now;
 
-        // Visual Effects
+        // Visual Effects: Attraction and Particles
         this.createMatchEffects(idx1, idx2);
 
-        // Update stats
+        // Score Animation
+        this.animatePoints(idx1, idx2, points);
+
+        // Delay logic for cleanup to allow animations to be seen
+        setTimeout(() => {
+            this.checkRowClear();
+            if (this.board.every(c => c.state === STATE.NULL)) this.handlePhaseAdvance();
+            else this.checkGameOver();
+            this.updateHighScores();
+            this.render();
+            this.saveBoard();
+        }, 500); 
+
+        // Update stats and achievements
         this.stats.matches++;
         this.stats.totalPoints += points;
         this.checkAchievements();
         this.saveStats();
-        this.saveBoard();
-
         if (this.duelMode) this.startDuelTimer(); // Reset timer on match
-
-        // Trigger visual animation
-        this.animatePoints(idx1, idx2, points);
-
-        this.checkRowClear();
-        if (this.board.every(c => c.state === STATE.NULL)) this.handlePhaseAdvance();
-        else this.checkGameOver();
-        this.updateHighScores();
-        this.render();
     }
 
     checkNumberEliminated(val) {
