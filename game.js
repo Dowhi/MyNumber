@@ -42,19 +42,11 @@ class MyNumberGame {
             numbersAdded: 0,
             maxFase: 1,
             totalPoints: 0,
-            totalTime: 0,
-            dailyTime: {},
-            matchTimes: [], // [ {t: timestamp, speed: ms_since_last} ]
-            achievements: [] // [ '100matches', 'speed_demon', etc ]
+            achievements: []
         };
         this.playerName = localStorage.getItem('myNumberPlayerName') || 'Jugador';
-        this.duelMode = false;
-        this.duelTimer = null;
-        this.lastMatchTimestamp = null;
         
-        this.sessionStartTime = Date.now();
         this.groupCount = 0;
-        this.saveStatsInterval = setInterval(() => this.updatePlaytime(), 10000);
         
         this.checkDailyReset();
 
@@ -75,17 +67,15 @@ class MyNumberGame {
     }
 
     saveBoard() {
-        const data = {
+        const boardData = {
             board: this.board,
             score: this.score,
             fase: this.fase,
             addCount: this.addCount,
             hintCount: this.hintCount,
-            groupCount: this.groupCount,
-            duelMode: this.duelMode,
-            visualScore: this.visualScore
+            groupCount: this.groupCount
         };
-        localStorage.setItem('myNumberBoard', JSON.stringify(data));
+        localStorage.setItem('myNumberBoard', JSON.stringify(boardData));
     }
 
     loadBoard() {
@@ -154,6 +144,18 @@ class MyNumberGame {
         }
     }
 
+    updateHighScores() {
+        if (this.score > this.allTimeHighScore) {
+            this.allTimeHighScore = this.score;
+            localStorage.setItem('myNumberHighScore', this.allTimeHighScore);
+        }
+        if (this.score > this.dailyHighScore) {
+            this.dailyHighScore = this.score;
+            localStorage.setItem('myNumberDailyHighScore', this.dailyHighScore);
+        }
+        if (this.homeHS) this.homeHS.innerText = this.formatScore(this.allTimeHighScore);
+    }
+
     renderAchievementsMini() {
         const container = document.getElementById('achievements-mini');
         if (!container) return;
@@ -169,24 +171,7 @@ class MyNumberGame {
         `).join('');
     }
 
-    checkAchievements() {
-        if (!this.stats.achievements) this.stats.achievements = [];
-        let changed = false;
-        if (!this.stats.achievements.includes('100matches') && this.stats.matches >= 100) {
-            this.stats.achievements.push('100matches');
-            this.showToast("🏆 LOGRO: ¡Maestro de Parejas! 🎯");
-            changed = true;
-        }
-        if (!this.stats.achievements.includes('master') && this.stats.maxFase >= 5) {
-            this.stats.achievements.push('master');
-            this.showToast("🏆 LOGRO: ¡Rey del Número! 👑");
-            changed = true;
-        }
-        if (changed) {
-            this.saveStats();
-            this.renderAchievementsMini();
-        }
-    }
+
 
     switchScreen(screenId) {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -202,17 +187,14 @@ class MyNumberGame {
             this.openModal(
                 "¿Nueva Partida?", 
                 "¿Seguro que quieres abandonar la partida actual y empezar una nueva?", 
-                () => this.askDuelMode()
+                () => this.resetGame()
             );
         } else {
-            this.askDuelMode();
+            this.resetGame();
         }
     }
 
-    askDuelMode() {
-        this.duelMode = confirm("¿Quieres activar el MODO DUELO? (El tablero se llena si tardas mucho ⏳)");
-        this.resetGame();
-    }
+
 
     resetGame() {
         this.board = [];
@@ -228,47 +210,6 @@ class MyNumberGame {
         this.saveBoard();
         this.switchScreen('game');
         this.render();
-        this.lastMatchTimestamp = Date.now();
-        
-        if (this.duelMode) {
-            this.startDuelTimer();
-        } else {
-            this.stopDuelTimer();
-        }
-    }
-
-    startDuelTimer() {
-        this.stopDuelTimer();
-        let timeLeft = 15;
-        
-        const updateTimerUI = () => {
-            let el = document.getElementById('duel-timer-display');
-            if (!el) {
-                const nav = document.querySelector('.nav-left');
-                el = document.createElement('span');
-                el.id = 'duel-timer-display';
-                el.className = 'duel-timer';
-                nav.appendChild(el);
-            }
-            el.innerText = `⏳ ${timeLeft}s`;
-        };
-
-        this.duelTimer = setInterval(() => {
-            timeLeft--;
-            if (timeLeft <= 0) {
-                this.addNumbers();
-                this.showToast("⚠️ ¡TIEMPO! Números añadidos ⚠️");
-                timeLeft = 15;
-            }
-            updateTimerUI();
-        }, 1000);
-        updateTimerUI();
-    }
-
-    stopDuelTimer() {
-        if (this.duelTimer) clearInterval(this.duelTimer);
-        const el = document.getElementById('duel-timer-display');
-        if (el) el.remove();
     }
 
     openModal(title, text, onConfirm) {
@@ -324,16 +265,7 @@ class MyNumberGame {
 
     // Metodos de persistencia centralizados arriba
 
-    updatePlaytime() {
-        const now = Date.now();
-        const diff = Math.floor((now - this.sessionStartTime) / 1000);
-        this.sessionStartTime = now;
-        
-        this.stats.totalTime += diff;
-        const today = new Date().toDateString();
-        this.stats.dailyTime[today] = (this.stats.dailyTime[today] || 0) + diff;
-        this.saveStats();
-    }
+    // Metodos de persistencia centralizados arriba
 
     getMatchInfo(idx1, idx2) {
         const cell1 = this.board[idx1];
@@ -427,16 +359,6 @@ class MyNumberGame {
             this.showBienVisto();
         }
 
-        // Match tracking for cognitive chart
-        const now = Date.now();
-        if (this.lastMatchTimestamp) {
-            const speed = now - this.lastMatchTimestamp;
-            this.stats.matchTimes.push({ t: now, speed: speed });
-            // Keep only last 100 matches to avoid bloat
-            if (this.stats.matchTimes.length > 100) this.stats.matchTimes.shift();
-        }
-        this.lastMatchTimestamp = now;
-
         // Visual Effects: Attraction and Particles
         this.createMatchEffects(idx1, idx2);
 
@@ -453,12 +375,27 @@ class MyNumberGame {
             this.saveBoard();
         }, 500); 
 
-        // Update stats and achievements
+        // Scoring and Persistence
         this.stats.matches++;
         this.stats.totalPoints += points;
         this.checkAchievements();
         this.saveStats();
-        if (this.duelMode) this.startDuelTimer(); // Reset timer on match
+    }
+
+    checkAchievements() {
+        const check = (id, condition, text) => {
+            if (condition && !this.stats.achievements.includes(id)) {
+                this.stats.achievements.push(id);
+                this.showToast(`🏆 LOGRO: ${text} 🏆`);
+            }
+        };
+
+        check('first_match', this.stats.matches >= 1, "Primeros Pasos");
+        check('centurion', this.stats.matches >= 100, "Centurión del Número");
+        check('line_king', this.stats.linesCleared >= 50, "Rey de las Líneas");
+        check('survivor', this.fase >= 5, "Superviviente");
+        
+        this.saveStats();
     }
 
     checkNumberEliminated(val) {
@@ -591,6 +528,25 @@ class MyNumberGame {
                 container.innerHTML = '';
             }, 300);
         }, 3500); // 3.5 segundos de visualización
+    }
+
+    handlePhaseAdvance() {
+        this.fase++;
+        if (this.fase > this.stats.maxFase) {
+            this.stats.maxFase = this.fase;
+            this.saveStats();
+        }
+        this.addCount = 5;
+        this.hintCount = 5;
+        this.initBoard();
+        this.saveBoard();
+        this.render();
+        this.showToast(`🎉 ¡FASE ${this.fase} ALCANZADA! 🎉`);
+        
+        // Premium Celebration: Confetti
+        for (let i = 0; i < 50; i++) {
+            this.createParticle(window.innerWidth / 2, -20);
+        }
     }
 
     checkRowClear() {
@@ -737,67 +693,6 @@ class MyNumberGame {
         document.getElementById('stats-adds').innerText = this.stats.numbersAdded || 0;
         document.getElementById('stats-max-fase').innerText = this.stats.maxFase || 1;
         document.getElementById('stats-total-points').innerText = this.formatScore(this.stats.totalPoints || 0);
-        
-        // Find best day
-        let bestDay = '-';
-        let maxTime = 0;
-        for (const [day, time] of Object.entries(this.stats.dailyTime)) {
-            if (time > maxTime) {
-                maxTime = time;
-                bestDay = day;
-            }
-        }
-        document.getElementById('stats-best-day').innerText = bestDay === '-' ? '-' : new Date(bestDay).toLocaleDateString('es-ES', { day: 'numeric', month: 'long' });
-        
-        const h = Math.floor(this.stats.totalTime / 3600);
-        const m = Math.floor((this.stats.totalTime % 3600) / 60);
-        document.getElementById('stats-time').innerText = `${h}h ${m}m`;
-        this.drawSpeedChart();
-    }
-
-    drawSpeedChart() {
-        const canvas = document.getElementById('speed-chart');
-        if (!canvas) return;
-        const ctx = canvas.getContext('2d');
-        const data = this.stats.matchTimes ? this.stats.matchTimes.slice(-20) : [];
-        if (data.length < 2) {
-            ctx.clearRect(0,0,canvas.width,canvas.height);
-            ctx.fillStyle = "rgba(255,255,255,0.2)";
-            ctx.textAlign = "center";
-            ctx.fillText("Juega más para ver tu gráfica", canvas.width/2, canvas.height/2);
-            return;
-        }
-
-        const w = canvas.width = canvas.offsetWidth;
-        const h = canvas.height = canvas.offsetHeight;
-        
-        ctx.clearRect(0,0,w,h);
-        
-        const speeds = data.map(d => d.speed);
-        const maxSpeed = Math.max(...speeds);
-        const minSpeed = Math.min(...speeds);
-        const range = maxSpeed - minSpeed || 1000;
-
-        ctx.beginPath();
-        ctx.strokeStyle = '#007aff';
-        ctx.lineWidth = 3;
-        ctx.lineJoin = 'round';
-        
-        data.forEach((d, i) => {
-            const x = (i / (data.length - 1)) * w;
-            const y = h - ((d.speed - minSpeed) / range) * (h - 20) - 10;
-            if (i === 0) ctx.moveTo(x, y);
-            else ctx.lineTo(x, y);
-        });
-        ctx.stroke();
-
-        const grad = ctx.createLinearGradient(0, 0, 0, h);
-        grad.addColorStop(0, 'rgba(0, 122, 255, 0.2)');
-        grad.addColorStop(1, 'rgba(0, 122, 255, 0)');
-        ctx.lineTo(w, h);
-        ctx.lineTo(0, h);
-        ctx.fillStyle = grad;
-        ctx.fill();
     }
 
     createMatchEffects(i1, i2) {
