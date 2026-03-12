@@ -38,9 +38,19 @@ class MyNumberGame {
             lost: 0,
             matches: 0,
             linesCleared: 0,
+            hintsUsed: 0,
+            numbersAdded: 0,
+            maxFase: 1,
+            totalPoints: 0,
             totalTime: 0,
-            dailyTime: {}
+            dailyTime: {},
+            matchTimes: [], // [ {t: timestamp, speed: ms_since_last} ]
+            achievements: [] // [ '100matches', 'speed_demon', etc ]
         };
+        this.playerName = localStorage.getItem('myNumberPlayerName') || 'Jugador';
+        this.duelMode = false;
+        this.duelTimer = null;
+        this.lastMatchTimestamp = null;
         
         this.sessionStartTime = Date.now();
         this.groupCount = 0;
@@ -121,6 +131,59 @@ class MyNumberGame {
         this.homeHS = document.getElementById('home-high-score');
         this.gameOverOverlay = document.getElementById('game-over-overlay');
         this.finalScoreElement = document.getElementById('final-score');
+
+        document.getElementById('edit-name-btn').onclick = () => this.changeName();
+        this.updateHeader();
+        this.checkAchievements();
+    }
+
+    updateHeader() {
+        document.getElementById('display-name').innerText = this.playerName;
+        this.renderAchievementsMini();
+    }
+
+    changeName() {
+        const newName = prompt("¿Cómo te llamas, maestro?", this.playerName);
+        if (newName && newName.trim()) {
+            this.playerName = newName.trim().substring(0, 12);
+            localStorage.setItem('myNumberPlayerName', this.playerName);
+            this.updateHeader();
+            this.showToast(`¡Hola, ${this.playerName}! 👋`);
+        }
+    }
+
+    renderAchievementsMini() {
+        const container = document.getElementById('achievements-mini');
+        if (!container) return;
+        const list = [
+            { id: '100matches', icon: '🎯', hint: '100 Parejas' },
+            { id: 'master', icon: '👑', hint: 'Fase 5' },
+            { id: 'speed', icon: '⚡', hint: 'Velocidad' }
+        ];
+        container.innerHTML = list.map(a => `
+            <div class="achievement-icon ${this.stats.achievements && this.stats.achievements.includes(a.id) ? 'active' : ''}" title="${a.hint}">
+                ${a.icon}
+            </div>
+        `).join('');
+    }
+
+    checkAchievements() {
+        if (!this.stats.achievements) this.stats.achievements = [];
+        let changed = false;
+        if (!this.stats.achievements.includes('100matches') && this.stats.matches >= 100) {
+            this.stats.achievements.push('100matches');
+            this.showToast("🏆 LOGRO: ¡Maestro de Parejas! 🎯");
+            changed = true;
+        }
+        if (!this.stats.achievements.includes('master') && this.stats.maxFase >= 5) {
+            this.stats.achievements.push('master');
+            this.showToast("🏆 LOGRO: ¡Rey del Número! 👑");
+            changed = true;
+        }
+        if (changed) {
+            this.saveStats();
+            this.renderAchievementsMini();
+        }
     }
 
     switchScreen(screenId) {
@@ -137,11 +200,16 @@ class MyNumberGame {
             this.openModal(
                 "¿Nueva Partida?", 
                 "¿Seguro que quieres abandonar la partida actual y empezar una nueva?", 
-                () => this.resetGame()
+                () => this.askDuelMode()
             );
         } else {
-            this.resetGame();
+            this.askDuelMode();
         }
+    }
+
+    askDuelMode() {
+        this.duelMode = confirm("¿Quieres activar el MODO DUELO? (El tablero se llena si tardas mucho ⏳)");
+        this.resetGame();
     }
 
     resetGame() {
@@ -158,6 +226,47 @@ class MyNumberGame {
         this.saveBoard();
         this.switchScreen('game');
         this.render();
+        this.lastMatchTimestamp = Date.now();
+        
+        if (this.duelMode) {
+            this.startDuelTimer();
+        } else {
+            this.stopDuelTimer();
+        }
+    }
+
+    startDuelTimer() {
+        this.stopDuelTimer();
+        let timeLeft = 15;
+        
+        const updateTimerUI = () => {
+            let el = document.getElementById('duel-timer-display');
+            if (!el) {
+                const nav = document.querySelector('.nav-left');
+                el = document.createElement('span');
+                el.id = 'duel-timer-display';
+                el.className = 'duel-timer';
+                nav.appendChild(el);
+            }
+            el.innerText = `⏳ ${timeLeft}s`;
+        };
+
+        this.duelTimer = setInterval(() => {
+            timeLeft--;
+            if (timeLeft <= 0) {
+                this.addNumbers();
+                this.showToast("⚠️ ¡TIEMPO! Números añadidos ⚠️");
+                timeLeft = 15;
+            }
+            updateTimerUI();
+        }, 1000);
+        updateTimerUI();
+    }
+
+    stopDuelTimer() {
+        if (this.duelTimer) clearInterval(this.duelTimer);
+        const el = document.getElementById('duel-timer-display');
+        if (el) el.remove();
     }
 
     openModal(title, text, onConfirm) {
@@ -209,6 +318,27 @@ class MyNumberGame {
 
     saveStats() {
         localStorage.setItem('myNumberStats', JSON.stringify(this.stats));
+    }
+
+    saveBoard() {
+        const data = {
+            board: this.board,
+            score: this.score,
+            fase: this.fase,
+            addCount: this.addCount,
+            hintCount: this.hintCount,
+            groupCount: this.groupCount,
+            duelMode: this.duelMode,
+            visualScore: this.visualScore
+        };
+        localStorage.setItem('myNumberBoard', JSON.stringify(data));
+    }
+
+    checkNumberEliminated(val) {
+        const stillExists = this.board.some(c => c.state === STATE.ACTIVE && Number(c.value) === Number(val));
+        if (!stillExists) {
+            this.showToast(`🔥 ¡NÚMERO ${val} ELIMINADO! 🔥`);
+        }
     }
 
     updatePlaytime() {
@@ -314,10 +444,27 @@ class MyNumberGame {
             this.showBienVisto();
         }
 
+        // Match tracking for cognitive chart
+        const now = Date.now();
+        if (this.lastMatchTimestamp) {
+            const speed = now - this.lastMatchTimestamp;
+            this.stats.matchTimes.push({ t: now, speed: speed });
+            // Keep only last 100 matches to avoid bloat
+            if (this.stats.matchTimes.length > 100) this.stats.matchTimes.shift();
+        }
+        this.lastMatchTimestamp = now;
+
+        // Visual Effects
+        this.createMatchEffects(idx1, idx2);
+
         // Update stats
         this.stats.matches++;
+        this.stats.totalPoints += points;
+        this.checkAchievements();
         this.saveStats();
         this.saveBoard();
+
+        if (this.duelMode) this.startDuelTimer(); // Reset timer on match
 
         // Trigger visual animation
         this.animatePoints(idx1, idx2, points);
@@ -402,15 +549,31 @@ class MyNumberGame {
     }
 
     handlePhaseAdvance() {
-        this.score += 150 * this.fase;
+        const bonus = 150 * this.fase;
+        this.score += bonus;
+        this.stats.totalPoints += bonus;
         this.stats.won++;
-        this.saveStats();
         this.fase++;
+        if (this.fase > this.stats.maxFase) this.stats.maxFase = this.fase;
+        this.checkAchievements();
+        this.saveStats();
+        
+        // Confetti!
+        this.shootConfetti();
+        
         this.hintCount = 5;
         this.addCount = 5;
         this.initBoard();
         this.saveBoard();
         this.render();
+    }
+
+    shootConfetti() {
+        for (let i = 0; i < 50; i++) {
+            const x = Math.random() * window.innerWidth;
+            const y = window.innerHeight + 10;
+            this.createParticle(x, y); // Resuamos partículas para confeti rápido
+        }
     }
 
     updateHighScores() {
@@ -456,6 +619,7 @@ class MyNumberGame {
             const pointsForLine = 20 * this.fase;
             
             this.score += pointsForLine;
+            this.stats.totalPoints += pointsForLine;
             this.board.splice(rowIndex * GRID_COLS, GRID_COLS);
             this.stats.linesCleared++;
             
@@ -478,6 +642,8 @@ class MyNumberGame {
         if (actives.length > 0) {
             this.board = [...this.board, ...actives];
             this.addCount--;
+            this.stats.numbersAdded++;
+            this.saveStats();
             this.saveBoard();
             this.render();
             this.checkGameOver();
@@ -504,7 +670,12 @@ class MyNumberGame {
     }
 
     saveToRanking() {
-        const entry = { score: this.score, date: new Date().toLocaleDateString('es-ES', { day: '2-digit', month: 'short' }) };
+        if (this.score < 50) return; // Don't save very low scores
+        const entry = { 
+            score: this.score, 
+            fase: this.fase,
+            date: new Date().toLocaleDateString('es-ES', { day: '2-digit', month: 'short' }) 
+        };
         this.ranking.push(entry);
         this.ranking.sort((a, b) => b.score - a.score);
         this.ranking = this.ranking.slice(0, 10);
@@ -541,7 +712,7 @@ class MyNumberGame {
             player.innerHTML = `
                 <div class="podium-avatar">${isEmpty ? '?' : avatars[rankIdx]}</div>
                 <div class="podium-score">${isEmpty ? '--' : this.formatScore(entry.score)}</div>
-                <div class="podium-date">${isEmpty ? '' : entry.date}</div>
+                <div class="podium-date">${isEmpty ? '' : (entry.fase ? 'Fase ' + entry.fase + ' · ' : '') + entry.date}</div>
                 <div class="podium-bar">
                     <span class="podium-rank">${medals[rankIdx]}</span>
                 </div>
@@ -565,7 +736,7 @@ class MyNumberGame {
                 <span class="compact-icon">${icons[i] || '🎮'}</span>
                 <div class="compact-info">
                     <div class="compact-score">${this.formatScore(entry.score)}</div>
-                    <div class="compact-date">${entry.date}</div>
+                    <div class="compact-date">${entry.fase ? 'Fase ' + entry.fase + ' · ' : ''}${entry.date}</div>
                 </div>
             `;
             list.appendChild(row);
@@ -577,6 +748,10 @@ class MyNumberGame {
         document.getElementById('stats-lost').innerText = this.stats.lost;
         document.getElementById('stats-matches').innerText = this.stats.matches;
         document.getElementById('stats-lines').innerText = this.stats.linesCleared;
+        document.getElementById('stats-hints').innerText = this.stats.hintsUsed || 0;
+        document.getElementById('stats-adds').innerText = this.stats.numbersAdded || 0;
+        document.getElementById('stats-max-fase').innerText = this.stats.maxFase || 1;
+        document.getElementById('stats-total-points').innerText = this.formatScore(this.stats.totalPoints || 0);
         
         // Find best day
         let bestDay = '-';
@@ -592,6 +767,101 @@ class MyNumberGame {
         const h = Math.floor(this.stats.totalTime / 3600);
         const m = Math.floor((this.stats.totalTime % 3600) / 60);
         document.getElementById('stats-time').innerText = `${h}h ${m}m`;
+        this.drawSpeedChart();
+    }
+
+    drawSpeedChart() {
+        const canvas = document.getElementById('speed-chart');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        const data = this.stats.matchTimes ? this.stats.matchTimes.slice(-20) : [];
+        if (data.length < 2) {
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            ctx.fillStyle = "rgba(255,255,255,0.2)";
+            ctx.textAlign = "center";
+            ctx.fillText("Juega más para ver tu gráfica", canvas.width/2, canvas.height/2);
+            return;
+        }
+
+        const w = canvas.width = canvas.offsetWidth;
+        const h = canvas.height = canvas.offsetHeight;
+        
+        ctx.clearRect(0,0,w,h);
+        
+        const speeds = data.map(d => d.speed);
+        const maxSpeed = Math.max(...speeds);
+        const minSpeed = Math.min(...speeds);
+        const range = maxSpeed - minSpeed || 1000;
+
+        ctx.beginPath();
+        ctx.strokeStyle = '#007aff';
+        ctx.lineWidth = 3;
+        ctx.lineJoin = 'round';
+        
+        data.forEach((d, i) => {
+            const x = (i / (data.length - 1)) * w;
+            const y = h - ((d.speed - minSpeed) / range) * (h - 20) - 10;
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+
+        const grad = ctx.createLinearGradient(0, 0, 0, h);
+        grad.addColorStop(0, 'rgba(0, 122, 255, 0.2)');
+        grad.addColorStop(1, 'rgba(0, 122, 255, 0)');
+        ctx.lineTo(w, h);
+        ctx.lineTo(0, h);
+        ctx.fillStyle = grad;
+        ctx.fill();
+    }
+
+    createMatchEffects(i1, i2) {
+        const cells = document.querySelectorAll('.grid-cell');
+        const c1 = cells[i1];
+        const c2 = cells[i2];
+        if (!c1 || !c2) return;
+
+        const r1 = c1.getBoundingClientRect();
+        const r2 = c2.getBoundingClientRect();
+
+        const midX = (r1.left + r2.left) / 2 + r1.width / 2;
+        const midY = (r1.top + r2.top) / 2 + r1.height / 2;
+
+        [c1, c2].forEach(c => {
+            const rect = c.getBoundingClientRect();
+            const dx = midX - (rect.left + rect.width / 2);
+            const dy = midY - (rect.top + rect.height / 2);
+            c.style.transition = 'transform 0.4s cubic-bezier(0.5, 0, 0.5, 1)';
+            c.style.transform = `translate(${dx}px, ${dy}px) scale(0.2)`;
+            c.style.opacity = '0';
+        });
+
+        for (let i = 0; i < 12; i++) {
+            this.createParticle(midX, midY);
+        }
+    }
+
+    createParticle(x, y) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        const colors = ['#007aff', '#5ac8fa', '#00f2fe', '#ffffff'];
+        p.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        p.style.left = x + 'px';
+        p.style.top = y + 'px';
+        document.body.appendChild(p);
+
+        const angle = Math.random() * Math.PI * 2;
+        const dist = 20 + Math.random() * 50;
+        const tx = Math.cos(angle) * dist;
+        const ty = Math.sin(angle) * dist;
+
+        p.animate([
+            { transform: 'translate(0, 0) scale(1)', opacity: 1 },
+            { transform: `translate(${tx}px, ${ty}px) scale(0)`, opacity: 0 }
+        ], {
+            duration: 600 + Math.random() * 400,
+            easing: 'cubic-bezier(0.1, 0.8, 0.3, 1)'
+        }).onfinish = () => p.remove();
     }
 
     showHint() {
@@ -603,6 +873,8 @@ class MyNumberGame {
                 if (info.matchable) {
                     this.drawHintConnection(i, j);
                     this.hintCount--;
+                    this.stats.hintsUsed++;
+                    this.saveStats();
                     this.render();
                     return;
                 }
@@ -681,7 +953,9 @@ class MyNumberGame {
                 const color = DARK_PALETTE[cell.group % DARK_PALETTE.length] || DARK_PALETTE[0];
                 div.style.color = color;
             }
-            if (this.selectedIndices.includes(index)) { div.style.background = "#007aff"; div.style.color = "white"; div.style.borderRadius = "4px"; }
+            if (this.selectedIndices.includes(index)) { 
+                div.classList.add('selected');
+            }
             
             div.innerText = cell.value;
             div.addEventListener('click', () => {

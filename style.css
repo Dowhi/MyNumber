@@ -12,7 +12,7 @@
 
 body {
     background-color: #f2f2f7;
-    font-family: 'Inter', -apple-system, sans-serif;
+    font-family: 'Outfit', -apple-system, sans-serif;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -69,7 +69,63 @@ body {
 }
 
 /* Home Screen Styles */
-.home-screen { padding: 40px 20px 20px; }
+.user-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    padding: 0 5px;
+}
+
+.user-welcome {
+    font-size: 14px;
+    color: var(--text-label);
+    font-weight: 500;
+}
+
+.user-name {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--text-primary);
+}
+
+.edit-btn {
+    background: none;
+    border: none;
+    color: var(--blue-primary);
+    cursor: pointer;
+    font-size: 16px;
+    margin-left: 5px;
+}
+
+.achievements-mini {
+    display: flex;
+    gap: 8px;
+}
+
+.achievement-icon {
+    width: 32px;
+    height: 32px;
+    background: rgba(0,0,0,0.04);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 16px;
+    opacity: 0.3;
+    filter: grayscale(1);
+    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.achievement-icon.active {
+    opacity: 1;
+    filter: grayscale(0);
+    background: white;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    transform: scale(1.1);
+}
+
+.home-screen { padding: 30px 20px 20px; }
 
 .cards-container {
     display: flex;
@@ -491,9 +547,12 @@ body {
 }
 
 .stat-card.highlight {
-    grid-column: span 2;
     background: var(--blue-bg-light);
     border: 1px solid rgba(0, 122, 255, 0.1);
+}
+
+.stat-card.whole-row {
+    grid-column: span 2;
 }
 
 .stat-label {
@@ -511,6 +570,43 @@ body {
 
 .stat-card.highlight .stat-value {
     color: var(--blue-primary);
+}
+
+.chart-container {
+    width: 100%;
+    height: 120px;
+    margin-top: 10px;
+}
+
+/* Particle explosion container */
+.particle-container {
+    position: fixed;
+    pointer-events: none;
+    z-index: 10000;
+}
+
+.particle {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+}
+
+/* Duel Mode Timer */
+.duel-timer {
+    font-size: 12px;
+    background: #ff3b30;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 20px;
+    font-weight: 700;
+    margin-left: 10px;
+    animation: pulse 1s infinite alternate;
+}
+
+@keyframes pulse {
+    from { opacity: 0.7; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1.05); }
 }
 
 /* Overlays */
