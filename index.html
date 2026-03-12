@@ -224,21 +224,7 @@
         display: none;
         position: fixed;
         top: 50%; left: 50%;
-        transform: translate(-50%, -50%);
-        background: rgba(28,28,30,0.97);
-        color: white;
-        padding: 28px 48px;
-        border-radius: 28px;
-        font-family: Inter, sans-serif;
-        font-size: 26px;
-        font-weight: 300;
-        z-index: 2147483647;
-        text-align: center;
-        box-shadow: 0 30px 80px rgba(0,0,0,0.6);
-        border: 1px solid rgba(255,255,255,0.15);
-        animation: toastIn 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
-        white-space: nowrap;
-    "></div>
+    <div id="toast-container"></div>
 
     <style>
     @keyframes toastIn {
@@ -247,7 +233,7 @@
     }
     </style>
 
-    <script src="game.js?v=11"></script>
+    <script src="game.js?v=12"></script>
     <script>
     // Register Service Worker for PWA
     if ('serviceWorker' in navigator) {

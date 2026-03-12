@@ -185,11 +185,7 @@ class MyNumberGame {
     }
 
     showBienVisto() {
-        const modal = document.getElementById('bv-modal');
-        if (!modal) return;
-        modal.classList.add('active');
-        clearTimeout(this._bvTimer);
-        this._bvTimer = setTimeout(() => modal.classList.remove('active'), 2600);
+        this.showToast("🥳 -- BIEN VISTO -- 🎉");
     }
 
     initBoard() {
@@ -258,7 +254,7 @@ class MyNumberGame {
             if (isCrossLine) {
                 // SPECIAL: cross-line AND separated by empty (NULL) cells
                 const isSpecial = gapsDetected;
-                return { matchable: true, points: isSpecial ? 4 : 4, special: isSpecial };
+                return { matchable: true, points: isSpecial ? 10 : 4, special: isSpecial };
             }
 
             // Horizontal with gaps (same row but non-adjacent)
@@ -295,12 +291,17 @@ class MyNumberGame {
     }
 
     executeMatch(idx1, idx2, basePoints, isSpecial) {
+        const val1 = this.board[idx1].value;
         const points = basePoints * this.fase;
+        
         this.board[idx1].state = STATE.NULL;
         this.board[idx2].state = STATE.NULL;
         this.selectedIndices = [];
         this.score += points;
         
+        // Check if number is completely eliminated from grid
+        this.checkNumberEliminated(val1);
+
         // Show Special Message
         if (isSpecial) {
             this.showBienVisto();
@@ -319,6 +320,15 @@ class MyNumberGame {
         else this.checkGameOver();
         this.updateHighScores();
         this.render();
+    }
+
+    checkNumberEliminated(val) {
+        const remains = this.board.some(c => c.state === STATE.ACTIVE && c.value == val);
+        if (!remains) {
+            setTimeout(() => {
+                this.showToast(`🔥 ¡HAS ELIMINADO TODOS LOS ${val}! 🔥`);
+            }, 600);
+        }
     }
 
     animatePoints(idx1, idx2, points) {
@@ -408,20 +418,24 @@ class MyNumberGame {
     }
 
     showToast(text) {
-        const toast = document.getElementById('toast-bien-visto');
-        if (!toast) return;
+        const container = document.getElementById('toast-container');
+        if (!container) return;
 
-        // Restart animation by removing and re-adding the element
+        const toast = document.createElement('div');
+        toast.className = 'toast';
         toast.innerText = text;
-        toast.style.display = 'block';
-        toast.style.animation = 'none';
-        void toast.offsetWidth; // trigger reflow to restart animation
-        toast.style.animation = 'toastIn 0.4s cubic-bezier(0.175,0.885,0.32,1.275)';
+        
+        container.innerHTML = ''; // Limpiar anterior
+        container.appendChild(toast);
+        container.style.display = 'block';
 
-        clearTimeout(this._toastTimer);
-        this._toastTimer = setTimeout(() => {
-            toast.style.display = 'none';
-        }, 2800);
+        setTimeout(() => {
+            toast.classList.add('out');
+            setTimeout(() => {
+                container.style.display = 'none';
+                container.innerHTML = '';
+            }, 300);
+        }, 2200);
     }
 
     checkRowClear() {
@@ -431,9 +445,19 @@ class MyNumberGame {
             if (row.length === GRID_COLS && row.every(c => c.state === STATE.NULL)) rowsToRemove.push(r);
         }
         for (let i = rowsToRemove.length - 1; i >= 0; i--) {
-            this.board.splice(rowsToRemove[i] * GRID_COLS, GRID_COLS);
-            this.score += 20 * this.fase;
+            const rowIndex = rowsToRemove[i];
+            const rowCells = this.board.slice(rowIndex * GRID_COLS, (rowIndex + 1) * GRID_COLS);
+            
+            // Puntuación: Suman los valores que había en la fila (aunque estén NULL, su valor persiste) + bonus de línea
+            const rowValueSum = rowCells.reduce((sum, c) => sum + Number(c.value), 0);
+            const lineBonus = 50 * this.fase;
+            
+            this.score += (rowValueSum + lineBonus);
+            
+            this.board.splice(rowIndex * GRID_COLS, GRID_COLS);
             this.stats.linesCleared++;
+            
+            this.showToast(`✨ LÍNEA COMPLETADA +${rowValueSum + lineBonus} ✨`);
         }
         if (rowsToRemove.length > 0) {
             this.saveStats();

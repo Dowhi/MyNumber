@@ -265,14 +265,16 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: clamp(20px, 6vw, 28px); /* Aumentado de 14px/3.5vw */
-    font-weight: 400; /* Aumentado grosor de 200 a 400 */
+    font-size: clamp(24px, 7.5vw, 32px); /* Aumentado de 20px-28px */
+    font-weight: 600; /* Aumentado de 400 */
     border: 0.1px solid rgba(0,0,0,0.05);
     color: var(--text-primary);
     transition: all 0.2s;
     letter-spacing: -0.5px;
     overflow: hidden;
     min-width: 0;
+    -webkit-tap-highlight-color: transparent; /* Quita el recuadro azul en movil */
+    user-select: none;
 }
 
 .cell-eliminated {
