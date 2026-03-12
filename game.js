@@ -261,15 +261,14 @@ class MyNumberGame {
 
             if (isCrossLine) {
                 // SPECIAL: cross-line (end of row -> start of next)
-                const isSpecial = gapsDetected;
-                return { matchable: true, points: 4, special: isSpecial };
+                return { matchable: true, points: 4, special: true };
             }
 
             // Horizontal with gaps (same row but non-adjacent)
-            if (gapsDetected) return { matchable: true, points: 4, special: false };
+            if (gapsDetected) return { matchable: true, points: 4, special: true };
 
             // Any other case with no active between (separated horizontally or vertically)
-            return { matchable: true, points: 4, special: false };
+            return { matchable: true, points: 4, special: true };
         }
 
         // Vertical check
@@ -279,7 +278,7 @@ class MyNumberGame {
                 if (this.board[r * GRID_COLS + col1].state === STATE.ACTIVE) { blocked = true; break; }
                 else gap = true;
             }
-            if (!blocked) return { matchable: true, points: (isImmediateVertical && !gap) ? 1 : 4 };
+            if (!blocked) return { matchable: true, points: (isImmediateVertical && !gap) ? 1 : 4, special: gap };
         }
 
         // Diagonal check
@@ -292,7 +291,7 @@ class MyNumberGame {
                 else gap = true;
                 currR += rStep; currC += cStep;
             }
-            if (!blocked) return { matchable: true, points: (isImmediateDiagonal && !gap) ? 1 : 4 };
+            if (!blocked) return { matchable: true, points: (isImmediateDiagonal && !gap) ? 1 : 4, special: gap };
         }
 
         return { matchable: false };
