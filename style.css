@@ -326,7 +326,6 @@ body {
 
 /* Ranking Screen — Podium Design */
 .ranking-screen {
-    display: flex;
     flex-direction: column;
     background: linear-gradient(160deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%);
     color: white;
