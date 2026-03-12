@@ -252,15 +252,15 @@ class MyNumberGame {
             const isCrossLine = (startCol === GRID_COLS - 1 && endCol === 0);
 
             if (isCrossLine) {
-                // SPECIAL: cross-line AND separated by empty (NULL) cells
+                // SPECIAL: cross-line (end of row -> start of next)
                 const isSpecial = gapsDetected;
-                return { matchable: true, points: isSpecial ? 10 : 4, special: isSpecial };
+                return { matchable: true, points: 4, special: isSpecial };
             }
 
             // Horizontal with gaps (same row but non-adjacent)
             if (gapsDetected) return { matchable: true, points: 4, special: false };
 
-            // Any other case with no active between
+            // Any other case with no active between (separated horizontally or vertically)
             return { matchable: true, points: 4, special: false };
         }
 
@@ -361,12 +361,12 @@ class MyNumberGame {
             label.style.transform = `translate(${destX - centerX}px, ${destY - centerY}px) scale(0.5)`;
             label.style.opacity = '0';
 
-            // 3. Impact and Score Update
+            // Impact and Score Update (Extended to match CSS 1.2s transition)
             setTimeout(() => {
-                document.body.removeChild(label);
+                if (label.parentNode) document.body.removeChild(label);
                 this.triggerScoreImpact();
-            }, 600);
-        }, 300);
+            }, 1100);
+        }, 400);
     }
 
     triggerScoreImpact() {
@@ -435,7 +435,7 @@ class MyNumberGame {
                 container.style.display = 'none';
                 container.innerHTML = '';
             }, 300);
-        }, 2200);
+        }, 3500); // 3.5 segundos de visualización
     }
 
     checkRowClear() {
@@ -446,18 +446,13 @@ class MyNumberGame {
         }
         for (let i = rowsToRemove.length - 1; i >= 0; i--) {
             const rowIndex = rowsToRemove[i];
-            const rowCells = this.board.slice(rowIndex * GRID_COLS, (rowIndex + 1) * GRID_COLS);
+            const pointsForLine = 20 * this.fase;
             
-            // Puntuación: Suman los valores que había en la fila (aunque estén NULL, su valor persiste) + bonus de línea
-            const rowValueSum = rowCells.reduce((sum, c) => sum + Number(c.value), 0);
-            const lineBonus = 50 * this.fase;
-            
-            this.score += (rowValueSum + lineBonus);
-            
+            this.score += pointsForLine;
             this.board.splice(rowIndex * GRID_COLS, GRID_COLS);
             this.stats.linesCleared++;
             
-            this.showToast(`✨ LÍNEA COMPLETADA +${rowValueSum + lineBonus} ✨`);
+            this.showToast(`✨ LÍNEA COMPLETADA +${pointsForLine} ✨`);
         }
         if (rowsToRemove.length > 0) {
             this.saveStats();
