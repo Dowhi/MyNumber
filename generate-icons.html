@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Generador de Iconos</title>
+    <style>
+        body { display: flex; justify-content: center; align-items: center; height: 100vh; background: #1c1c1e; font-family: Inter, sans-serif; }
+        canvas { border: 1px solid #333; }
+        .info { position: fixed; bottom: 20px; color: #8e8e93; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <canvas id="canvas" width="512" height="512"></canvas>
+    <div class="info">Haz clic derecho en cada enlace para guardar los iconos</div>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Fondo gradiente
+        const gradient = ctx.createLinearGradient(0, 0, 512, 512);
+        gradient.addColorStop(0, '#4facfe');
+        gradient.addColorStop(1, '#00f2fe');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, 512, 512);
+        
+        // Borde redondeado (simulado)
+        ctx.fillStyle = 'rgba(255,255,255,0.2)';
+        ctx.beginPath();
+        ctx.arc(512, 0, 80, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Texto "N"
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 280px Inter, Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowColor = 'rgba(0,0,0,0.3)';
+        ctx.shadowBlur = 20;
+        ctx.shadowOffsetY = 10;
+        ctx.fillText('N', 256, 256);
+        
+        // Generar links de descarga
+        setTimeout(() => {
+            const link192 = document.createElement('a');
+            link192.href = canvas.toDataURL('image/png');
+            link192.download = 'icon-192.png';
+            link192.style.cssText = 'position:fixed;top:20px;left:20px;padding:15px;background:#007aff;color:white;text-decoration:none;border-radius:10px;font-family:Inter;font-weight:600;';
+            link192.innerText = '⬇️ Descargar icon-192.png';
+            document.body.appendChild(link192);
+            
+            const link512 = link192.cloneNode(true);
+            link512.href = canvas.toDataURL('image/png');
+            link512.download = 'icon-512.png';
+            link512.innerText = '⬇️ Descargar icon-512.png';
+            link512.style.top = '80px';
+            document.body.appendChild(link512);
+        }, 500);
+    </script>
+</body>
+</html>

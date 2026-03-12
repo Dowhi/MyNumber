@@ -3,11 +3,17 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#007aff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Number Match">
     <title>Number Match - Premium</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800;900&display=swap"
         rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=11">
 </head>
 
 <body>
@@ -70,9 +76,9 @@
                     <span class="tab-icon">🗓️</span>
                     <span class="tab-label">Ranking</span>
                 </a>
-                <a href="#" class="tab-item">
-                    <span class="tab-icon">👤</span>
-                    <span class="tab-label">Yo</span>
+                <a href="#" class="tab-item" onclick="GAME.switchScreen('stats'); return false;">
+                    <span class="tab-icon">📊</span>
+                    <span class="tab-label">Stats</span>
                 </a>
             </div>
         </div>
@@ -134,16 +140,60 @@
         </div>
 
         <!-- RANKING SCREEN -->
-        <div id="ranking-screen" class="screen">
+        <div id="ranking-screen" class="screen ranking-screen" style="padding: 16px 16px 0;">
+            <nav class="top-nav" style="margin-bottom: 8px;">
+                <button class="nav-btn-icon" onclick="GAME.switchScreen('home')">
+                    <span class="chevron-left"></span>
+                </button>
+                <h2 style="font-size: 18px; font-weight: 700;">Mejores Partidas</h2>
+                <div style="width: 20px;"></div>
+            </nav>
+
+            <!-- PODIUM TOP 3 -->
+            <div id="podium-section" class="podium-section">
+                <!-- Injected by JS -->
+            </div>
+
+            <!-- COMPACT LIST (positions 4+) -->
+            <div id="ranking-compact-list" class="ranking-compact-list">
+                <!-- Injected by JS -->
+            </div>
+        </div>
+
+        <!-- STATS SCREEN -->
+        <div id="stats-screen" class="screen">
             <nav class="top-nav">
                 <button class="nav-btn-icon" onclick="GAME.switchScreen('home')">
                     <span class="chevron-left"></span>
                 </button>
-                <h2 style="font-size: 18px; font-weight: 800;">Ranking</h2>
+                <h2 style="font-size: 18px; font-weight: 800;">Estadísticas</h2>
                 <div style="width: 20px;"></div>
             </nav>
-            <div id="ranking-list" class="ranking-list">
-                <!-- Ranking items injected by JS -->
+            <div id="stats-container" class="stats-container">
+                <div class="stat-card">
+                    <span class="stat-label">Partidas Ganadas</span>
+                    <span id="stats-won" class="stat-value">0</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Partidas Perdidas</span>
+                    <span id="stats-lost" class="stat-value">0</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Parejas Encontradas</span>
+                    <span id="stats-matches" class="stat-value">0</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Líneas Eliminadas</span>
+                    <span id="stats-lines" class="stat-value">0</span>
+                </div>
+                <div class="stat-card highlight">
+                    <span class="stat-label">Día de mayor actividad</span>
+                    <span id="stats-best-day" class="stat-value">-</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Tiempo Total</span>
+                    <span id="stats-time" class="stat-value">0h 0m</span>
+                </div>
             </div>
         </div>
 
@@ -159,7 +209,52 @@
 
     </div>
 
-    <script src="game.js"></script>
+    <div id="modal-confirm" class="modal-overlay">
+        <div class="modal-content">
+            <h3 class="modal-title" id="modal-title">¿Nueva Partida?</h3>
+            <p class="modal-text" id="modal-text">¿Seguro que quieres abandonar la partida actual y empezar una nueva?</p>
+            <div class="modal-btns">
+                <button class="modal-btn confirm" id="modal-confirm-btn">Confirmar</button>
+                <button class="modal-btn cancel" id="modal-cancel-btn">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-bien-visto" style="
+        display: none;
+        position: fixed;
+        top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(28,28,30,0.97);
+        color: white;
+        padding: 28px 48px;
+        border-radius: 28px;
+        font-family: Inter, sans-serif;
+        font-size: 26px;
+        font-weight: 300;
+        z-index: 2147483647;
+        text-align: center;
+        box-shadow: 0 30px 80px rgba(0,0,0,0.6);
+        border: 1px solid rgba(255,255,255,0.15);
+        animation: toastIn 0.4s cubic-bezier(0.175,0.885,0.32,1.275);
+        white-space: nowrap;
+    "></div>
+
+    <style>
+    @keyframes toastIn {
+        from { transform: translate(-50%, -50%) scale(0.6); opacity: 0; }
+        to   { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    }
+    </style>
+
+    <script src="game.js?v=11"></script>
+    <script>
+    // Register Service Worker for PWA
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/service-worker.js')
+            .then(() => console.log('Service Worker registered'));
+    }
+    </script>
 </body>
 
 </html>

@@ -8,6 +8,15 @@ const INITIAL_TARGET_CELLS = 35;
 const VISIBLE_ROWS = 12; 
 const TOTAL_CELL_SCREEN = GRID_COLS * VISIBLE_ROWS;
 
+const DARK_PALETTE = [
+    '#000000', // Black
+    '#007AFF', // iOS Blue
+    '#5856D6', // iOS Indigo
+    '#34C759', // iOS Green
+    '#FF2D55', // iOS Pink/Red
+    '#AF52DE'  // iOS Purple
+];
+
 const STATE = {
     ACTIVE: 'ACTIVE',
     NULL: 'NULL'
@@ -20,10 +29,22 @@ class MyNumberGame {
         this.score = 0; 
         this.visualScore = 0; 
         
-        // Load Scores
+        // Load Scores & Stats
         this.allTimeHighScore = parseInt(localStorage.getItem('myNumberHighScore')) || 0;
         this.dailyHighScore = parseInt(localStorage.getItem('myNumberDailyHighScore')) || 0;
         this.ranking = JSON.parse(localStorage.getItem('myNumberRanking')) || [];
+        this.stats = JSON.parse(localStorage.getItem('myNumberStats')) || {
+            won: 0,
+            lost: 0,
+            matches: 0,
+            linesCleared: 0,
+            totalTime: 0,
+            dailyTime: {}
+        };
+        
+        this.sessionStartTime = Date.now();
+        this.groupCount = 0;
+        this.saveStatsInterval = setInterval(() => this.updatePlaytime(), 10000);
         
         this.checkDailyReset();
 
@@ -32,10 +53,43 @@ class MyNumberGame {
         this.hintCount = 5; 
 
         this.initDOM();
-        this.initBoard();
+        
+        // Load Board or Init
+        if (!this.loadBoard()) {
+            this.initBoard();
+        }
+        
         this.render();
         
         window.GAME = this;
+    }
+
+    saveBoard() {
+        const boardData = {
+            board: this.board,
+            score: this.score,
+            fase: this.fase,
+            addCount: this.addCount,
+            hintCount: this.hintCount,
+            groupCount: this.groupCount
+        };
+        localStorage.setItem('myNumberBoard', JSON.stringify(boardData));
+    }
+
+    loadBoard() {
+        const saved = localStorage.getItem('myNumberBoard');
+        if (!saved) return false;
+        try {
+            const data = JSON.parse(saved);
+            this.board = data.board;
+            this.score = data.score;
+            this.visualScore = data.score;
+            this.fase = data.fase;
+            this.addCount = data.addCount;
+            this.hintCount = data.hintCount;
+            this.groupCount = data.groupCount;
+            return true;
+        } catch(e) { return false; }
     }
 
     checkDailyReset() {
@@ -74,20 +128,68 @@ class MyNumberGame {
         document.getElementById(`${screenId}-screen`).classList.add('active');
         if (screenId === 'home') this.homeHS.innerText = this.formatScore(this.allTimeHighScore);
         if (screenId === 'ranking') this.renderRanking();
+        if (screenId === 'stats') this.renderStats();
     }
 
     startNewGame() {
+        const inProgress = this.board.some(c => c.state === STATE.ACTIVE);
+        if (inProgress) {
+            this.openModal(
+                "¿Nueva Partida?", 
+                "¿Seguro que quieres abandonar la partida actual y empezar una nueva?", 
+                () => this.resetGame()
+            );
+        } else {
+            this.resetGame();
+        }
+    }
+
+    resetGame() {
         this.board = [];
         this.score = 0;
         this.visualScore = 0;
         this.fase = 1;
         this.addCount = 5;
         this.hintCount = 5;
+        this.groupCount = 0;
         this.selectedIndices = [];
         this.gameOverOverlay.classList.remove('active');
         this.initBoard();
+        this.saveBoard();
         this.switchScreen('game');
         this.render();
+    }
+
+    openModal(title, text, onConfirm) {
+        const modal = document.getElementById('modal-confirm');
+        const titleEl = document.getElementById('modal-title');
+        const textEl = document.getElementById('modal-text');
+        const confirmBtn = document.getElementById('modal-confirm-btn');
+        const cancelBtn = document.getElementById('modal-cancel-btn');
+
+        titleEl.innerText = title;
+        textEl.innerText = text;
+        modal.classList.add('active');
+
+        const close = () => {
+            modal.classList.remove('active');
+            confirmBtn.onclick = null;
+            cancelBtn.onclick = null;
+        };
+
+        confirmBtn.onclick = () => {
+            close();
+            onConfirm();
+        };
+        cancelBtn.onclick = close;
+    }
+
+    showBienVisto() {
+        const modal = document.getElementById('bv-modal');
+        if (!modal) return;
+        modal.classList.add('active');
+        clearTimeout(this._bvTimer);
+        this._bvTimer = setTimeout(() => modal.classList.remove('active'), 2600);
     }
 
     initBoard() {
@@ -98,7 +200,22 @@ class MyNumberGame {
             others.push(Math.floor(Math.random() * 9) + 1);
         }
         const fullSet = [...guaranteed, ...others].sort(() => Math.random() - 0.5);
-        fullSet.forEach(val => this.board.push({ value: val, state: STATE.ACTIVE }));
+        fullSet.forEach(val => this.board.push({ value: val, state: STATE.ACTIVE, group: 0 }));
+    }
+
+    saveStats() {
+        localStorage.setItem('myNumberStats', JSON.stringify(this.stats));
+    }
+
+    updatePlaytime() {
+        const now = Date.now();
+        const diff = Math.floor((now - this.sessionStartTime) / 1000);
+        this.sessionStartTime = now;
+        
+        this.stats.totalTime += diff;
+        const today = new Date().toDateString();
+        this.stats.dailyTime[today] = (this.stats.dailyTime[today] || 0) + diff;
+        this.saveStats();
     }
 
     getMatchInfo(idx1, idx2) {
@@ -117,31 +234,51 @@ class MyNumberGame {
         const row2 = Math.floor(idx2 / GRID_COLS);
         const col2 = idx2 % GRID_COLS;
 
+        const isImmediateHorizontal = Math.abs(idx1 - idx2) === 1 && row1 === row2;
+        const isImmediateVertical = Math.abs(row1 - row2) === 1 && col1 === col2;
+        const isImmediateDiagonal = Math.abs(row1 - row2) === 1 && Math.abs(col1 - col2) === 1;
+
+        // Sequence check (horizontal or cross-line sequence)
         let activeBetween = 0;
-        let gaps = false;
+        let gapsDetected = false;
         for (let i = start + 1; i < end; i++) {
             if (this.board[i].state === STATE.ACTIVE) activeBetween++;
-            else gaps = true;
+            else gapsDetected = true;
         }
 
         if (activeBetween === 0) {
-            const diff = end - start;
-            if (diff === 1) {
-                if (start % GRID_COLS === GRID_COLS - 1) return { matchable: true, type: gaps ? 4 : 2 };
-                return { matchable: true, type: gaps ? 4 : 1 };
+            // Horizontal immediate (same row, adjacent)
+            if (isImmediateHorizontal) return { matchable: true, points: 1, special: false };
+
+            // Cross-line: one cell at end of a row (col GRID_COLS-1), the other at start of any row (col 0)
+            const startCol = start % GRID_COLS;
+            const endCol   = end   % GRID_COLS;
+            const isCrossLine = (startCol === GRID_COLS - 1 && endCol === 0);
+
+            if (isCrossLine) {
+                // SPECIAL: cross-line AND separated by empty (NULL) cells
+                const isSpecial = gapsDetected;
+                return { matchable: true, points: isSpecial ? 4 : 4, special: isSpecial };
             }
-            return { matchable: true, type: 4 };
+
+            // Horizontal with gaps (same row but non-adjacent)
+            if (gapsDetected) return { matchable: true, points: 4, special: false };
+
+            // Any other case with no active between
+            return { matchable: true, points: 4, special: false };
         }
 
+        // Vertical check
         if (col1 === col2) {
             let blocked = false; let gap = false;
             for (let r = Math.min(row1, row2) + 1; r < Math.max(row1, row2); r++) {
                 if (this.board[r * GRID_COLS + col1].state === STATE.ACTIVE) { blocked = true; break; }
                 else gap = true;
             }
-            if (!blocked) return { matchable: true, type: (Math.abs(row1-row2) === 1 && !gap) ? 1 : 4 };
+            if (!blocked) return { matchable: true, points: (isImmediateVertical && !gap) ? 1 : 4 };
         }
 
+        // Diagonal check
         if (Math.abs(row1 - row2) === Math.abs(col1 - col2)) {
             let blocked = false; let gap = false;
             const rStep = row2 > row1 ? 1 : -1; const cStep = col2 > col1 ? 1 : -1;
@@ -151,19 +288,29 @@ class MyNumberGame {
                 else gap = true;
                 currR += rStep; currC += cStep;
             }
-            if (!blocked) return { matchable: true, type: (Math.abs(row1-row2) === 1 && !gap) ? 1 : 4 };
+            if (!blocked) return { matchable: true, points: (isImmediateDiagonal && !gap) ? 1 : 4 };
         }
 
         return { matchable: false };
     }
 
-    executeMatch(idx1, idx2, basePoints) {
+    executeMatch(idx1, idx2, basePoints, isSpecial) {
         const points = basePoints * this.fase;
         this.board[idx1].state = STATE.NULL;
         this.board[idx2].state = STATE.NULL;
         this.selectedIndices = [];
         this.score += points;
         
+        // Show Special Message
+        if (isSpecial) {
+            this.showBienVisto();
+        }
+
+        // Update stats
+        this.stats.matches++;
+        this.saveStats();
+        this.saveBoard();
+
         // Trigger visual animation
         this.animatePoints(idx1, idx2, points);
 
@@ -239,10 +386,13 @@ class MyNumberGame {
 
     handlePhaseAdvance() {
         this.score += 150 * this.fase;
+        this.stats.won++;
+        this.saveStats();
         this.fase++;
         this.hintCount = 5;
         this.addCount = 5;
         this.initBoard();
+        this.saveBoard();
         this.render();
     }
 
@@ -257,6 +407,23 @@ class MyNumberGame {
         }
     }
 
+    showToast(text) {
+        const toast = document.getElementById('toast-bien-visto');
+        if (!toast) return;
+
+        // Restart animation by removing and re-adding the element
+        toast.innerText = text;
+        toast.style.display = 'block';
+        toast.style.animation = 'none';
+        void toast.offsetWidth; // trigger reflow to restart animation
+        toast.style.animation = 'toastIn 0.4s cubic-bezier(0.175,0.885,0.32,1.275)';
+
+        clearTimeout(this._toastTimer);
+        this._toastTimer = setTimeout(() => {
+            toast.style.display = 'none';
+        }, 2800);
+    }
+
     checkRowClear() {
         let rowsToRemove = [];
         for (let r = 0; r < Math.ceil(this.board.length / GRID_COLS); r++) {
@@ -265,16 +432,27 @@ class MyNumberGame {
         }
         for (let i = rowsToRemove.length - 1; i >= 0; i--) {
             this.board.splice(rowsToRemove[i] * GRID_COLS, GRID_COLS);
-            this.score += 10 * this.fase;
+            this.score += 20 * this.fase;
+            this.stats.linesCleared++;
+        }
+        if (rowsToRemove.length > 0) {
+            this.saveStats();
+            this.saveBoard();
         }
     }
 
     addNumbers() {
         if (this.addCount <= 0) return;
-        const actives = this.board.filter(c => c.state === STATE.ACTIVE).map(c => ({ value: c.value, state: STATE.ACTIVE }));
+        this.groupCount++;
+        const actives = this.board.filter(c => c.state === STATE.ACTIVE).map(c => ({ 
+            value: c.value, 
+            state: STATE.ACTIVE,
+            group: this.groupCount
+        }));
         if (actives.length > 0) {
             this.board = [...this.board, ...actives];
             this.addCount--;
+            this.saveBoard();
             this.render();
             this.checkGameOver();
         }
@@ -291,6 +469,8 @@ class MyNumberGame {
             if (movePossible) break;
         }
         if (!movePossible) {
+            this.stats.lost++;
+            this.saveStats();
             this.saveToRanking();
             this.finalScoreElement.innerText = this.score;
             this.gameOverOverlay.classList.add('active');
@@ -306,34 +486,86 @@ class MyNumberGame {
     }
 
     renderRanking() {
-        const list = document.getElementById('ranking-list');
-        if (!list) return;
-        list.innerHTML = '';
-        
-        // Add sample data if empty for first-time users to see the style
-        if (this.ranking.length === 0) {
-            this.ranking = [
-                { score: 5587, date: '11 mar' },
-                { score: 3178, date: '10 mar' },
-                { score: 1916, date: '09 mar' }
-            ];
-        }
+        const podium   = document.getElementById('podium-section');
+        const list     = document.getElementById('ranking-compact-list');
+        if (!podium || !list) return;
 
-        this.ranking.forEach((entry, idx) => {
-            const div = document.createElement('div');
-            div.className = 'rank-item';
-            div.innerHTML = `
-                <div style="display:flex; align-items:center;">
-                    <span class="rank-num">#${idx+1}</span>
-                    <div class="rank-info">
-                        <span class="rank-score">${this.formatScore(entry.score)}</span>
-                        <span class="rank-date">${entry.date}</span>
-                    </div>
+        // Sample data for first-time users
+        let data = this.ranking.length > 0 ? this.ranking : [
+            { score: 5587, date: '11 mar' },
+            { score: 3178, date: '10 mar' },
+            { score: 1916, date: '09 mar' }
+        ];
+
+        const avatars = ['🥇', '🥈', '🥉'];
+        const medals  = ['1', '2', '3'];
+        const classes = ['first', 'second', 'third'];
+
+        // Build podium — always show 3 slots even if data is missing
+        // Order on screen: 2nd (left), 1st (center), 3rd (right)
+        const podiumOrder = [1, 0, 2]; // indices into data array
+        podium.innerHTML = '';
+        podiumOrder.forEach(dataIdx => {
+            const entry    = data[dataIdx];
+            const rankIdx  = dataIdx; // 0=1st, 1=2nd, 2=3rd
+            const player   = document.createElement('div');
+            const isEmpty  = !entry;
+
+            player.className = `podium-player ${classes[rankIdx]}${isEmpty ? ' podium-empty' : ''}`;
+            player.innerHTML = `
+                <div class="podium-avatar">${isEmpty ? '?' : avatars[rankIdx]}</div>
+                <div class="podium-score">${isEmpty ? '--' : this.formatScore(entry.score)}</div>
+                <div class="podium-date">${isEmpty ? '' : entry.date}</div>
+                <div class="podium-bar">
+                    <span class="podium-rank">${medals[rankIdx]}</span>
                 </div>
-                <span class="rank-medal">🏆</span>
             `;
-            list.appendChild(div);
+            podium.appendChild(player);
         });
+
+        // Compact list for positions 4 and beyond
+        list.innerHTML = '';
+        const rest = data.slice(3);
+        if (rest.length === 0) {
+            list.innerHTML = '<div class="compact-empty">Juega más partidas para llenar el ranking 🎮</div>';
+            return;
+        }
+        const icons = ['4️⃣','5️⃣','6️⃣','7️⃣','8️⃣','9️⃣','🔟'];
+        rest.forEach((entry, i) => {
+            const row = document.createElement('div');
+            row.className = 'compact-row';
+            row.innerHTML = `
+                <span class="compact-pos">#${i + 4}</span>
+                <span class="compact-icon">${icons[i] || '🎮'}</span>
+                <div class="compact-info">
+                    <div class="compact-score">${this.formatScore(entry.score)}</div>
+                    <div class="compact-date">${entry.date}</div>
+                </div>
+            `;
+            list.appendChild(row);
+        });
+    }
+
+    renderStats() {
+        document.getElementById('stats-won').innerText = this.stats.won;
+        document.getElementById('stats-lost').innerText = this.stats.lost;
+        document.getElementById('stats-matches').innerText = this.stats.matches;
+        document.getElementById('stats-lines').innerText = this.stats.linesCleared;
+        
+        // Find best day
+        let bestDay = '-';
+        let maxTime = 0;
+        for (const [day, time] of Object.entries(this.stats.dailyTime)) {
+            if (time > maxTime) {
+                maxTime = time;
+                bestDay = day;
+            }
+        }
+        document.getElementById('stats-best-day').innerText = bestDay === '-' ? '-' : new Date(bestDay).toLocaleDateString('es-ES', { day: 'numeric', month: 'long' });
+        
+        const h = Math.floor(this.stats.totalTime / 3600);
+        const m = Math.floor((this.stats.totalTime % 3600) / 60);
+        document.getElementById('stats-time').innerText = `${h}h ${m}m`;
     }
 
     showHint() {
@@ -350,7 +582,7 @@ class MyNumberGame {
                 }
             }
         }
-        alert("¡No hay parejas posibles!");
+        this.openModal("Sin movimientos", "¡No quedan parejas posibles! Añade más números.", () => {});
     }
 
     drawHintConnection(idx1, idx2) {
@@ -419,6 +651,10 @@ class MyNumberGame {
             const div = document.createElement('div');
             div.className = 'grid-cell';
             if (cell.state === STATE.NULL) div.classList.add('cell-eliminated');
+            else {
+                const color = DARK_PALETTE[cell.group % DARK_PALETTE.length] || DARK_PALETTE[0];
+                div.style.color = color;
+            }
             if (this.selectedIndices.includes(index)) { div.style.background = "#007aff"; div.style.color = "white"; div.style.borderRadius = "4px"; }
             
             div.innerText = cell.value;
@@ -428,7 +664,7 @@ class MyNumberGame {
                 else if (this.selectedIndices.length === 0) this.selectedIndices.push(index);
                 else {
                     const info = this.getMatchInfo(this.selectedIndices[0], index);
-                    if (info.matchable) this.executeMatch(this.selectedIndices[0], index, info.type);
+                    if (info.matchable) this.executeMatch(this.selectedIndices[0], index, info.points, info.special);
                     else this.selectedIndices = [index];
                 }
                 this.render();
