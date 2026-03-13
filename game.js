@@ -255,6 +255,12 @@ class MyNumberGame {
 
     updateHeader() {
         document.getElementById('display-name').innerText = this.playerName;
+        
+        const homeLives = document.getElementById('home-coin-count');
+        const gameLives = document.getElementById('game-coin-count');
+        if (homeLives) homeLives.innerText = this.stats.lives || 0;
+        if (gameLives) gameLives.innerText = this.stats.lives || 0;
+
         this.renderAchievementsMini();
     }
 
