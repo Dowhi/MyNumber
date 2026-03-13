@@ -216,9 +216,25 @@
                     <span id="stats-total-points" class="stat-value">0</span>
                 </div>
                 <!-- Gráfica eliminada -->
-                <div class="stat-card whole-row">
-                    <span class="stat-label">Día de mayor actividad</span>
-                    <span id="stats-best-day" class="stat-value">-</span>
+                <div class="stat-card">
+                    <span class="stat-label">Tiempo Hoy 🕒</span>
+                    <span id="stats-time-today" class="stat-value">0m</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Tiempo Semana</span>
+                    <span id="stats-time-week" class="stat-value">0m</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Tiempo Total</span>
+                    <span id="stats-time-total" class="stat-value">0m</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Racha Días 🔥</span>
+                    <span id="stats-streak" class="stat-value">0</span>
+                </div>
+                <div class="stat-card whole-row highlight">
+                    <span class="stat-label">Récord en despejar tablero</span>
+                    <span id="stats-best-time" class="stat-value">--:--</span>
                 </div>
             </div>
         </div>
@@ -256,13 +272,14 @@
                 <span id="onet-pairs-count">0/15</span>
                 <span>Parejas</span>
             </div>
+            <button id="onet-help-btn" class="onet-help-trigger">❓</button>
         </div>
         <div class="onet-board-container">
             <div id="onet-board" class="onet-grid"></div>
             <canvas id="onet-canvas"></canvas>
         </div>
         <div class="onet-footer">
-            <button id="onet-hint-btn" class="action-btn-mini">💡 Pista</button>
+            <button id="onet-hint-btn" class="btn-primary">💡 Pista</button>
         </div>
 
         <div id="onet-result-overlay" class="onet-overlay">
@@ -271,6 +288,18 @@
                 <p id="onet-result-text">Has ganado 1 Vida ❤️</p>
                 <button id="onet-close-btn" class="btn-primary">Volver al Inicio</button>
             </div>
+        </div>
+    </div>
+
+    <!-- ONET INSTRUCTIONS MODAL -->
+    <div id="onet-help-modal" class="overlay">
+        <div class="onet-help-content animate-pop">
+            <h3>Cómo Jugar Onet</h3>
+            <p>1. Conecta parejas de figuras iguales.</p>
+            <p>2. El camino no puede tener más de 2 giros de 90°.</p>
+            <p>3. Despeja todo el tablero antes de que acabe el tiempo.</p>
+            <p>4. ¡Gana una Vida extra ❤️ si lo logras!</p>
+            <button id="onet-help-close" class="btn-primary" style="margin-top: 20px;">¡Entendido!</button>
         </div>
     </div>
 

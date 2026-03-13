@@ -31,10 +31,11 @@ class OnetGame {
         }
         this.ctx = this.canvas.getContext('2d');
         this.timerBar = document.getElementById('onet-timer-bar');
-        this.pairsCount = document.getElementById('onet-pairs-count');
-        this.resultOverlay = document.getElementById('onet-result-overlay');
-        this.resultTitle = document.getElementById('onet-result-title');
         this.resultText = document.getElementById('onet-result-text');
+        
+        this.helpModal = document.getElementById('onet-help-modal');
+        this.helpBtn = document.getElementById('onet-help-btn');
+        this.helpCloseBtn = document.getElementById('onet-help-close');
         
         this.resizeCanvas();
         window.addEventListener('resize', () => this.resizeCanvas());
@@ -59,6 +60,14 @@ class OnetGame {
             if (e.type === 'touchstart') e.preventDefault();
             this.showHint();
         };
+        const handleHelp = (e) => {
+            if (e.type === 'touchstart') e.preventDefault();
+            if (this.helpModal) this.helpModal.classList.add('active');
+        };
+        const handleHelpClose = (e) => {
+            if (e.type === 'touchstart') e.preventDefault();
+            if (this.helpModal) this.helpModal.classList.remove('active');
+        };
 
         if (closeBtn) {
             closeBtn.addEventListener('click', handleClose);
@@ -67,6 +76,14 @@ class OnetGame {
         if (hintBtn) {
             hintBtn.addEventListener('click', handleHint);
             hintBtn.addEventListener('touchstart', handleHint, { passive: false });
+        }
+        if (this.helpBtn) {
+            this.helpBtn.addEventListener('click', handleHelp);
+            this.helpBtn.addEventListener('touchstart', handleHelp, { passive: false });
+        }
+        if (this.helpCloseBtn) {
+            this.helpCloseBtn.addEventListener('click', handleHelpClose);
+            this.helpCloseBtn.addEventListener('touchstart', handleHelpClose, { passive: false });
         }
     }
 

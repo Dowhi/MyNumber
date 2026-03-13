@@ -909,3 +909,51 @@ body {
     box-shadow: 0 25px 50px rgba(0,0,0,0.2);
     animation: modalPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
+
+/* Onet Help */
+.onet-help-trigger {
+    background: rgba(0,0,0,0.05);
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.onet-help-trigger:active {
+    background: rgba(0,0,0,0.1);
+}
+
+.onet-help-content {
+    background: white;
+    padding: 30px;
+    border-radius: 30px;
+    width: 85%;
+    max-width: 340px;
+    text-align: left;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.3);
+}
+
+.onet-help-content h3 {
+    font-size: 22px;
+    margin-bottom: 20px;
+    text-align: center;
+    color: var(--blue-primary);
+}
+
+.onet-help-content p {
+    margin-bottom: 12px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--text-primary);
+}
+
+@keyframes modalPop {
+    from { opacity: 0; transform: scale(0.8); }
+    to { opacity: 1; transform: scale(1); }
+}

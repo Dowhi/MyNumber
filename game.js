@@ -5,7 +5,7 @@
 
 const GRID_COLS = 9;
 const INITIAL_TARGET_CELLS = 35;
-const VISIBLE_ROWS = 12; 
+const VISIBLE_ROWS = 10; 
 const TOTAL_CELL_SCREEN = GRID_COLS * VISIBLE_ROWS;
 
 const DARK_PALETTE = [
@@ -43,10 +43,17 @@ class MyNumberGame {
                 numbersAdded: 0,
                 maxFase: 1,
                 totalPoints: 0,
-                lives: 1, // New life system
-                achievements: []
+                lives: 1,
+                achievements: [],
+                timeToday: 0,
+                timeWeek: 0,
+                timeTotal: 0,
+                streak: 0,
+                bestTime: 0,
+                lastPlayDate: null
             };
             this.playerName = localStorage.getItem('myNumberPlayerName') || 'Jugador';
+            this.checkStreak();
         } catch (e) {
             console.error("Storage load failed:", e);
             this.allTimeHighScore = 0;
@@ -78,6 +85,11 @@ class MyNumberGame {
         
         this.render();
         window.GAME = this;
+        
+        // Timer for played time
+        this.sessionStartTime = Date.now();
+        this.phaseStartTime = Date.now();
+        setInterval(() => this.updateTimeStats(), 5000); // Every 5 seconds
     }
 
     saveBoard() {
@@ -119,7 +131,7 @@ class MyNumberGame {
     }
 
     initDOM() {
-        this.gameBoard = document.getElementById('game-board');
+        this.gridElement = document.getElementById('game-board');
         try {
             this.onetGame = new OnetGame(this); // Initialize Onet
         } catch (e) {
@@ -618,6 +630,16 @@ class MyNumberGame {
         this.stats.won++;
         this.fase++;
         if (this.fase > this.stats.maxFase) this.stats.maxFase = this.fase;
+        
+        // Record best time (time for this phase)
+        const phaseDuration = Math.floor((Date.now() - (this.phaseStartTime || Date.now())) / 1000);
+        if (phaseDuration > 5) { // Minimum 5s to avoid glitches
+            if (!this.stats.bestTime || phaseDuration < this.stats.bestTime) {
+                this.stats.bestTime = phaseDuration;
+            }
+        }
+        this.phaseStartTime = Date.now();
+        
         this.checkAchievements();
         this.saveStats();
         
@@ -629,6 +651,40 @@ class MyNumberGame {
         this.initBoard();
         this.saveBoard();
         this.render();
+    }
+
+    checkStreak() {
+        const now = new Date();
+        const todayStr = now.toISOString().split('T')[0];
+        
+        if (!this.stats.lastPlayDate) {
+            this.stats.streak = 1;
+        } else {
+            const lastDate = new Date(this.stats.lastPlayDate);
+            const diffDays = Math.floor((now - lastDate) / (1000 * 60 * 60 * 24));
+            
+            if (diffDays === 1) {
+                this.stats.streak++;
+            } else if (diffDays > 1) {
+                this.stats.streak = 1;
+            }
+        }
+        this.stats.lastPlayDate = todayStr;
+        this.saveStats();
+    }
+    
+    updateTimeStats() {
+        if (this.currentScreen !== 'game') return;
+        
+        const now = Date.now();
+        const diffSeconds = Math.floor((now - this.sessionStartTime) / 1000);
+        this.sessionStartTime = now;
+        
+        this.stats.timeToday += diffSeconds;
+        this.stats.timeWeek += diffSeconds;
+        this.stats.timeTotal += diffSeconds;
+        
+        this.saveStats();
     }
 
     shootConfetti() {
@@ -834,6 +890,32 @@ class MyNumberGame {
         document.getElementById('stats-adds').innerText = this.stats.numbersAdded || 0;
         document.getElementById('stats-max-fase').innerText = this.stats.maxFase || 1;
         document.getElementById('stats-total-points').innerText = this.formatScore(this.stats.totalPoints || 0);
+
+        // New stats
+        if (document.getElementById('stats-time-today'))
+            document.getElementById('stats-time-today').innerText = this.formatTime(this.stats.timeToday || 0);
+        if (document.getElementById('stats-time-week'))
+            document.getElementById('stats-time-week').innerText = this.formatTime(this.stats.timeWeek || 0);
+        if (document.getElementById('stats-time-total'))
+            document.getElementById('stats-time-total').innerText = this.formatTime(this.stats.timeTotal || 0);
+        if (document.getElementById('stats-streak'))
+            document.getElementById('stats-streak').innerText = this.stats.streak || 0;
+        if (document.getElementById('stats-best-time'))
+            document.getElementById('stats-best-time').innerText = this.stats.bestTime ? this.formatTimer(this.stats.bestTime) : '--:--';
+    }
+
+    formatTime(seconds) {
+        if (seconds < 60) return `${seconds}s`;
+        const mins = Math.floor(seconds / 60);
+        if (mins < 60) return `${mins}m`;
+        const hours = (mins / 60).toFixed(1);
+        return `${hours}h`;
+    }
+
+    formatTimer(seconds) {
+        const m = Math.floor(seconds / 60);
+        const s = seconds % 60;
+        return `${m}:${s.toString().padStart(2, '0')}`;
     }
 
     createMatchEffects(i1, i2) {
