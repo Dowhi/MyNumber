@@ -13,7 +13,7 @@
     <link rel="apple-touch-icon" href="icon-192.png">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=22">
+    <link rel="stylesheet" href="style.css?v=23">
 </head>
 
 <body>
@@ -246,7 +246,36 @@
         </div>
     </div>
 
-    <script src="game.js?v=22"></script>
+    <!-- ONET MINIGAME SCREEN -->
+    <div id="onet-screen" class="screen onet-screen">
+        <div class="onet-header">
+            <div class="timer-container">
+                <div id="onet-timer-bar" class="timer-bar"></div>
+            </div>
+            <div class="onet-stats">
+                <span id="onet-pairs-count">0/15</span>
+                <span>Parejas</span>
+            </div>
+        </div>
+        <div class="onet-board-container">
+            <div id="onet-board" class="onet-grid"></div>
+            <canvas id="onet-canvas"></canvas>
+        </div>
+        <div class="onet-footer">
+            <button id="onet-hint-btn" class="action-btn-mini">💡 Pista</button>
+        </div>
+
+        <div id="onet-result-overlay" class="onet-overlay">
+            <div class="onet-modal">
+                <h2 id="onet-result-title">¡Victoria!</h2>
+                <p id="onet-result-text">Has ganado 1 Vida ❤️</p>
+                <button id="onet-close-btn" class="btn-primary">Volver al Inicio</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="game.js?v=23"></script>
+    <script src="onet.js?v=1"></script>
     <script>
     // Register Service Worker for PWA
     if ('serviceWorker' in navigator) {

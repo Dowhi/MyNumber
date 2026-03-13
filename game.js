@@ -43,6 +43,7 @@ class MyNumberGame {
                 numbersAdded: 0,
                 maxFase: 1,
                 totalPoints: 0,
+                lives: 1, // New life system
                 achievements: []
             };
             this.playerName = localStorage.getItem('myNumberPlayerName') || 'Jugador';
@@ -51,7 +52,7 @@ class MyNumberGame {
             this.allTimeHighScore = 0;
             this.dailyHighScore = 0;
             this.ranking = [];
-            this.stats = { won: 0, lost: 0, matches: 0, linesCleared: 0, hintsUsed: 0, numbersAdded: 0, maxFase: 1, totalPoints: 0, achievements: [] };
+            this.stats = { won: 0, lost: 0, matches: 0, linesCleared: 0, hintsUsed: 0, numbersAdded: 0, maxFase: 1, totalPoints: 0, lives: 1, achievements: [] };
             this.playerName = 'Jugador';
         }
         
@@ -61,8 +62,8 @@ class MyNumberGame {
 
         this.fase = 1;
         this.addCount = 5;
-        this.hintCount = 5; 
-
+        this.stats = this.loadStats();
+        this.saveStats(); // Ensure lives exist in storage
         this.initDOM();
         
         // Load Board or Init with safe defaults
@@ -118,7 +119,14 @@ class MyNumberGame {
     }
 
     initDOM() {
-        this.gridElement = document.getElementById('game-board');
+        this.gameBoard = document.getElementById('game-board');
+        try {
+            this.onetGame = new OnetGame(this); // Initialize Onet
+        } catch (e) {
+            console.error("Failed to initialize OnetGame:", e);
+        }
+        
+        // Modal buttons logic - updated to handle multiple modals safely
         this.scoreElement = document.getElementById('score');
         this.highScoreElement = document.getElementById('high-score');
         this.faseElement = document.getElementById('fase');
@@ -137,6 +145,10 @@ class MyNumberGame {
         const handleHint = (e) => {
             if (e.type === 'touchstart') e.preventDefault();
             this.showHint();
+        };
+        const handleContinue = (e) => {
+            if (e.type === 'touchstart') e.preventDefault();
+            this.switchScreen('game');
         };
 
         this.addBtn.addEventListener('click', handleAdd);
@@ -158,22 +170,39 @@ class MyNumberGame {
             editNameBtn.addEventListener('touchstart', handleEditName, { passive: false });
         }
 
-        const handleStartNew = (e) => {
-            if (e.type === 'touchstart') e.preventDefault();
-            this.startNewGame();
-        };
-        const handleContinue = (e) => {
-            if (e.type === 'touchstart') e.preventDefault();
-            this.switchScreen('game');
-        };
+        const cardClassic = document.getElementById('card-play-1');
+        if (cardClassic) {
+            cardClassic.addEventListener('click', (e) => {
+                if (e.type === 'touchstart') e.preventDefault();
+                console.log("Card Classic Clicked");
+                this.onetGame.start();
+            });
+            cardClassic.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                console.log("Card Classic Touch");
+                this.onetGame.start();
+            }, { passive: false });
+        }
 
-        ['card-play-1', 'card-play-2', 'btn-new-game'].forEach(id => {
-            const btn = document.getElementById(id);
-            if (btn) {
-                btn.addEventListener('click', handleStartNew);
-                btn.addEventListener('touchstart', handleStartNew, { passive: false });
-            }
-        });
+        const cardMarathon = document.getElementById('card-play-2');
+        if (cardMarathon) {
+            const startMarathon = (e) => {
+                if (e.type === 'touchstart') e.preventDefault();
+                this.startNewGame();
+            };
+            cardMarathon.addEventListener('click', startMarathon);
+            cardMarathon.addEventListener('touchstart', startMarathon, { passive: false });
+        }
+
+        const btnNewGame = document.getElementById('btn-new-game');
+        if (btnNewGame) {
+            const startNew = (e) => {
+                if (e.type === 'touchstart') e.preventDefault();
+                this.startNewGame();
+            };
+            btnNewGame.addEventListener('click', startNew);
+            btnNewGame.addEventListener('touchstart', startNew, { passive: false });
+        }
 
         const btnContinue = document.getElementById('btn-continue');
         if (btnContinue) {
@@ -264,10 +293,18 @@ class MyNumberGame {
 
     switchScreen(screenId) {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById(`${screenId}-screen`).classList.add('active');
-        if (screenId === 'home') this.homeHS.innerText = this.formatScore(this.allTimeHighScore);
+        const el = document.getElementById(`${screenId}-screen`);
+        if (el) el.classList.add('active');
+        if (screenId === 'home' && this.homeHS) {
+            this.homeHS.innerText = this.formatScore(this.allTimeHighScore);
+            this.updateStatsDisplay();
+        }
         if (screenId === 'ranking') this.renderRanking();
         if (screenId === 'stats') this.renderStats();
+    }
+
+    updateStatsDisplay() {
+        // We can update a lives counter in the UI here if needed
     }
 
     startNewGame() {
