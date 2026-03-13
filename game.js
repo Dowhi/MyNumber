@@ -93,7 +93,8 @@ class MyNumberGame {
             fase: this.fase,
             addCount: this.addCount,
             hintCount: this.hintCount,
-            groupCount: this.groupCount
+            groupCount: this.groupCount,
+            phaseStartTime: this.phaseStartTime
         };
         localStorage.setItem('myNumberBoard', JSON.stringify(boardData));
     }
@@ -110,6 +111,7 @@ class MyNumberGame {
             this.addCount = data.addCount;
             this.hintCount = data.hintCount;
             this.groupCount = data.groupCount;
+            this.phaseStartTime = data.phaseStartTime || Date.now();
             return true;
         } catch(e) { return false; }
     }
@@ -300,6 +302,15 @@ class MyNumberGame {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         const el = document.getElementById(`${screenId}-screen`);
         if (el) el.classList.add('active');
+        
+        // Ensure overlays are closed when navigating
+        if (this.gameOverOverlay) this.gameOverOverlay.classList.remove('active');
+        document.getElementById('modal-confirm')?.classList.remove('active');
+        if (this.onetGame) {
+            document.getElementById('onet-result-overlay')?.classList.remove('active');
+            document.getElementById('onet-start-overlay')?.classList.remove('active');
+        }
+
         if (screenId === 'home' && this.homeHS) {
             this.homeHS.innerText = this.formatScore(this.allTimeHighScore);
             this.updateStatsDisplay();
@@ -336,6 +347,7 @@ class MyNumberGame {
         this.hintCount = 5;
         this.groupCount = 0;
         this.selectedIndices = [];
+        this.phaseStartTime = Date.now(); // Initialize timer
         this.gameOverOverlay.classList.remove('active');
         this.initBoard();
         this.saveBoard();
@@ -626,7 +638,7 @@ class MyNumberGame {
         
         // Record best time (time for this phase)
         const phaseDuration = Math.floor((Date.now() - (this.phaseStartTime || Date.now())) / 1000);
-        if (phaseDuration > 5) { // Minimum 5s to avoid glitches
+        if (phaseDuration > 2) { // Minimum 2s to avoid glitches
             if (!this.stats.bestTime || phaseDuration < this.stats.bestTime) {
                 this.stats.bestTime = phaseDuration;
             }

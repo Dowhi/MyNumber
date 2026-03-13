@@ -16,6 +16,8 @@ class OnetGame {
         this.timeLeft = 60;
         this.timer = null;
         this.isGameOver = false;
+        this.selectedTime = 60;
+        this.rewardLives = 1;
 
         this.initDOM();
         this.bindEvents();
@@ -57,46 +59,76 @@ class OnetGame {
         
         const handleClose = (e) => {
             if (e.type === 'touchstart') e.preventDefault();
-            if (this.isGameOver) this.close();
+            this.close();
         };
+        
+        const quitBtn = document.getElementById('onet-quit-btn');
+        if (quitBtn) {
+            quitBtn.onclick = handleClose;
+        }
+
         const handleHint = (e) => {
             if (e.type === 'touchstart') e.preventDefault();
             this.showHint();
         };
+
         const handleHelp = (e) => {
             if (e.type === 'touchstart') e.preventDefault();
-            if (this.helpModal) this.helpModal.classList.add('active');
+            this.showHelp();
         };
-        const handleHelpClose = (e) => {
-            if (e.type === 'touchstart') e.preventDefault();
+
+        const handleHelpClose = () => {
             if (this.helpModal) this.helpModal.classList.remove('active');
         };
 
         if (closeBtn) {
-            closeBtn.addEventListener('click', handleClose);
-            closeBtn.addEventListener('touchstart', handleClose, { passive: false });
+            closeBtn.onclick = handleClose;
         }
         if (hintBtn) {
-            hintBtn.addEventListener('click', handleHint);
-            hintBtn.addEventListener('touchstart', handleHint, { passive: false });
+            hintBtn.onclick = handleHint;
         }
         if (this.helpBtn) {
-            this.helpBtn.addEventListener('click', handleHelp);
-            this.helpBtn.addEventListener('touchstart', handleHelp, { passive: false });
+            this.helpBtn.onclick = handleHelp;
         }
         if (this.helpCloseBtn) {
-            this.helpCloseBtn.addEventListener('click', handleHelpClose);
-            this.helpCloseBtn.addEventListener('touchstart', handleHelpClose, { passive: false });
+            this.helpCloseBtn.onclick = handleHelpClose;
+        }
+
+        // Difficulty selection
+        document.querySelectorAll('.diff-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const time = parseInt(btn.dataset.time);
+                const lives = parseInt(btn.dataset.lives);
+                this.startGame(time, lives);
+            });
+        });
+
+        const showHelpBtn = document.getElementById('onet-show-help');
+        if (showHelpBtn) {
+            showHelpBtn.onclick = () => this.showHelp();
         }
     }
 
+    showHelp() {
+        if (this.helpModal) this.helpModal.classList.add('active');
+    }
+
     start() {
+        if (this.screen) this.screen.classList.add('active');
+        document.getElementById('onet-start-overlay')?.classList.add('active');
+        if (this.resultOverlay) this.resultOverlay.classList.remove('active');
+    }
+
+    startGame(time, lives) {
+        this.selectedTime = time;
+        this.rewardLives = lives;
+        this.timeLeft = time;
         this.isGameOver = false;
         this.pairsFound = 0;
-        this.timeLeft = 60;
         this.board = [];
+        
+        document.getElementById('onet-start-overlay')?.classList.remove('active');
         if (this.resultOverlay) this.resultOverlay.classList.remove('active');
-        if (this.screen) this.screen.classList.add('active');
         
         this.generateBoard();
         this.render();
@@ -377,11 +409,12 @@ class OnetGame {
         this.resultOverlay.classList.add('active');
         
         if (isWin) {
-            this.resultTitle.innerText = "¡Objetivo conseguido!";
-            this.resultText.innerText = "Has ganado 1 Vida ❤️";
+            this.resultTitle.innerText = "¡Victoria!";
+            this.resultText.innerText = `Has ganado ${this.rewardLives} Vida${this.rewardLives > 1 ? 's' : ''} ❤️`;
             if (this.parent) {
-                this.parent.stats.lives = (this.parent.stats.lives || 1) + 1;
+                this.parent.stats.lives = (this.parent.stats.lives || 0) + this.rewardLives;
                 this.parent.saveStats();
+                if (this.parent.updateHeader) this.parent.updateHeader();
                 this.parent.shootConfetti();
             }
         } else {

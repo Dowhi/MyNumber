@@ -13,7 +13,7 @@
     <link rel="apple-touch-icon" href="icon-192.png">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=23">
+    <link rel="stylesheet" href="style.css?v=24">
 </head>
 
 <body>
@@ -264,6 +264,24 @@
 
     <!-- ONET MINIGAME SCREEN -->
     <div id="onet-screen" class="screen onet-screen">
+        <div id="onet-start-overlay" class="onet-overlay active" style="flex-direction: column;">
+            <div class="onet-modal animate-pop">
+                <h2>Onet Connect</h2>
+                <p>Selecciona tu reto:</p>
+                <div class="onet-difficulty-options">
+                    <button class="diff-btn" data-time="60" data-lives="1">
+                        <span class="diff-time">60s</span>
+                        <span class="diff-reward">❤️ x1</span>
+                    </button>
+                    <button class="diff-btn" data-time="30" data-lives="2">
+                        <span class="diff-time">30s</span>
+                        <span class="diff-reward">❤️ x2</span>
+                    </button>
+                </div>
+                <button id="onet-show-help" class="btn-secondary" style="margin-top: 15px; width: 100%;">¿Cómo jugar?</button>
+                <button id="onet-quit-btn" class="btn-secondary" style="margin-top: 10px; width: 100%;">Volver al Inicio</button>
+            </div>
+        </div>
         <div class="onet-header">
             <div class="timer-container">
                 <div id="onet-timer-bar" class="timer-bar"></div>
@@ -303,8 +321,8 @@
         </div>
     </div>
 
-    <script src="onet.js?v=2"></script>
-    <script src="game.js?v=24"></script>
+    <script src="onet.js?v=3"></script>
+    <script src="game.js?v=25"></script>
     <script>
     // Register Service Worker for PWA
     if ('serviceWorker' in navigator) {
