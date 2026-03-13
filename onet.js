@@ -64,7 +64,8 @@ class OnetGame {
         
         const quitBtn = document.getElementById('onet-quit-btn');
         if (quitBtn) {
-            quitBtn.onclick = handleClose;
+            quitBtn.addEventListener('click', handleClose);
+            quitBtn.addEventListener('touchstart', handleClose);
         }
 
         const handleHint = (e) => {
@@ -82,16 +83,27 @@ class OnetGame {
         };
 
         if (closeBtn) {
-            closeBtn.onclick = handleClose;
+            closeBtn.addEventListener('click', handleClose);
+            closeBtn.addEventListener('touchstart', handleClose);
         }
         if (hintBtn) {
-            hintBtn.onclick = handleHint;
+            hintBtn.addEventListener('click', handleHint);
+            hintBtn.addEventListener('touchstart', handleHint);
         }
         if (this.helpBtn) {
-            this.helpBtn.onclick = handleHelp;
+            this.helpBtn.addEventListener('click', handleHelp);
+            this.helpBtn.addEventListener('touchstart', handleHelp);
         }
+
+        const showHelpBtn = document.getElementById('onet-show-help');
+        if (showHelpBtn) {
+            showHelpBtn.addEventListener('click', handleHelp);
+            showHelpBtn.addEventListener('touchstart', handleHelp);
+        }
+
         if (this.helpCloseBtn) {
-            this.helpCloseBtn.onclick = handleHelpClose;
+            this.helpCloseBtn.addEventListener('click', handleHelpClose);
+            this.helpCloseBtn.addEventListener('touchstart', (e) => { e.preventDefault(); handleHelpClose(); });
         }
 
         // Difficulty selection
@@ -103,10 +115,6 @@ class OnetGame {
             });
         });
 
-        const showHelpBtn = document.getElementById('onet-show-help');
-        if (showHelpBtn) {
-            showHelpBtn.onclick = () => this.showHelp();
-        }
     }
 
     showHelp() {
@@ -130,6 +138,8 @@ class OnetGame {
         document.getElementById('onet-start-overlay')?.classList.remove('active');
         if (this.resultOverlay) this.resultOverlay.classList.remove('active');
         
+        if (this.timerBar) this.timerBar.style.width = '100%';
+
         this.generateBoard();
         this.render();
         this.startTimer();
@@ -174,7 +184,7 @@ class OnetGame {
         this.stopTimer();
         this.timer = setInterval(() => {
             this.timeLeft -= 1;
-            const percentage = (this.timeLeft / 60) * 100;
+            const percentage = Math.max(0, (this.timeLeft / this.selectedTime) * 100);
             this.timerBar.style.width = `${percentage}%`;
 
             if (this.timeLeft <= 0) {
