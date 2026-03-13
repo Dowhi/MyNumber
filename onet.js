@@ -51,13 +51,22 @@ class OnetGame {
         const closeBtn = document.getElementById('onet-close-btn');
         const hintBtn = document.getElementById('onet-hint-btn');
         
+        const handleClose = (e) => {
+            if (e.type === 'touchstart') e.preventDefault();
+            if (this.isGameOver) this.close();
+        };
+        const handleHint = (e) => {
+            if (e.type === 'touchstart') e.preventDefault();
+            this.showHint();
+        };
+
         if (closeBtn) {
-            closeBtn.addEventListener('click', () => {
-                if (this.isGameOver) this.close();
-            });
+            closeBtn.addEventListener('click', handleClose);
+            closeBtn.addEventListener('touchstart', handleClose, { passive: false });
         }
         if (hintBtn) {
-            hintBtn.addEventListener('click', () => this.showHint());
+            hintBtn.addEventListener('click', handleHint);
+            hintBtn.addEventListener('touchstart', handleHint, { passive: false });
         }
     }
 

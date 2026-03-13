@@ -62,8 +62,8 @@ class MyNumberGame {
 
         this.fase = 1;
         this.addCount = 5;
-        this.stats = this.loadStats();
-        this.saveStats(); // Ensure lives exist in storage
+        this.hintCount = 5;
+        this.saveStats(); // Ensure initial stats/lives exist in storage
         this.initDOM();
         
         // Load Board or Init with safe defaults
@@ -213,12 +213,12 @@ class MyNumberGame {
         // Modal buttons are handled dynamically in openModal
 
 
-        // Helper to bind events easily
+        // Helper
         const bindButton = (id, callback, preventDefault = true) => {
             const el = document.getElementById(id);
             if (!el) return;
             const handler = (e) => {
-                if (e.type === 'touchstart' && preventDefault) e.preventDefault();
+                if (preventDefault) e.preventDefault();
                 callback();
             };
             el.addEventListener('click', handler);
