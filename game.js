@@ -34,24 +34,13 @@ class MyNumberGame {
             this.allTimeHighScore = parseInt(localStorage.getItem('myNumberHighScore')) || 0;
             this.dailyHighScore = parseInt(localStorage.getItem('myNumberDailyHighScore')) || 0;
             this.ranking = JSON.parse(localStorage.getItem('myNumberRanking')) || [];
-            this.stats = JSON.parse(localStorage.getItem('myNumberStats')) || {
-                won: 0,
-                lost: 0,
-                matches: 0,
-                linesCleared: 0,
-                hintsUsed: 0,
-                numbersAdded: 0,
-                maxFase: 1,
-                totalPoints: 0,
-                lives: 1,
-                achievements: [],
-                timeToday: 0,
-                timeWeek: 0,
-                timeTotal: 0,
-                streak: 0,
-                bestTime: 0,
-                lastPlayDate: null
+            const savedStats = JSON.parse(localStorage.getItem('myNumberStats')) || {};
+            const defaultStats = {
+                won: 0, lost: 0, matches: 0, linesCleared: 0, hintsUsed: 0, numbersAdded: 0,
+                maxFase: 1, totalPoints: 0, lives: 3, achievements: [],
+                timeToday: 0, timeWeek: 0, timeTotal: 0, streak: 0, bestTime: 0, lastPlayDate: null
             };
+            this.stats = { ...defaultStats, ...savedStats };
             this.playerName = localStorage.getItem('myNumberPlayerName') || 'Jugador';
             this.checkStreak();
         } catch (e) {
@@ -59,11 +48,16 @@ class MyNumberGame {
             this.allTimeHighScore = 0;
             this.dailyHighScore = 0;
             this.ranking = [];
-            this.stats = { won: 0, lost: 0, matches: 0, linesCleared: 0, hintsUsed: 0, numbersAdded: 0, maxFase: 1, totalPoints: 0, lives: 1, achievements: [] };
+            this.stats = {
+                won: 0, lost: 0, matches: 0, linesCleared: 0, hintsUsed: 0, numbersAdded: 0,
+                maxFase: 1, totalPoints: 0, lives: 3, achievements: [],
+                timeToday: 0, timeWeek: 0, timeTotal: 0, streak: 0, bestTime: 0, lastPlayDate: null
+            };
             this.playerName = 'Jugador';
         }
         
         this.groupCount = 0;
+        this.currentScreen = 'home';
         
         this.checkDailyReset();
 
@@ -184,26 +178,24 @@ class MyNumberGame {
 
         const cardClassic = document.getElementById('card-play-1');
         if (cardClassic) {
-            cardClassic.addEventListener('click', (e) => {
+            const startClassic = (e) => {
                 if (e.type === 'touchstart') e.preventDefault();
-                console.log("Card Classic Clicked");
-                this.onetGame.start();
-            });
-            cardClassic.addEventListener('touchstart', (e) => {
-                e.preventDefault();
-                console.log("Card Classic Touch");
-                this.onetGame.start();
-            }, { passive: false });
+                console.log("Starting Classic Game...");
+                this.startNewGame();
+            };
+            cardClassic.addEventListener('click', startClassic);
+            cardClassic.addEventListener('touchstart', startClassic, { passive: false });
         }
 
         const cardMarathon = document.getElementById('card-play-2');
         if (cardMarathon) {
-            const startMarathon = (e) => {
+            const startOnet = (e) => {
                 if (e.type === 'touchstart') e.preventDefault();
-                this.startNewGame();
+                console.log("Starting Onet Minigame...");
+                if (this.onetGame) this.onetGame.start();
             };
-            cardMarathon.addEventListener('click', startMarathon);
-            cardMarathon.addEventListener('touchstart', startMarathon, { passive: false });
+            cardMarathon.addEventListener('click', startOnet);
+            cardMarathon.addEventListener('touchstart', startOnet, { passive: false });
         }
 
         const btnNewGame = document.getElementById('btn-new-game');
@@ -304,6 +296,7 @@ class MyNumberGame {
 
 
     switchScreen(screenId) {
+        this.currentScreen = screenId;
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         const el = document.getElementById(`${screenId}-screen`);
         if (el) el.classList.add('active');
@@ -674,17 +667,17 @@ class MyNumberGame {
     }
     
     updateTimeStats() {
-        if (this.currentScreen !== 'game') return;
-        
         const now = Date.now();
+        if (!this.sessionStartTime) this.sessionStartTime = now;
         const diffSeconds = Math.floor((now - this.sessionStartTime) / 1000);
         this.sessionStartTime = now;
         
-        this.stats.timeToday += diffSeconds;
-        this.stats.timeWeek += diffSeconds;
-        this.stats.timeTotal += diffSeconds;
-        
-        this.saveStats();
+        if (diffSeconds > 0 && (this.currentScreen === 'game' || this.currentScreen === 'onet')) {
+            this.stats.timeToday = (this.stats.timeToday || 0) + diffSeconds;
+            this.stats.timeWeek = (this.stats.timeWeek || 0) + diffSeconds;
+            this.stats.timeTotal = (this.stats.timeTotal || 0) + diffSeconds;
+            this.saveStats();
+        }
     }
 
     shootConfetti() {

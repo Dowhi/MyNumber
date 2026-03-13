@@ -31,6 +31,9 @@ class OnetGame {
         }
         this.ctx = this.canvas.getContext('2d');
         this.timerBar = document.getElementById('onet-timer-bar');
+        this.pairsCount = document.getElementById('onet-pairs-count');
+        this.resultOverlay = document.getElementById('onet-result-overlay');
+        this.resultTitle = document.getElementById('onet-result-title');
         this.resultText = document.getElementById('onet-result-text');
         
         this.helpModal = document.getElementById('onet-help-modal');
@@ -92,8 +95,8 @@ class OnetGame {
         this.pairsFound = 0;
         this.timeLeft = 60;
         this.board = [];
-        this.resultOverlay.classList.remove('active');
-        this.screen.classList.add('active');
+        if (this.resultOverlay) this.resultOverlay.classList.remove('active');
+        if (this.screen) this.screen.classList.add('active');
         
         this.generateBoard();
         this.render();
@@ -132,7 +135,7 @@ class OnetGame {
         }
         
         this.totalPairs = totalPairsNeeded;
-        this.pairsCount.innerText = `0/${this.totalPairs}`;
+        if (this.pairsCount) this.pairsCount.innerText = `0/${this.totalPairs}`;
     }
 
     startTimer() {
@@ -215,7 +218,7 @@ class OnetGame {
         this.board[p1.r][p1.c].visible = false;
         this.board[p2.r][p2.c].visible = false;
         this.pairsFound++;
-        this.pairsCount.innerText = `${this.pairsFound}/${this.totalPairs}`;
+        if (this.pairsCount) this.pairsCount.innerText = `${this.pairsFound}/${this.totalPairs}`;
 
         this.drawConnection(path);
         
