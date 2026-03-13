@@ -181,25 +181,8 @@ class MyNumberGame {
             btnContinue.addEventListener('touchstart', handleContinue, { passive: false });
         }
 
-        const handleConfirmReset = (e) => {
-            if (e.type === 'touchstart') e.preventDefault();
-            this.resetGame();
-        };
-        const handleCancelReset = (e) => {
-            if (e.type === 'touchstart') e.preventDefault();
-            this.closeConfirm();
-        };
+        // Modal buttons are handled dynamically in openModal
 
-        const modalConfirmBtn = document.getElementById('modal-confirm-btn');
-        if (modalConfirmBtn) {
-            modalConfirmBtn.addEventListener('click', handleConfirmReset);
-            modalConfirmBtn.addEventListener('touchstart', handleConfirmReset, { passive: false });
-        }
-        const modalCancelBtn = document.getElementById('modal-cancel-btn');
-        if (modalCancelBtn) {
-            modalCancelBtn.addEventListener('click', handleCancelReset);
-            modalCancelBtn.addEventListener('touchstart', handleCancelReset, { passive: false });
-        }
 
         // Helper to bind events easily
         const bindButton = (id, callback, preventDefault = true) => {
@@ -329,17 +312,31 @@ class MyNumberGame {
         textEl.innerText = text;
         modal.classList.add('active');
 
+        // Clean up previous listeners
+        const newConfirmBtn = confirmBtn.cloneNode(true);
+        const newCancelBtn = cancelBtn.cloneNode(true);
+        confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+        cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+
         const close = () => {
             modal.classList.remove('active');
-            confirmBtn.onclick = null;
-            cancelBtn.onclick = null;
         };
 
-        confirmBtn.onclick = () => {
-            close();
+        const handleConfirm = (e) => {
+            if (e.type === 'touchstart') e.preventDefault();
+            modal.classList.remove('active');
             onConfirm();
         };
-        cancelBtn.onclick = close;
+
+        const handleCancel = (e) => {
+            if (e.type === 'touchstart') e.preventDefault();
+            modal.classList.remove('active');
+        };
+
+        newConfirmBtn.addEventListener('click', handleConfirm);
+        newConfirmBtn.addEventListener('touchstart', handleConfirm, { passive: false });
+        newCancelBtn.addEventListener('click', handleCancel);
+        newCancelBtn.addEventListener('touchstart', handleCancel, { passive: false });
     }
 
     showBienVisto() {
