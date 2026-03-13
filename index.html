@@ -28,7 +28,7 @@
                     <span id="home-coin-count">1</span>
                 </div>
                 <div style="flex: 1; display: flex; justify-content: flex-end;">
-                    <button class="nav-btn-icon"><span class="gear-icon">⚙️</span></button>
+                    <button id="settings-btn-home" class="nav-btn-icon"><span class="gear-icon">⚙️</span></button>
                 </div>
             </nav>
 
@@ -81,15 +81,15 @@
             </div>
 
             <div class="bottom-nav">
-                <a href="#" class="tab-item active" onclick="GAME.switchScreen('home')">
+                <a href="#" id="nav-home" class="tab-item active">
                     <span class="tab-icon">🏠</span>
                     <span class="tab-label">Inicio</span>
                 </a>
-                <a href="#" class="tab-item" onclick="GAME.switchScreen('ranking'); return false;">
+                <a href="#" id="nav-ranking" class="tab-item">
                     <span class="tab-icon">🗓️</span>
                     <span class="tab-label">Ranking</span>
                 </a>
-                <a href="#" class="tab-item" onclick="GAME.switchScreen('stats'); return false;">
+                <a href="#" id="nav-stats" class="tab-item">
                     <span class="tab-icon">📊</span>
                     <span class="tab-label">Stats</span>
                 </a>
@@ -99,14 +99,14 @@
         <!-- GAME SCREEN -->
         <div id="game-screen" class="screen">
             <nav class="top-nav">
-                <button class="nav-btn-icon back-btn" onclick="GAME.switchScreen('home')">
+                <button id="back-to-home" class="nav-btn-icon back-btn">
                     <span class="chevron-left"></span>
                 </button>
                 <div class="coin-pill">
                     <span class="coin-star">⭐</span>
                     <span id="game-coin-count">1</span>
                 </div>
-                <button class="nav-btn-icon settings-btn">
+                <button id="settings-btn-game" class="nav-btn-icon settings-btn">
                     <span class="gear-icon">⚙️</span>
                 </button>
             </nav>
@@ -155,7 +155,7 @@
         <!-- RANKING SCREEN -->
         <div id="ranking-screen" class="screen ranking-screen" style="padding: 16px 16px 0;">
             <nav class="top-nav" style="margin-bottom: 8px;">
-                <button class="nav-btn-icon" onclick="GAME.switchScreen('home')">
+                <button id="back-to-home-ranking" class="nav-btn-icon">
                     <span class="chevron-left"></span>
                 </button>
                 <h2 style="font-size: 18px; font-weight: 700;">Mejores Partidas</h2>
@@ -176,7 +176,7 @@
         <!-- STATS SCREEN -->
         <div id="stats-screen" class="screen">
             <nav class="top-nav">
-                <button class="nav-btn-icon" onclick="GAME.switchScreen('home')">
+                <button id="back-to-home-stats" class="nav-btn-icon">
                     <span class="chevron-left"></span>
                 </button>
                 <h2 style="font-size: 18px; font-weight: 800;">Estadísticas</h2>
@@ -228,8 +228,8 @@
             <h2>FIN DE PARTIDA</h2>
             <p>No quedan movimientos posibles.</p>
             <h3 id="final-score" style="font-size: 40px; margin-bottom: 20px;">0</h3>
-            <button class="btn-primary" onclick="GAME.startNewGame()" style="width: 100%;">Nueva Partida</button>
-            <button class="btn-secondary" onclick="GAME.switchScreen('home')"
+            <button id="go-new-game" class="btn-primary" style="width: 100%;">Nueva Partida</button>
+            <button id="go-home" class="btn-secondary"
                 style="width: 100%; margin-top: 10px;">Volver al Inicio</button>
         </div>
         <div id="toast-container"></div>

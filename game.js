@@ -201,6 +201,36 @@ class MyNumberGame {
             modalCancelBtn.addEventListener('touchstart', handleCancelReset, { passive: false });
         }
 
+        // Helper to bind events easily
+        const bindButton = (id, callback, preventDefault = true) => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            const handler = (e) => {
+                if (e.type === 'touchstart' && preventDefault) e.preventDefault();
+                callback();
+            };
+            el.addEventListener('click', handler);
+            el.addEventListener('touchstart', handler, { passive: !preventDefault });
+        };
+
+        // Bottom Nav
+        bindButton('nav-home', () => this.switchScreen('home'));
+        bindButton('nav-ranking', () => this.switchScreen('ranking'));
+        bindButton('nav-stats', () => this.switchScreen('stats'));
+
+        // All Back Buttons to Home
+        ['back-to-home', 'back-to-home-ranking', 'back-to-home-stats', 'go-home'].forEach(id => {
+            bindButton(id, () => this.switchScreen('home'));
+        });
+
+        // Settings (Coming soon)
+        ['settings-btn-home', 'settings-btn-game'].forEach(id => {
+            bindButton(id, () => this.showToast("Ajustes: Próximamente ⚙️"));
+        });
+
+        // Game Over - Start New
+        bindButton('go-new-game', () => this.startNewGame());
+
         this.updateHeader();
         this.checkAchievements();
     }
