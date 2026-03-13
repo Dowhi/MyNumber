@@ -29,22 +29,31 @@ class MyNumberGame {
         this.score = 0; 
         this.visualScore = 0; 
         
-        // Load Scores & Stats
-        this.allTimeHighScore = parseInt(localStorage.getItem('myNumberHighScore')) || 0;
-        this.dailyHighScore = parseInt(localStorage.getItem('myNumberDailyHighScore')) || 0;
-        this.ranking = JSON.parse(localStorage.getItem('myNumberRanking')) || [];
-        this.stats = JSON.parse(localStorage.getItem('myNumberStats')) || {
-            won: 0,
-            lost: 0,
-            matches: 0,
-            linesCleared: 0,
-            hintsUsed: 0,
-            numbersAdded: 0,
-            maxFase: 1,
-            totalPoints: 0,
-            achievements: []
-        };
-        this.playerName = localStorage.getItem('myNumberPlayerName') || 'Jugador';
+        // Load Scores & Stats with error handling
+        try {
+            this.allTimeHighScore = parseInt(localStorage.getItem('myNumberHighScore')) || 0;
+            this.dailyHighScore = parseInt(localStorage.getItem('myNumberDailyHighScore')) || 0;
+            this.ranking = JSON.parse(localStorage.getItem('myNumberRanking')) || [];
+            this.stats = JSON.parse(localStorage.getItem('myNumberStats')) || {
+                won: 0,
+                lost: 0,
+                matches: 0,
+                linesCleared: 0,
+                hintsUsed: 0,
+                numbersAdded: 0,
+                maxFase: 1,
+                totalPoints: 0,
+                achievements: []
+            };
+            this.playerName = localStorage.getItem('myNumberPlayerName') || 'Jugador';
+        } catch (e) {
+            console.error("Storage load failed:", e);
+            this.allTimeHighScore = 0;
+            this.dailyHighScore = 0;
+            this.ranking = [];
+            this.stats = { won: 0, lost: 0, matches: 0, linesCleared: 0, hintsUsed: 0, numbersAdded: 0, maxFase: 1, totalPoints: 0, achievements: [] };
+            this.playerName = 'Jugador';
+        }
         
         this.groupCount = 0;
         
@@ -56,13 +65,17 @@ class MyNumberGame {
 
         this.initDOM();
         
-        // Load Board or Init
-        if (!this.loadBoard()) {
+        // Load Board or Init with safe defaults
+        try {
+            if (!this.loadBoard()) {
+                this.initBoard();
+            }
+        } catch(e) {
+            console.error("Error loading board:", e);
             this.initBoard();
         }
         
         this.render();
-        
         window.GAME = this;
     }
 
@@ -117,14 +130,77 @@ class MyNumberGame {
         this.addCountElement = document.getElementById('add-count');
         this.hintCountElement = document.getElementById('hint-count');
 
-        this.addBtn.addEventListener('click', () => this.addNumbers());
-        this.hintBtn.addEventListener('click', () => this.showHint());
+        const handleAdd = (e) => {
+            if (e.type === 'touchstart') e.preventDefault();
+            this.addNumbers();
+        };
+        const handleHint = (e) => {
+            if (e.type === 'touchstart') e.preventDefault();
+            this.showHint();
+        };
+
+        this.addBtn.addEventListener('click', handleAdd);
+        this.addBtn.addEventListener('touchstart', handleAdd, { passive: false });
+        this.hintBtn.addEventListener('click', handleHint);
+        this.hintBtn.addEventListener('touchstart', handleHint, { passive: false });
         
         this.homeHS = document.getElementById('home-high-score');
         this.gameOverOverlay = document.getElementById('game-over-overlay');
         this.finalScoreElement = document.getElementById('final-score');
 
-        document.getElementById('edit-name-btn').onclick = () => this.changeName();
+        const handleEditName = (e) => {
+            if (e.type === 'touchstart') e.preventDefault();
+            this.changeName();
+        };
+        const editNameBtn = document.getElementById('edit-name-btn');
+        if (editNameBtn) {
+            editNameBtn.addEventListener('click', handleEditName);
+            editNameBtn.addEventListener('touchstart', handleEditName, { passive: false });
+        }
+
+        const handleStartNew = (e) => {
+            if (e.type === 'touchstart') e.preventDefault();
+            this.startNewGame();
+        };
+        const handleContinue = (e) => {
+            if (e.type === 'touchstart') e.preventDefault();
+            this.switchScreen('game');
+        };
+
+        ['card-play-1', 'card-play-2', 'btn-new-game'].forEach(id => {
+            const btn = document.getElementById(id);
+            if (btn) {
+                btn.addEventListener('click', handleStartNew);
+                btn.addEventListener('touchstart', handleStartNew, { passive: false });
+            }
+        });
+
+        const btnContinue = document.getElementById('btn-continue');
+        if (btnContinue) {
+            btnContinue.addEventListener('click', handleContinue);
+            btnContinue.addEventListener('touchstart', handleContinue, { passive: false });
+        }
+
+        const handleConfirmReset = (e) => {
+            if (e.type === 'touchstart') e.preventDefault();
+            this.resetGame();
+        };
+        const handleCancelReset = (e) => {
+            if (e.type === 'touchstart') e.preventDefault();
+            this.closeConfirm();
+        };
+
+        const modalConfirmBtn = document.getElementById('modal-confirm-btn');
+        if (modalConfirmBtn) {
+            modalConfirmBtn.addEventListener('click', handleConfirmReset);
+            modalConfirmBtn.addEventListener('touchstart', handleConfirmReset, { passive: false });
+        }
+        const modalCancelBtn = document.getElementById('modal-cancel-btn');
+        if (modalCancelBtn) {
+            modalCancelBtn.addEventListener('click', handleCancelReset);
+            modalCancelBtn.addEventListener('touchstart', handleCancelReset, { passive: false });
+        }
+
         this.updateHeader();
         this.checkAchievements();
     }
@@ -846,24 +922,32 @@ class MyNumberGame {
             }
             
             div.innerText = cell.value;
-            div.addEventListener('click', () => {
+            const handleInteraction = (e) => {
+                if (e.type === 'touchstart') e.preventDefault(); // Evitar double-tap o retraso
                 if (cell.state !== STATE.ACTIVE) return;
+                
                 let matchMade = false;
                 if (this.selectedIndices.includes(index)) {
                      this.selectedIndices = [];
                 } else if (this.selectedIndices.length === 0) {
                      this.selectedIndices.push(index);
+                     if (navigator.vibrate) navigator.vibrate(5);
                 } else {
                     const info = this.getMatchInfo(this.selectedIndices[0], index);
                     if (info.matchable) {
                         this.executeMatch(this.selectedIndices[0], index, info.points, info.special);
                         matchMade = true;
+                        if (navigator.vibrate) navigator.vibrate(20);
                     } else {
                         this.selectedIndices = [index];
+                        if (navigator.vibrate) navigator.vibrate(5);
                     }
                 }
                 if (!matchMade) this.render();
-            });
+            };
+
+            div.addEventListener('click', handleInteraction);
+            div.addEventListener('touchstart', handleInteraction, { passive: false });
             this.gridElement.appendChild(div);
         });
 
@@ -873,4 +957,5 @@ class MyNumberGame {
     }
 }
 
-window.onload = () => new MyNumberGame();
+// Iniciar directamente para evitar retrasos de window.onload en moviles
+new MyNumberGame();

@@ -13,7 +13,7 @@
     <link rel="apple-touch-icon" href="icon-192.png">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=20">
+    <link rel="stylesheet" href="style.css?v=21">
 </head>
 
 <body>
@@ -54,7 +54,7 @@
                     </div>
                     <div>
                         <p class="card-val">Nivel Inicial</p>
-                        <button class="card-btn" onclick="GAME.startNewGame()">Jugar</button>
+                        <button id="card-play-1" class="card-btn">Jugar</button>
                     </div>
                 </div>
                 <div class="card card-orange">
@@ -64,7 +64,7 @@
                     </div>
                     <div>
                         <p class="card-val">Sin Límites</p>
-                        <button class="card-btn" onclick="GAME.startNewGame()">Jugar</button>
+                        <button id="card-play-2" class="card-btn">Jugar</button>
                     </div>
                 </div>
             </div>
@@ -76,8 +76,8 @@
             </div>
 
             <div class="home-buttons">
-                <button class="btn-primary" onclick="GAME.switchScreen('game')">Continuar la partida</button>
-                <button class="btn-secondary" onclick="GAME.startNewGame()">Nueva partida</button>
+                <button id="btn-continue" class="btn-primary">Continuar la partida</button>
+                <button id="btn-new-game" class="btn-secondary">Nueva partida</button>
             </div>
 
             <div class="bottom-nav">
@@ -246,7 +246,7 @@
         </div>
     </div>
 
-    <script src="game.js?v=18"></script>
+    <script src="game.js?v=21"></script>
     <script>
     // Register Service Worker for PWA
     if ('serviceWorker' in navigator) {
