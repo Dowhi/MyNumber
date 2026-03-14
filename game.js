@@ -361,7 +361,7 @@ class MyNumberGame {
         this.render();
     }
 
-    openModal(title, text, onConfirm) {
+    openModal(title, text, onConfirm, onCancel = null) {
         const modal = document.getElementById('modal-confirm');
         const titleEl = document.getElementById('modal-title');
         const textEl = document.getElementById('modal-text');
@@ -391,6 +391,7 @@ class MyNumberGame {
         const handleCancel = (e) => {
             if (e.type === 'touchstart') e.preventDefault();
             modal.classList.remove('active');
+            if (onCancel) onCancel();
         };
 
         newConfirmBtn.addEventListener('click', handleConfirm);
@@ -654,8 +655,12 @@ class MyNumberGame {
         this.checkAchievements();
         this.saveStats();
         
-        // Confetti!
-        this.shootConfetti();
+        this.showToast(`🎉 ¡FASE ${this.fase} ALCANZADA! 🎉`);
+        
+        // Premium Celebration: Confetti
+        for (let i = 0; i < 60; i++) {
+            this.createParticle(Math.random() * window.innerWidth, -20, true);
+        }
         
         this.hintCount = 5;
         this.addCount = 5;
@@ -738,24 +743,7 @@ class MyNumberGame {
         }, 3500); // 3.5 segundos de visualización
     }
 
-    handlePhaseAdvance() {
-        this.fase++;
-        if (this.fase > this.stats.maxFase) {
-            this.stats.maxFase = this.fase;
-            this.saveStats();
-        }
-        this.addCount = 5;
-        this.hintCount = 5;
-        this.initBoard();
-        this.saveBoard();
-        this.render();
-        this.showToast(`🎉 ¡FASE ${this.fase} ALCANZADA! 🎉`);
-        
-        // Premium Celebration: Confetti
-        for (let i = 0; i < 60; i++) {
-            this.createParticle(Math.random() * window.innerWidth, -20, true);
-        }
-    }
+
 
     checkRowClear() {
         let rowsToRemove = [];
@@ -781,7 +769,21 @@ class MyNumberGame {
     }
 
     addNumbers() {
-        if (this.addCount <= 0) return;
+        if (this.addCount <= 0) {
+            if (this.stats.lives > 0) {
+                this.openModal("Añadir Números ➕", "¿Usar 1 ❤️ para conseguir 3 usos extra?", () => {
+                    this.stats.lives--;
+                    this.addCount += 3;
+                    this.updateHeader();
+                    this.saveStats();
+                    this.render();
+                    this.showToast("❤️ Vida cambiada por usos extra ❤️");
+                });
+            } else {
+                this.showToast("No quedan Añadidos ni Vidas ❤️");
+            }
+            return;
+        }
         this.groupCount++;
         const actives = this.board.filter(c => c.state === STATE.ACTIVE).map(c => ({ 
             value: c.value, 
@@ -800,7 +802,7 @@ class MyNumberGame {
     }
 
     checkGameOver() {
-        if (this.addCount > 0) return;
+        // Enforce checking if there's any active moves before actually losing
         let movePossible = false;
         for (let i = 0; i < this.board.length; i++) {
             if (this.board[i].state !== STATE.ACTIVE) continue;
@@ -810,12 +812,34 @@ class MyNumberGame {
             if (movePossible) break;
         }
         if (!movePossible) {
-            this.stats.lost++;
-            this.saveStats();
-            this.saveToRanking();
-            this.finalScoreElement.innerText = this.score;
-            this.gameOverOverlay.classList.add('active');
+            if (this.addCount > 0) return; // Si hay addCount no hacemos nada extra, el jugador debe decidir usar el botón
+
+            if (this.stats.lives > 0) {
+                this.openModal(
+                    "¡Bloqueado! 💔",
+                    "Te has quedado sin movimientos. ¿Quieres usar 1 ❤️ para añadir más números y seguir jugando?", 
+                    () => {
+                        this.stats.lives--;
+                        this.addCount += 1; // Un solo uso es suficiente para barajar o volver a añadir
+                        this.updateHeader();
+                        this.saveStats();
+                        this.showToast("❤️ ¡Vida usada! +1 a Añadir Números ❤️");
+                        this.addNumbers();
+                    },
+                    () => { this.endGameFinal(); }
+                );
+            } else {
+                this.endGameFinal();
+            }
         }
+    }
+
+    endGameFinal() {
+        this.stats.lost++;
+        this.saveStats();
+        this.saveToRanking();
+        this.finalScoreElement.innerText = this.score;
+        this.gameOverOverlay.classList.add('active');
     }
 
     saveToRanking() {
@@ -986,7 +1010,21 @@ class MyNumberGame {
     }
 
     showHint() {
-        if (this.hintCount <= 0) return;
+        if (this.hintCount <= 0) {
+            if (this.stats.lives > 0) {
+                this.openModal("Más Pistas 💡", "¿Usar 1 ❤️ para conseguir 3 pistas extra?", () => {
+                    this.stats.lives--;
+                    this.hintCount += 3;
+                    this.updateHeader();
+                    this.saveStats();
+                    this.render();
+                    this.showToast("❤️ Vida cambiada por 3 Pistas extra ❤️");
+                });
+            } else {
+                this.showToast("No te quedan Pistas ni Vidas ❤️");
+            }
+            return;
+        }
         for (let i = 0; i < this.board.length; i++) {
             if (this.board[i].state !== STATE.ACTIVE) continue;
             for (let j = i + 1; j < this.board.length; j++) {
