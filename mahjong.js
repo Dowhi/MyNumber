@@ -329,7 +329,7 @@ class MahjongController {
     }
 
     iniciarJuego(layout) {
-        console.log("MAHJONG: Starting new game V51");
+        console.log("MAHJONG: Starting new game V52");
         const gameLayout = layout || window.generarLayoutMahjong();
         this.model.cargarNivel(gameLayout);
         this.enPartida = true;
@@ -504,75 +504,55 @@ class MahjongController {
     }
 }
 
-// Generador de layout The Turtle simplificado (Para demostración técnica)
-// Generaremos 144 fichas con pares emparejables
+// Generaremos 80 fichas para que se vean más grandes
 function generarLayoutMahjong() {
     const layout = [];
     let id_counter = 1;
     
     const tipos = ["Eagle", "Lynx", "Frog", "Squirrel", "Deer", "Snake", "Hedgehog", "Badger", "Stag", "Barn Owl", "Hamster", "Dormouse", "Owl", "Wild Boar"];
     
-    // Crear pool de 144 fichas en grupos de pares
+    // 40 pares = 80 fichas (más grandes en pantalla)
     let pool = [];
-    // 72 pares de animales = 144 fichas
-    for(let i = 0; i < 72; i++) {
+    for(let i = 0; i < 40; i++) {
         let tipo = tipos[Math.floor(Math.random() * tipos.length)];
         pool.push({tipo: tipo, valor: 100});
         pool.push({tipo: tipo, valor: 100});
     }
     
-    // Shuffle pool (Fisher-Yates) para que sea resolvible dependemos del azar, 
-    // en un juego PSPACE-Completo ideal requeriríamos un generador inverso. 
-    // Usaremos shuffle básico.
     for (let i = pool.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [pool[i], pool[j]] = [pool[j], pool[i]];
     }
 
-    // Dibujar Turtle Formation Real (Métrica de "medio bloque")
-    // Una ficha ocupa 2x2 unidades. Puede solaparse por 1 unidad.
     const addTile = (x, y, z) => {
         if(pool.length === 0) return;
         let t = pool.pop();
         layout.push({ id: id_counter++, tipo: t.tipo, valor: t.valor, color: t.color, x: x, y: y, z: z });
     };
 
-    // Capa 0: Base (Densa)
-    // Filas centrales largas, filas extremas cortas
+    // Capa 0: Base Compacta (8x8 max area)
     for(let r=0; r<8; r++) {
-        for(let c=0; c<12; c++) {
-            // Forma de caparazón (recortar esquinas)
-            if ((r === 0 || r === 7) && (c < 4 || c > 7)) continue;
-            if ((r === 1 || r === 6) && (c < 2 || c > 9)) continue;
+        for(let c=0; c<8; c++) {
+            if ((r === 0 || r === 7) && (c < 2 || c > 5)) continue;
+            if ((r === 1 || r === 6) && (c < 1 || c > 6)) continue;
             addTile(c * 2, r * 2, 0);
         }
     }
     
-    // Capa 1: Primer nivel de solapamiento
+    // Capa 1: Nivel 1 (6x6 area)
     for(let r=0; r<6; r++) {
-        for(let c=0; c<10; c++) {
-            if ((r === 0 || r === 5) && (c < 2 || c > 7)) continue;
+        for(let c=0; c<6; c++) {
+            if ((r === 0 || r === 5) && (c < 1 || c > 4)) continue;
             addTile(c * 2 + 2, r * 2 + 2, 1);
         }
     }
 
-    // Capa 2: Segundo nivel
-    for(let r=0; r<4; r++) {
-        for(let c=0; c<8; c++) {
-            if ((r === 0 || r === 3) && (c < 2 || c > 5)) continue;
-            addTile(c * 2 + 4, r * 2 + 4, 2);
-        }
-    }
-
-    // Capa 3: La Cúpula
+    // Capa 2: Ápice (2x2 area)
     for(let r=0; r<2; r++) {
-        for(let c=0; c<4; c++) {
-            addTile(c * 2 + 8, r * 2 + 6, 3);
+        for(let c=0; c<2; c++) {
+            addTile(c * 2 + 6, r * 2 + 6, 2);
         }
     }
-
-    // Capa 4: El Ápice (Céntrico)
-    addTile(10, 7, 4);
 
     return layout;
 }

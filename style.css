@@ -1094,37 +1094,37 @@ body {
 }
 
 .control-btn.circular .btn-icon-circle {
-    width: 36px;
-    height: 36px;
+    width: 28px;
+    height: 28px;
     background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
-    border: 1.5px solid #2dd4bf;
+    border: 1.2px solid #2dd4bf;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 0 10px rgba(45, 212, 191, 0.2), inset 0 1px 5px rgba(255,255,255,0.05);
-    margin-bottom: 4px;
+    box-shadow: 0 0 8px rgba(45, 212, 191, 0.2), inset 0 1px 3px rgba(255,255,255,0.05);
+    margin-bottom: 2px;
     position: relative;
 }
 
 .control-btn.circular.shuffle .btn-icon-circle {
-    width: 44px;
-    height: 44px;
+    width: 34px;
+    height: 34px;
     border-color: #fbbf24;
     background: linear-gradient(135deg, #78350f 0%, #451a03 100%);
-    margin-top: -6px;
+    margin-top: -4px;
     border-radius: 50%;
 }
 
 .control-btn.circular svg {
-    width: 18px;
-    height: 18px;
+    width: 14px;
+    height: 14px;
     color: #5eead4;
 }
 
 .control-btn.circular.shuffle svg {
-    width: 22px;
-    height: 22px;
+    width: 18px;
+    height: 18px;
     color: #fde68a;
 }
 
@@ -1147,10 +1147,10 @@ body {
 }
 
 .btn-label {
-    font-size: 8px;
+    font-size: 7px;
     font-weight: 700;
     letter-spacing: 0.05em;
-    color: rgba(255,255,255,0.7);
+    color: rgba(255,255,255,0.6);
     text-transform: uppercase;
 }
 
@@ -1179,12 +1179,13 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #ffffff !important; /* Force solid white */
+    background: #ffffff !important;
+    background-image: none !important; /* Remove any potential stripes */
     border-radius: 4px;
     overflow: hidden;
     position: relative;
     z-index: 2;
-    border: 1px solid #f4f4f5; /* Subtle border for visibility */
+    border: 1px solid #f4f4f5;
 }
 
 .tile-face img {
