@@ -962,7 +962,6 @@ body {
 /* Mahjong Styles */
 .mahjong-screen {
     background: #1a1a24; 
-    display: flex;
     flex-direction: column;
     color: white;
 }
