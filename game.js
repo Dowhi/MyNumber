@@ -24,6 +24,8 @@ const STATE = {
 
 class MyNumberGame {
     constructor() {
+        console.log("GAME V36: Constructor started");
+        window.GAME = this; // Set early
         this.board = []; 
         this.selectedIndices = [];
         this.score = 0; 
@@ -65,6 +67,7 @@ class MyNumberGame {
         this.addCount = 5;
         this.hintCount = 5;
         this.saveStats(); // Ensure initial stats/lives exist in storage
+        console.log("GAME V36: Initializing DOM...");
         this.initDOM();
         
         // Load Board or Init with safe defaults
@@ -78,7 +81,6 @@ class MyNumberGame {
         }
         
         this.render();
-        window.GAME = this;
         
         // Timer for played time
         this.sessionStartTime = Date.now();
@@ -127,16 +129,18 @@ class MyNumberGame {
     }
 
     initDOM() {
+        console.log("GAME V36: initDOM() started");
         this.gridElement = document.getElementById('game-board');
         try {
-            this.onetGame = new OnetGame(this); // Initialize Onet
+            this.onetGame = new OnetGame(this); 
             if (typeof MahjongController !== 'undefined') {
+                console.log("GAME V36: Mahjong subsystem found.");
                 this.mahjongController = new MahjongController(
                     new MahjongView('mahjong-container'),
                     () => {
                         this.stats.lives++;
                         this.saveStats();
-                        this.updateLivesDisplay();
+                        this.updateHeader();
                         this.showToast("¡Has ganado 1 ❤️!");
                         this.switchScreen('home');
                     }
@@ -271,22 +275,30 @@ class MyNumberGame {
         this.checkAchievements();
     }
 
+    startMahjongMinigame() {
+        console.warn("LEGACY CALL: startMahjongMinigame (please update to triggerMahjongGame)");
+        this.triggerMahjongGame();
+    }
+
     triggerMahjongGame() {
         console.log("CRITICAL: triggerMahjongGame CALLED");
-        this.switchScreen('mahjong');
-        
-        if (!this.mahjongController && window.MahjongController) {
-            console.log("CRITICAL: Creating MahjongController on demand");
-            const view = new window.MahjongView('mahjong-container');
-            this.mahjongController = new window.MahjongController(view, () => {
-                this.stats.lives++;
-                this.saveStats();
-                this.updateHeader();
-                this.showToast("¡Has ganado 1 ❤️!");
-                this.switchScreen('home');
-            });
+        if (!this.mahjongController) {
+            console.error("FATAL: Mahjong Controller is missing!");
+            if (window.MahjongController) {
+                console.log("Attempting emergency re-init of Mahjong Controller...");
+                const view = new window.MahjongView('mahjong-container');
+                this.mahjongController = new window.MahjongController(view, () => {
+                    this.stats.lives++;
+                    this.saveStats();
+                    this.updateHeader();
+                    this.showToast("¡Has ganado 1 ❤️!");
+                    this.switchScreen('home');
+                });
+            }
         }
 
+        this.switchScreen('mahjong');
+        
         if (this.mahjongController && window.generarLayoutMahjong) {
             try {
                 const layout = window.generarLayoutMahjong();
@@ -295,10 +307,11 @@ class MyNumberGame {
                 console.log("CRITICAL: iniciarJuego process finished");
             } catch(err) {
                 console.error("CRITICAL ERROR starting Mahjong:", err);
-                alert("Error crítico: " + err.message);
+                alert("Error crítico Mahjong: " + err.message);
             }
         } else {
-            console.error("CRITICAL: Missing dependencies. Controller:", !!this.mahjongController, "LayoutGen:", !!window.generarLayoutMahjong);
+            console.error("CRITICAL: Dependencies still missing. Controller:", !!this.mahjongController, "LayoutGen:", !!window.generarLayoutMahjong);
+            alert("Error: Faltan componentes de Mahjong. Por favor recarga.");
         }
     }
 
@@ -353,6 +366,7 @@ class MyNumberGame {
 
 
     switchScreen(screenId) {
+        console.log("GAME V36: switchScreen ->", screenId);
         this.currentScreen = screenId;
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         const el = document.getElementById(`${screenId}-screen`);
@@ -1203,3 +1217,4 @@ class MyNumberGame {
 
 // Iniciar directamente para evitar retrasos de window.onload en moviles
 new MyNumberGame();
+console.log("GAME V36: Bootstrapping complete.");
