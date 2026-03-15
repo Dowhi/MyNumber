@@ -366,14 +366,17 @@ class MyNumberGame {
 
 
     switchScreen(screenId) {
-        console.log("GAME V36: switchScreen ->", screenId);
+        console.log("GAME V44: switchScreen ->", screenId);
         this.currentScreen = screenId;
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         const el = document.getElementById(`${screenId}-screen`);
         if (el) el.classList.add('active');
 
-        // Toggle fullscreen mode for Mahjong
-        document.body.classList.toggle('mj-fullscreen', screenId === 'mahjong');
+        // Toggle fullscreen mode for Mahjong - V44 Bulletproof
+        const isMahjong = screenId === 'mahjong';
+        console.log("DEBUG: Setting mj-fullscreen class ->", isMahjong);
+        document.body.classList.toggle('mj-fullscreen', isMahjong);
+        document.querySelector('.app-container')?.classList.toggle('mj-fullscreen', isMahjong);
         
         // Ensure overlays are closed when navigating
         if (this.gameOverOverlay) this.gameOverOverlay.classList.remove('active');

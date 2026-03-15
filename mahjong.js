@@ -147,14 +147,20 @@ class MahjongModel {
 // --------------------------------------------------------------------------------
 
 const IMAGE_MAP = {
-    "Bambu1": "https://lh3.googleusercontent.com/aida-public/AB6AXuCwDfzSCaI7L3kg8PVZrPM1DuMH9qLEgDnRE0_MyqPGn653MDcOHm0zOTTsTzD1bOX2t2eEEWCS-MQX4B9Dwwm7KGAbwJr7FIiiVcHhBcMUNwPjc4m_s9dp3H2HOjxL-yXOVx19b1Dl3AM4UwXnYYoO5QIoV-DupddjYkV5IAE4kcmGS9pl-sjhDglAeKQQbcjk8R31lA2HeTJcPXcLf-OCLb75mhMyaR79PQlDWlcK7Jk2BUPs4nzDSGfp7j0Fkde1edt7nx-MM9c",
-    "Bambu2": "https://lh3.googleusercontent.com/aida-public/AB6AXuDJ2BFJV-fAvk7V_JcRiovmfoxuJWoIgzfaDgyF0VWYnzN26j6YwJzbRtIa84VFckqq9g2kEDolAF9R163KYVGtNBk0smlsZUBUySkZefhAbfM5NBfPzw7qJqgxoqZeiA3NZ9HQz0fX6IRD0MayP9M09oM9wJX4GL5VRTPTWn84Lfjr0V4zep3cW38k9p7s4Jg7e50W4C69Gclzd3czbIRpJ9v-9zUTp6F8RdWFu4tuX7Czps5Cd0HTIxv78PGPkpNo6QDzIBZNG5o",
-    "Bambu3": "https://lh3.googleusercontent.com/aida-public/AB6AXuCAPbYOECrOhO-Ppkhx8iR0JaQ3WN4z7t3IwouztXWuI-2uvDfZcxPCdOPOVXs4ARDTFlillhYFyIQZpDDYwTH_8DW3qAtkObQhNmOyRJ_vVjHbz8CN_zN7zbPJBCtzUiexn6KefkLklUL5A1H1GUasDklx-beLFG9wyHr9fQlOxKAJIBX1B40UPVnZN4QHLCKmy4nVCosv0TWgegV8mwDTBqLd5XnQAhoVVmE8gu32jSEzTAe6CDLpL_SpMhBsW1W_IqTzNmk_62M",
-    "Caracter1": "https://lh3.googleusercontent.com/aida-public/AB6AXuA7cjXe-2dD_fkbq_3tmoC3M1EF2jOM1YLH_HOoSqjyTbaSAvuZv11TWJJYpuZ_5I_TOOtC8KcnrVpsesnjQJrIBMiqYZYhXL8qQTMtYUfVZODPHVbKJyAMIhwGS2VyzJps7V9DjrEOWx163QXQh2_g6wm3XZ6SNIuZUp_wa3Kn8Spo2g9FUwL12DRD0BHD0IqePiV6Efsw3ljtTbdO4QyVITmClLLqdDc-j4CttUg0lvegZJD7HoE1L-wVVXEox3R8jnQuAcLtzVs",
-    "Caracter2": "https://lh3.googleusercontent.com/aida-public/AB6AXuArrPyVsVXKLXSoePsU_A8juYk533EajqF4GkZX3FJ4DohyLDv2zn8v_4kY0KnxWf-4Ft9g8QGuDmVvaC4GS_l46iC_GNIUAVAzvN4-EWLoXO3fxnqLjAKeJ9E5EcBp886qb6RSCUn2X1tRJsMKwyBE_bteWkuJ4b13GfWSwk6rfPbZ985Bk5cgxHxHIXUREV3lzr8wDIec2UkgpE77epcBOk1QUPKXMF_yY75LuJlsSjnzeRzhjJxKAGt6CIPATof6R86_bYba-xM",
-    "Caracter3": "https://lh3.googleusercontent.com/aida-public/AB6AXuAW64WfflFzWxrxVSqvWBpbsJrqmlf420M7UqjpafdjdLPQP35XOgL1fYdNOkgXeqHMeZOS_LJv7idGe3USZ7sEaE_SSYhCLOmlfwdNNwTPVemtaGpJLiwvg-PqxDR3sxVSd3PIcduLXsUsp-wBRYpzwlcAl9-3cwmnXm4mzKVUilu9Tu0X5qlTpWtaCRY8B0uW4VGJf8MNiEYato7o_4UsE4K63yJiGMtjjpYCeYIkazR2N1MyT8eNqkVgA20Fm71fTEdUJ6zAt5s",
-    "Dragon": "https://lh3.googleusercontent.com/aida-public/AB6AXuAiL6fh6ObePp4SOU2w4Fj68KoD1ApuWAPPxgGFvwFI2UJNM_6OCc6x-IMLGZxsa1XRmxuHBvaqNm0TxeFnRNPxpa2-V2IADIzVQmZo_qNhqP33NXXUi22CRT7E4F09audJj1QCLpVutGWnNi8X8DsbnymDd5u3nUFq_El5LB8TQUC-xVt3ty-uxSnCCgqsc_aIBbugqmXVCxWul1ftt-kwqRzEeDm9hUIAeBnafZ-H2yF96E0Kei0Zukl-jK56zOos2sGkNzanEag",
-    "Flor": "https://lh3.googleusercontent.com/aida-public/AB6AXuCDRkp0Wr_rNuYwCQYkk30qdMb6Aga2MtEB46X4C2GKN0AnO9YWb6E6pYs3MWO_dha_hHs6D8BPrHS95ZTwBX5P-D-GkVkxT9QjRz--WQ0Ct89FDxkiBj7ClwWPbooVPygBss8oXbPKb99lb6jqXUrrhk6kDBHMBhxoC29mxPofTqgPFdCH_ZEoXl9mvBNNsqFPB7fFsebOmtJ6sCJJ11_Uhfzbz3CxSdsJo8XbkfhYyRcnTVMSOAcMldQ-4cA2TG8ejlYd-D2dBzk"
+    "Eagle": "assets/mahjong/tiles/eagle.png",
+    "Lynx": "assets/mahjong/tiles/lynx.png",
+    "Frog": "assets/mahjong/tiles/frog.png",
+    "Squirrel": "assets/mahjong/tiles/squirrel.png",
+    "Deer": "assets/mahjong/tiles/deer.png",
+    "Snake": "assets/mahjong/tiles/snake.png",
+    "Hedgehog": "assets/mahjong/tiles/hedgehog.png",
+    "Badger": "assets/mahjong/tiles/badger.png",
+    "Stag": "assets/mahjong/tiles/stag.png",
+    "Barn Owl": "assets/mahjong/tiles/barn_owl.png",
+    "Hamster": "assets/mahjong/tiles/hamster.png",
+    "Dormouse": "assets/mahjong/tiles/dormouse.png",
+    "Owl": "assets/mahjong/tiles/owl.png",
+    "Wild Boar": "assets/mahjong/tiles/wild_boar.png"
 };
 
 class MahjongView {
@@ -165,10 +171,10 @@ class MahjongView {
             return;
         }
         
-        this.baseTileWidth = 24;  // Aumentado para mejor visibilidad en escritorio
-        this.baseTileHeight = 32; 
-        this.offsetX = 6;  
-        this.offsetY = -6; 
+        this.baseTileWidth = 28;  // V44 Optimized for Animal Icons
+        this.baseTileHeight = 36; 
+        this.offsetX = 7;  
+        this.offsetY = -7; 
         
         this.innerBoard = null;
         this.selectedTileDiv = null;
@@ -231,22 +237,27 @@ class MahjongView {
 
     scaleInnerBoard() {
         if (!this.container || !this.innerBoard) return;
-        const ctrWidth = this.container.clientWidth || window.innerWidth;
-        const ctrHeight = this.container.clientHeight || (window.innerHeight - 150);
         
-        // Calculamos escala basada en un diseño base de 640x480
-        const scaleX = (ctrWidth - 40) / 640;
-        const scaleY = (ctrHeight - 40) / 480;
+        // Usamos dimensiones reales del viewport para el modo fixed/fullscreen
+        const isFullscreen = document.body.classList.contains('mj-fullscreen');
+        const ctrWidth = isFullscreen ? window.innerWidth : (this.container.clientWidth || 390);
+        const ctrHeight = isFullscreen ? window.innerHeight : (this.container.clientHeight || 844);
+        
+        // Calculamos escala basada en un diseño base de 720x540 para los nuevos assets
+        const scaleX = (ctrWidth - 20) / 720;
+        const scaleY = (ctrHeight - 120) / 540; // Mayor margen vertical para cabecera/footer
         let scale = Math.min(scaleX, scaleY);
         
-        // Safety bounds
-        if (scale < 0.2) scale = 0.5; 
-        if (scale > 3.0) scale = 3.0; // Permitir que crezcan más en pantallas grandes
+        // Safety bounds mejorados para V44
+        if (scale < 0.2) scale = 0.4; 
+        if (scale > 4.0) scale = 4.0; 
 
         this.innerBoard.style.transform = `translate(-50%, -50%) scale(${scale})`;
         this.innerBoard.style.left = '50%';
         this.innerBoard.style.top = '50%';
         this.innerBoard.style.position = 'absolute';
+        
+        console.log("DEBUG: scaleInnerBoard V44 ->", { scale, ctrWidth, ctrHeight });
     }
 
     marcarSeleccionada(div) {
@@ -391,19 +402,16 @@ function generarLayoutMahjong() {
     const layout = [];
     let id_counter = 1;
     
-    const tipos = ["Bambu1", "Bambu2", "Bambu3", "Caracter1", "Caracter2", "Caracter3", "Dragon"];
+    const tipos = ["Eagle", "Lynx", "Frog", "Squirrel", "Deer", "Snake", "Hedgehog", "Badger", "Stag", "Barn Owl", "Hamster", "Dormouse", "Owl", "Wild Boar"];
     
     // Crear pool de 144 fichas en grupos de pares
     let pool = [];
-    // 70 pares normales = 140 fichas
-    for(let i = 0; i < 70; i++) {
+    // 72 pares de animales = 144 fichas
+    for(let i = 0; i < 72; i++) {
         let tipo = tipos[Math.floor(Math.random() * tipos.length)];
         pool.push({tipo: tipo, valor: 100});
         pool.push({tipo: tipo, valor: 100});
     }
-    // 4 flores (2 pares por color)
-    pool.push({tipo: "Flor", valor: 500, color: "Rojo"}); pool.push({tipo: "Flor", valor: 500, color: "Rojo"});
-    pool.push({tipo: "Flor", valor: 500, color: "Azul"}); pool.push({tipo: "Flor", valor: 500, color: "Azul"});
     
     // Shuffle pool (Fisher-Yates) para que sea resolvible dependemos del azar, 
     // en un juego PSPACE-Completo ideal requeriríamos un generador inverso. 
