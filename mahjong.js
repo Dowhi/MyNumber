@@ -171,10 +171,10 @@ class MahjongView {
             return;
         }
         
-        this.baseTileWidth = 28;  // V44 Optimized for Animal Icons
-        this.baseTileHeight = 36; 
-        this.offsetX = 7;  
-        this.offsetY = -7; 
+        this.baseTileWidth = 38;  // V47 Larger base for portrait
+        this.baseTileHeight = 48; 
+        this.offsetX = 6;  
+        this.offsetY = -6; 
         
         this.innerBoard = null;
         this.selectedTileDiv = null;
@@ -186,8 +186,8 @@ class MahjongView {
         this.innerBoard = document.createElement('div');
         this.innerBoard.id = 'mj-inner-board';
         this.innerBoard.style.position = 'absolute';
-        this.innerBoard.style.width = '720px'; // Matching scale base
-        this.innerBoard.style.height = '540px';
+        this.innerBoard.style.width = '540px'; 
+        this.innerBoard.style.height = '800px';
         this.innerBoard.style.pointerEvents = 'none'; // Only tiles catch clicks
         this.container.appendChild(this.innerBoard);
     }
@@ -206,8 +206,10 @@ class MahjongView {
             div.className = 'mahjong-tile';
             div.id = `mj-tile-${ficha.id_unico}`;
             
-            const left = (ficha.coord_X * this.baseTileWidth) + (ficha.coord_Z * this.offsetX);
-            const top = (ficha.coord_Y * this.baseTileHeight) + (ficha.coord_Z * this.offsetY);
+            // V47: Transpose X and Y to make layout TALLER (Portrait)
+            // X used for vertical, Y for horizontal
+            const left = (ficha.coord_Y * this.baseTileWidth) + (ficha.coord_Z * this.offsetX);
+            const top = (ficha.coord_X * this.baseTileHeight) + (ficha.coord_Z * this.offsetY);
             
             div.style.left = `${left}px`;
             div.style.top = `${top}px`;
@@ -244,8 +246,9 @@ class MahjongView {
         const ctrHeight = isFullscreen ? window.innerHeight : (this.container.clientHeight || 844);
         
         // Calculamos escala basada en un diseño base de 720x540 para los nuevos assets
-        const scaleX = (ctrWidth - 20) / 720;
-        const scaleY = (ctrHeight - 120) / 540; // Mayor margen vertical para cabecera/footer
+        // V47 portrait scaling optimization
+        const scaleX = (ctrWidth - 10) / 540;
+        const scaleY = (ctrHeight - 140) / 800; 
         let scale = Math.min(scaleX, scaleY);
         
         // Safety bounds mejorados para V44
