@@ -329,7 +329,7 @@ class MahjongController {
     }
 
     iniciarJuego(layout) {
-        console.log("MAHJONG: Starting new game V52");
+        console.log("MAHJONG: Starting new game V53");
         const gameLayout = layout || window.generarLayoutMahjong();
         this.model.cargarNivel(gameLayout);
         this.enPartida = true;
@@ -504,16 +504,16 @@ class MahjongController {
     }
 }
 
-// Generaremos 80 fichas para que se vean más grandes
+// Generaremos un layout de 6x7 para fichas máximamente grandes
 function generarLayoutMahjong() {
     const layout = [];
     let id_counter = 1;
     
     const tipos = ["Eagle", "Lynx", "Frog", "Squirrel", "Deer", "Snake", "Hedgehog", "Badger", "Stag", "Barn Owl", "Hamster", "Dormouse", "Owl", "Wild Boar"];
     
-    // 40 pares = 80 fichas (más grandes en pantalla)
+    // Calculamos pool para ~64 fichas (base 6x7 + capas superiores)
     let pool = [];
-    for(let i = 0; i < 40; i++) {
+    for(let i = 0; i < 32; i++) { // 32 pares = 64 fichas
         let tipo = tipos[Math.floor(Math.random() * tipos.length)];
         pool.push({tipo: tipo, valor: 100});
         pool.push({tipo: tipo, valor: 100});
@@ -530,28 +530,23 @@ function generarLayoutMahjong() {
         layout.push({ id: id_counter++, tipo: t.tipo, valor: t.valor, color: t.color, x: x, y: y, z: z });
     };
 
-    // Capa 0: Base Compacta (8x8 max area)
-    for(let r=0; r<8; r++) {
-        for(let c=0; c<8; c++) {
-            if ((r === 0 || r === 7) && (c < 2 || c > 5)) continue;
-            if ((r === 1 || r === 6) && (c < 1 || c > 6)) continue;
+    // Capa 0: Base 6x7 (Dimensiones exactas solicitadas)
+    for(let r=0; r<7; r++) {
+        for(let c=0; c<6; c++) {
             addTile(c * 2, r * 2, 0);
         }
     }
     
-    // Capa 1: Nivel 1 (6x6 area)
-    for(let r=0; r<6; r++) {
-        for(let c=0; c<6; c++) {
-            if ((r === 0 || r === 5) && (c < 1 || c > 4)) continue;
+    // Capa 1: Nivel superior 4x5 (centrado)
+    for(let r=0; r<5; r++) {
+        for(let c=0; c<4; c++) {
             addTile(c * 2 + 2, r * 2 + 2, 1);
         }
     }
 
-    // Capa 2: Ápice (2x2 area)
+    // Capa 2: Ápice 1x2 (para completar las 64 fichas)
     for(let r=0; r<2; r++) {
-        for(let c=0; c<2; c++) {
-            addTile(c * 2 + 6, r * 2 + 6, 2);
-        }
+        addTile(5, r * 2 + 5, 2);
     }
 
     return layout;
