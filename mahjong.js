@@ -199,8 +199,8 @@ class MahjongView {
         this.innerBoard.innerHTML = '';
         this.innerBoard.className = 'inner-board layer-shadow';
 
-        const unitW = 28;
-        const unitH = 37;
+        const unitW = 28; // Slightly tight horizontally
+        const unitH = 38; // Slightly more height to see the animal better
 
         fichas.forEach(f => {
             if (!f.estado_visibilidad) return;
