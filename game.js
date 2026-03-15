@@ -217,6 +217,16 @@ class MyNumberGame {
             const startMahjong = (e) => {
                 if (e.type === 'touchstart') e.preventDefault();
                 this.switchScreen('mahjong');
+                
+                // Inicializar The Controller if not yet setup
+                if (!this.mahjongController && window.MahjongController) {
+                    const view = new window.MahjongView('mahjong-container');
+                    this.mahjongController = new window.MahjongController(view, () => {
+                        this.addLife();
+                        this.saveState();
+                    });
+                }
+
                 if (this.mahjongController && window.generarLayoutMahjong) {
                     try {
                         this.mahjongController.iniciarJuego(window.generarLayoutMahjong());
@@ -224,7 +234,7 @@ class MyNumberGame {
                         document.getElementById('mahjong-container').innerHTML = `<p style="color:red; text-align:center;">Runtime Error: ${err.message}</p>`;
                     }
                 } else {
-                    document.getElementById('mahjong-container').innerHTML = `<p style="color:white; text-align:center; padding: 20px;">Error: El motor Mahjong no se pudo cargar correctamente. MahjongController is ${typeof MahjongController}. Por favor, recarga la página o borra la caché del navegador.</p>`;
+                    document.getElementById('mahjong-container').innerHTML = `<p style="color:white; text-align:center; padding: 20px;">Error: El motor Mahjong no se pudo cargar correctamente. Por favor, asegúrate de recargar la web sin caché.</p>`;
                 }
             };
             cardMahjong.addEventListener('click', startMahjong);
