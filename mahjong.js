@@ -182,14 +182,13 @@ class MahjongView {
     }
 
     initInnerBoard() {
-        if (!this.container) return;
-        this.container.innerHTML = ''; 
+        if (this.innerBoard) return;
         this.innerBoard = document.createElement('div');
         this.innerBoard.id = 'mj-inner-board';
-        this.innerBoard.style.position = 'relative';
-        this.innerBoard.style.width = '600px'; 
-        this.innerBoard.style.height = '440px';
-        this.innerBoard.style.margin = 'auto';
+        this.innerBoard.style.position = 'absolute';
+        this.innerBoard.style.width = '720px'; // Matching scale base
+        this.innerBoard.style.height = '540px';
+        this.innerBoard.style.pointerEvents = 'none'; // Only tiles catch clicks
         this.container.appendChild(this.innerBoard);
     }
 
@@ -226,6 +225,7 @@ class MahjongView {
             div.appendChild(face);
 
             div.addEventListener('click', () => onTileClick(ficha, div));
+            div.style.pointerEvents = 'auto';
             this.innerBoard.appendChild(div);
         });
         
@@ -256,8 +256,9 @@ class MahjongView {
         this.innerBoard.style.left = '50%';
         this.innerBoard.style.top = '50%';
         this.innerBoard.style.position = 'absolute';
+        this.innerBoard.style.display = 'block';
         
-        console.log("DEBUG: scaleInnerBoard V44 ->", { scale, ctrWidth, ctrHeight });
+        console.log("DEBUG: scaleInnerBoard V45 ->", { scale, ctrWidth, ctrHeight });
     }
 
     marcarSeleccionada(div) {

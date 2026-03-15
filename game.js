@@ -24,7 +24,7 @@ const STATE = {
 
 class MyNumberGame {
     constructor() {
-        console.log("GAME V36: Constructor started");
+        console.log("GAME V45: Constructor started");
         window.GAME = this; // Set early
         this.board = []; 
         this.selectedIndices = [];
@@ -129,12 +129,12 @@ class MyNumberGame {
     }
 
     initDOM() {
-        console.log("GAME V36: initDOM() started");
+        console.log("GAME V45: initDOM() started");
         this.gridElement = document.getElementById('game-board');
         try {
             this.onetGame = new OnetGame(this); 
             if (typeof MahjongController !== 'undefined') {
-                console.log("GAME V36: Mahjong subsystem found.");
+                console.log("GAME V45: Mahjong subsystem found.");
                 this.mahjongController = new MahjongController(
                     new MahjongView('mahjong-container'),
                     () => {
