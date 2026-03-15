@@ -1075,6 +1075,14 @@ body {
 .control-btn.circular {
     position: relative;
     padding: 0;
+    background: none;
+    border: none;
+    outline: none;
+    box-shadow: none;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .control-btn.circular .btn-icon-circle {
@@ -1132,22 +1140,23 @@ body {
     text-transform: uppercase;
 }
 
-/* Updated Tiles for Mystic 3D Edition V48 */
+/* Updated Tiles for Mystic 3D Edition V49: Dense Layout */
 .mahjong-tile {
     position: absolute;
-    width: 42px; 
-    height: 56px;
+    width: 60px; /* Base size for dense layout */
+    height: 80px;
     background: #ffffff;
-    border-radius: 4px;
-    /* 3D Depth Effect: Beige/Grey right side, Green bottom side */
+    border-radius: 6px;
+    /* Improved 3D with richer colors */
     box-shadow: 
-        1px 0px 0px #d4d4d8, /* side edge */
-        3px 1px 0px #a1a1aa, /* side depth */
-        0px 1px 0px #065f46, /* bottom edge */
-        0px 4px 0px #064e3b, /* green base depth */
-        0px 6px 15px rgba(0, 0, 0, 0.4); /* soft shadow */
-    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s;
+        1px 0px 0px #d1d5db, 
+        2px 0px 0px #9ca3af,
+        0px 1px 0px #065f46,
+        0px 5px 0px #064e3b,
+        0px 8px 15px rgba(0, 0, 0, 0.5);
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s, opacity 0.3s;
     cursor: pointer;
+    transform-origin: center bottom;
 }
 
 .tile-face {
@@ -1168,8 +1177,37 @@ body {
 .tile-face img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain; /* Better for custom tiles */
     display: block;
+    background: white;
+}
+
+/* Tile back for face-down mechanic */
+.mahjong-tile.face-down .tile-face::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, #065f46 0%, #064e3b 100%);
+    z-index: 5;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-image: 
+        radial-gradient(circle at 50% 50%, rgba(255,255,255,0.1) 0%, transparent 60%),
+        repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,0,0,0.1) 10px, rgba(0,0,0,0.1) 20px);
+}
+
+.mahjong-tile.face-down .tile-face::before {
+    content: '✵';
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255,255,255,0.4);
+    font-size: 24px;
+    z-index: 6;
 }
 
 .mahjong-tile.selected {

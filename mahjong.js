@@ -13,7 +13,8 @@ class FichaMahjong {
         this.coord_Y = coord_Y;
         this.coord_Z = coord_Z;
         this.estado_visibilidad = true;
-        this.color = color; // Para emparejar flores
+        this.color = color; 
+        this.flipped = false; // V49 Flip mechanic
     }
 }
 
@@ -193,28 +194,20 @@ class MahjongView {
         this.container.appendChild(this.innerBoard);
     }
 
-    renderTablero(fichas, onTileClick) {
-        if (!this.innerBoard) this.initInnerBoard();
+    renderTablero(fichas, clickHandler) {
+        if (!this.innerBoard) return;
         this.innerBoard.innerHTML = '';
-        
-        console.log("Rendering tiles:", fichas.length);
-        fichas.sort((a, b) => a.coord_Z - b.coord_Z);
+        this.innerBoard.className = 'inner-board layer-shadow';
 
-        fichas.forEach(ficha => {
-            if (!ficha.estado_visibilidad) return;
+        // Tile base dimensions in pixels for coordinate mapping
+        // Coordinate unit = half-tile width/height for dense layout
+        const unitW = 28; // 60px / 2 approx
+        const unitH = 37; // 80px / 2 approx
+
+        fichas.forEach(f => {
+            if (!f.estado_visibilidad) return;
 
             const div = document.createElement('div');
-            div.className = 'mahjong-tile';
-            div.id = `mj-tile-${ficha.id_unico}`;
-            
-            // V47: Transpose X and Y to make layout TALLER (Portrait)
-            // X used for vertical, Y for horizontal
-            const left = (ficha.coord_Y * this.baseTileWidth) + (ficha.coord_Z * this.offsetX);
-            const top = (ficha.coord_X * this.baseTileHeight) + (ficha.coord_Z * this.offsetY);
-            
-            div.style.left = `${left}px`;
-            div.style.top = `${top}px`;
-            div.style.zIndex = ficha.coord_Z * 10 + ficha.coord_X + ficha.coord_Y;
             
             // Stitch Structure: .mahjong-tile > .tile-face > img
             const face = document.createElement('div');
@@ -410,28 +403,37 @@ class MahjongController {
     handleTileClick(ficha, div) {
         if (!this.enPartida) return;
 
-        // Standard Mahjong "free tile" rule still applies
+        // Standard Mahjong "free tile" rule
         if (!this.model.esLibre(ficha)) {
             div.classList.add('shake');
             setTimeout(() => div.classList.remove('shake'), 400);
             return; 
         }
 
-        // Find empty slot
+        // New V49 Flip mechanic
+        if (!ficha.flipped) {
+            ficha.flipped = true;
+            div.classList.remove('face-down');
+            
+            // Subtle flip animation trigger
+            div.style.transform = 'scale(1.1) rotateY(180deg)';
+            setTimeout(() => {
+                div.style.transform = 'none';
+            }, 300);
+            return;
+        }
+
+        // Move to logic slot
         const emptyIndex = this.slots.indexOf(null);
         if (emptyIndex === -1) {
             window.GAME.showToast("¡Huecos llenos!");
             return;
         }
 
-        // Logic side
         this.slots[emptyIndex] = ficha;
-        ficha.estado_visibilidad = false; // "hide" from main board logic
+        ficha.estado_visibilidad = false; 
 
-        // View side
         this.view.animateToSlot(ficha.id_unico, emptyIndex);
-
-        // Check for match after animation
         setTimeout(() => this.checkMatchInSlots(), 450);
     }
 
@@ -527,46 +529,50 @@ function generarLayoutMahjong() {
         [pool[i], pool[j]] = [pool[j], pool[i]];
     }
 
-    // Dibujar Turtle Formation
-    // La grilla base de 2 en 2
+    // Dibujar Turtle Formation Real (Métrica de "medio bloque")
+    // Una ficha ocupa 2x2 unidades. Puede solaparse por 1 unidad.
     const addTile = (x, y, z) => {
         if(pool.length === 0) return;
         let t = pool.pop();
         layout.push({ id: id_counter++, tipo: t.tipo, valor: t.valor, color: t.color, x: x, y: y, z: z });
     };
 
-    // Capa 0 (fondo): 12 x 8 aproximado pero con huecos. Lo llenaremos simple para testeos.
-    // Usaremos unidades de X, Y. Recordar: X=2 significa ocupa 2 a 3. Siguiente puede ir en 4.
-    // Capa 0
-    let startX = 2;
-    let startY = 2;
-    for(let r=0; r<6; r++) { // 6 filas
-        for(let c=0; c<10; c++) { // 10 columnas
-            // Excluimos esquinas
-            if ((r===0 || r===5) && (c<1 || c>8)) continue;
-            addTile(startX + c*2, startY + r*2, 0); // Ocupan 2x2
+    // Capa 0: Base (Densa)
+    // Filas centrales largas, filas extremas cortas
+    for(let r=0; r<8; r++) {
+        for(let c=0; c<12; c++) {
+            // Forma de caparazón (recortar esquinas)
+            if ((r === 0 || r === 7) && (c < 4 || c > 7)) continue;
+            if ((r === 1 || r === 6) && (c < 2 || c > 9)) continue;
+            addTile(c * 2, r * 2, 0);
         }
     }
     
-    // Agregamos las de los extremos (las que están en Y media)
-    addTile(0, 6, 0); 
-    addTile(startX + 10*2, 6, 0);
-    addTile(startX + 11*2, 6, 0);
+    // Capa 1: Primer nivel de solapamiento
+    for(let r=0; r<6; r++) {
+        for(let c=0; c<10; c++) {
+            if ((r === 0 || r === 5) && (c < 2 || c > 7)) continue;
+            addTile(c * 2 + 2, r * 2 + 2, 1);
+        }
+    }
 
-    // Capa 1
-    startX += 2; startY += 2;
-    for(let r=0; r<4; r++) { for(let c=0; c<6; c++) { addTile(startX + c*2, startY + r*2, 1); } }
-    
-    // Capa 2
-    startX += 2; startY += 2;
-    for(let r=0; r<2; r++) { for(let c=0; c<4; c++) { addTile(startX + c*2, startY + r*2, 2); } }
-    
-    // Capa 3
-    startX += 2; startY += 0;
-    for(let r=0; r<1; r++) { for(let c=0; c<2; c++) { addTile(startX + c*2, startY + 2, 3); } }
-    
-    // Capa 4 (Cúspide central desplazada 1 unidad para encajar entre medias)
-    addTile(startX + 1, startY + 2 + 1, 4);
+    // Capa 2: Segundo nivel
+    for(let r=0; r<4; r++) {
+        for(let c=0; c<8; c++) {
+            if ((r === 0 || r === 3) && (c < 2 || c > 5)) continue;
+            addTile(c * 2 + 4, r * 2 + 4, 2);
+        }
+    }
+
+    // Capa 3: La Cúpula
+    for(let r=0; r<2; r++) {
+        for(let c=0; c<4; c++) {
+            addTile(c * 2 + 8, r * 2 + 6, 3);
+        }
+    }
+
+    // Capa 4: El Ápice (Céntrico)
+    addTile(10, 7, 4);
 
     return layout;
 }
