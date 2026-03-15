@@ -1033,74 +1033,120 @@ body {
     position: relative;
     overflow: hidden;
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
     z-index: 50;
     background: transparent;
+}
+
+#mj-slot-bar-container {
+    width: 100%;
+    padding: 10px 0;
+    display: flex;
+    justify-content: center;
+    z-index: 100;
+}
+
+#mj-slot-bar {
+    background: linear-gradient(180deg, #5d4037 0%, #3e2723 100%);
+    padding: 8px;
+    border-radius: 12px;
+    display: flex;
+    gap: 8px;
+    box-shadow: inset 0 2px 10px rgba(0,0,0,0.5), 0 4px 15px rgba(0,0,0,0.3);
+    border: 2px solid #795548;
+}
+
+.mj-slot {
+    width: 46px;
+    height: 60px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 6px;
+    border: 1px dashed rgba(255,255,255,0.2);
 }
 
 .mj-mystic-footer {
     position: relative;
     z-index: 100;
     background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
-    padding: 20px 0 40px;
+    padding: 20px 0 30px;
 }
 
-.controls-wrapper {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    max-width: 400px;
-    margin: 0 auto;
+.control-btn.circular {
+    position: relative;
+    padding: 0;
 }
 
-.control-btn {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background: none;
-    border: none;
-    cursor: pointer;
-    transition: transform 0.1s;
+.control-btn.circular .btn-icon-circle {
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+    border: 2.5px solid #2dd4bf;
+    box-shadow: 0 0 20px rgba(45, 212, 191, 0.2), inset 0 2px 10px rgba(255,255,255,0.05);
+    margin-bottom: 8px;
 }
 
-.control-btn:active { transform: scale(0.95); }
+.control-btn.circular.shuffle .btn-icon-circle {
+    width: 76px;
+    height: 76px;
+    border-color: #fbbf24;
+    background: linear-gradient(135deg, #78350f 0%, #451a03 100%);
+    margin-top: -10px;
+}
 
-.btn-icon-circle {
-    width: 50px;
-    height: 50px;
+.control-btn.circular svg {
+    width: 28px;
+    height: 28px;
+    color: #5eead4;
+}
+
+.control-btn.circular.shuffle svg {
+    width: 36px;
+    height: 36px;
+    color: #fde68a;
+}
+
+.btn-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #ef4444;
+    color: white;
+    font-size: 11px;
+    font-weight: 800;
+    width: 22px;
+    height: 22px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 5px;
-    background: rgba(0,0,0,0.3);
-    border-width: 2px;
-    border-style: solid;
-    transition: background 0.2s;
+    border: 2px solid #111827;
+    z-index: 10;
 }
-
-.border-teal { border-color: rgba(45, 212, 191, 0.4); }
-.border-amber { border-color: #fbbf24; }
-.bg-amber-heavy { background: rgba(120, 53, 15, 0.4); }
-
-.svg-teal { width: 22px; height: 22px; color: #5eead4; }
-.svg-amber { width: 28px; height: 28px; color: #fde68a; }
 
 .btn-label {
-    font-size: 10px;
-    font-weight: 500;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: rgba(255,255,255,0.7);
+    text-transform: uppercase;
 }
 
-/* Updated Tiles for Mystic Edition */
+/* Updated Tiles for Mystic 3D Edition V48 */
 .mahjong-tile {
     position: absolute;
-    width: 42px; /* Adjusted base size */
-    height: 54px;
+    width: 42px; 
+    height: 56px;
     background: #ffffff;
-    border-radius: 6px;
-    box-shadow: 0 4px 0 #9ca3af, 0 8px 0 #4b5563, 0 8px 20px rgba(0, 0, 0, 0.6);
-    transition: transform 0.1s, box-shadow 0.1s;
+    border-radius: 4px;
+    /* 3D Depth Effect: Beige/Grey right side, Green bottom side */
+    box-shadow: 
+        1px 0px 0px #d4d4d8, /* side edge */
+        3px 1px 0px #a1a1aa, /* side depth */
+        0px 1px 0px #065f46, /* bottom edge */
+        0px 4px 0px #064e3b, /* green base depth */
+        0px 6px 15px rgba(0, 0, 0, 0.4); /* soft shadow */
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s;
     cursor: pointer;
 }
 
@@ -1111,11 +1157,12 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: transparent;
-    border-radius: 6px;
+    background: white;
+    border-radius: 4px;
     overflow: hidden;
     position: relative;
     z-index: 2;
+    border: 0.5px solid #e4e4e7;
 }
 
 .tile-face img {

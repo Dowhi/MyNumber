@@ -13,7 +13,7 @@
     <link rel="apple-touch-icon" href="icon-192.png">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Cinzel:wght@400;700&family=Quicksand:wght@300;500;700&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=47">
+    <link rel="stylesheet" href="style.css?v=48">
 </head>
 
 <body>
@@ -356,38 +356,49 @@
             </div>
         </header>
 
-        <main class="mahjong-board-container" id="mahjong-container">
-            <!-- Rendered via JS -->
-        </main>
+            <main class="mahjong-board-container" id="mahjong-container">
+                <!-- Slot Bar for Match-2 -->
+                <div id="mj-slot-bar-container">
+                    <div id="mj-slot-bar">
+                        <div class="mj-slot" data-index="0"></div>
+                        <div class="mj-slot" data-index="1"></div>
+                        <div class="mj-slot" data-index="2"></div>
+                        <div class="mj-slot" data-index="3"></div>
+                    </div>
+                </div>
+                <!-- Rendered via JS -->
+            </main>
 
         <footer class="mj-mystic-footer">
             <div class="controls-wrapper">
-                <button class="control-btn group" onclick="if(window.GAME && window.GAME.mahjongController) window.GAME.mahjongController.hint()">
-                    <div class="btn-icon-circle border-teal">
+                <button class="control-btn circular hint" onclick="if(window.GAME && window.GAME.mahjongController) window.GAME.mahjongController.hint()">
+                    <div class="btn-icon-circle">
+                        <span class="btn-badge" id="mj-hint-count">5</span>
                         <svg class="svg-teal" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.663 17h4.674a1 1 0 00.922-.617l2.108-4.742A4 4 0 105.196 9.5l2.357 4.636a1 1 0 00.91.864z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
                     </div>
-                    <span class="btn-label text-teal-light">Pista</span>
+                    <span class="btn-label">Pistas</span>
                 </button>
-                <button class="control-btn group shuffle" onclick="if(window.GAME && window.GAME.mahjongController) window.GAME.mahjongController.shuffle()">
-                    <div class="btn-icon-circle border-amber bg-amber-heavy">
-                        <svg class="svg-amber" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+                <button class="control-btn circular shuffle main-action" onclick="if(window.GAME && window.GAME.mahjongController) window.GAME.mahjongController.shuffle()">
+                    <div class="btn-icon-circle">
+                         <span class="btn-badge" id="mj-shuffle-count">3</span>
+                         <svg class="svg-amber" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
                     </div>
-                    <span class="btn-label text-amber-light font-bold">MEZCLAR</span>
+                    <span class="btn-label">MEZCLAR</span>
                 </button>
-                <button class="control-btn group" onclick="if(window.GAME && window.GAME.mahjongController) window.GAME.mahjongController.undo()">
-                    <div class="btn-icon-circle border-teal">
+                <button class="control-btn circular undo" onclick="if(window.GAME && window.GAME.mahjongController) window.GAME.mahjongController.undo()">
+                    <div class="btn-icon-circle">
                         <svg class="svg-teal" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
                     </div>
-                    <span class="btn-label text-teal-light">Deshacer</span>
+                    <span class="btn-label">Deshacer</span>
                 </button>
             </div>
         </footer>
     </div>
     </div>
 
-    <script src="mahjong.js?v=47"></script>
-    <script src="onet.js?v=47"></script>
-    <script src="game.js?v=47"></script>
+    <script src="mahjong.js?v=48"></script>
+    <script src="onet.js?v=48"></script>
+    <script src="game.js?v=48"></script>
     <script>
     // Register Service Worker for PWA
     if ('serviceWorker' in navigator) {

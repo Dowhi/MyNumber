@@ -178,6 +178,7 @@ class MahjongView {
         
         this.innerBoard = null;
         this.selectedTileDiv = null;
+        this.slotBar = document.getElementById('mj-slot-bar');
         this.initInnerBoard();
     }
 
@@ -240,28 +241,52 @@ class MahjongView {
     scaleInnerBoard() {
         if (!this.container || !this.innerBoard) return;
         
-        // Usamos dimensiones reales del viewport para el modo fixed/fullscreen
         const isFullscreen = document.body.classList.contains('mj-fullscreen');
         const ctrWidth = isFullscreen ? window.innerWidth : (this.container.clientWidth || 390);
         const ctrHeight = isFullscreen ? window.innerHeight : (this.container.clientHeight || 844);
         
-        // Calculamos escala basada en un diseño base de 720x540 para los nuevos assets
         // V47 portrait scaling optimization
         const scaleX = (ctrWidth - 10) / 540;
         const scaleY = (ctrHeight - 140) / 800; 
         let scale = Math.min(scaleX, scaleY);
         
-        // Safety bounds mejorados para V44
         if (scale < 0.2) scale = 0.4; 
         if (scale > 4.0) scale = 4.0; 
 
         this.innerBoard.style.transform = `translate(-50%, -50%) scale(${scale})`;
         this.innerBoard.style.left = '50%';
-        this.innerBoard.style.top = '50%';
+        this.innerBoard.style.top = '70%'; // Shifted down to accommodate Slot Bar
         this.innerBoard.style.position = 'absolute';
         this.innerBoard.style.display = 'block';
+    }
+
+    animateToSlot(fichaId, slotIndex) {
+        const div = document.getElementById(`mj-tile-${fichaId}`);
+        if (!div || !this.slotBar) return;
+
+        // Clone for animation to keep DOM clean
+        const rect = div.getBoundingClientRect();
+        const slotRect = this.slotBar.children[slotIndex].getBoundingClientRect();
+
+        div.style.transition = 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+        div.style.zIndex = 2000;
+        div.style.pointerEvents = 'none';
+
+        // Convert board space to screen space for animation
+        const deltaX = slotRect.left - rect.left;
+        const deltaY = slotRect.top - rect.top;
+
+        div.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(0.8) rotate(360deg)`;
         
-        console.log("DEBUG: scaleInnerBoard V45 ->", { scale, ctrWidth, ctrHeight });
+        setTimeout(() => {
+            // Move into the slot properly
+            div.style.transition = 'none';
+            div.style.transform = 'none';
+            div.style.left = '0';
+            div.style.top = '0';
+            div.style.position = 'relative';
+            this.slotBar.children[slotIndex].appendChild(div);
+        }, 400);
     }
 
     marcarSeleccionada(div) {
@@ -270,13 +295,27 @@ class MahjongView {
         if (div) div.classList.add('selected');
     }
     
+    eliminarDeSlots(id1, id2) {
+        const div1 = document.getElementById(`mj-tile-${id1}`);
+        const div2 = document.getElementById(`mj-tile-${id2}`);
+        
+        [div1, div2].forEach(div => {
+            if (div) {
+                div.style.transition = 'all 0.3s ease-out';
+                div.style.transform = 'scale(1.5) rotate(15deg)';
+                div.style.opacity = '0';
+                setTimeout(() => div.remove(), 300);
+            }
+        });
+    }
+    
     eliminarFichas(divA, divB) {
-        divA.classList.add('removed');
-        divB.classList.add('removed');
-        setTimeout(() => {
-            if(divA.parentNode) divA.parentNode.removeChild(divA);
-            if(divB.parentNode) divB.parentNode.removeChild(divB);
-        }, 300);
+        [divA, divB].forEach(div => {
+            if (div) {
+                div.classList.add('removed');
+                setTimeout(() => div.remove(), 300);
+            }
+        });
     }
 
     desmarcarFichas() {
@@ -297,13 +336,20 @@ class MahjongController {
     }
 
     iniciarJuego(layout) {
-        console.log("MAHJONG: Starting new game");
+        console.log("MAHJONG: Starting new game V48");
         const gameLayout = layout || window.generarLayoutMahjong();
         this.model.cargarNivel(gameLayout);
         this.enPartida = true;
         this.score = 0;
         this.timerSeconds = 0;
-        this.fichaSeleccionadaId = null;
+        this.slots = [null, null, null, null];
+        this.pistasRestantes = 5;
+        this.mezclasRestantes = 3;
+        
+        // Clear slots UI
+        const slotBar = document.getElementById('mj-slot-bar');
+        if (slotBar) Array.from(slotBar.children).forEach(s => s.innerHTML = '');
+
         this.updateHeaderUI();
         this.startTimer();
         this.render();
@@ -331,14 +377,25 @@ class MahjongController {
     updateHeaderUI() {
         const scoreLabel = document.getElementById('mj-score');
         if (scoreLabel) scoreLabel.textContent = this.score.toLocaleString();
+        
+        const hintBadge = document.getElementById('mj-hint-count');
+        if (hintBadge) hintBadge.textContent = this.pistasRestantes;
+        
+        const shuffleBadge = document.getElementById('mj-shuffle-count');
+        if (shuffleBadge) shuffleBadge.textContent = this.mezclasRestantes;
     }
 
     hint() {
-        window.GAME.showToast("Pista: El camino está despejado ✨");
+        if (this.pistasRestantes <= 0) return;
+        this.pistasRestantes--;
+        window.GAME.showToast("Místico: Los espíritus te guían...");
+        this.updateHeaderUI();
     }
 
     shuffle() {
-        window.GAME.showToast("Místico: Tablero reorganizado...");
+        if (this.mezclasRestantes <= 0) return;
+        this.mezclasRestantes--;
+        window.GAME.showToast("Místico: Destino reorganizado.");
         this.iniciarJuego();
     }
 
@@ -353,36 +410,81 @@ class MahjongController {
     handleTileClick(ficha, div) {
         if (!this.enPartida) return;
 
+        // Standard Mahjong "free tile" rule still applies
         if (!this.model.esLibre(ficha)) {
             div.classList.add('shake');
             setTimeout(() => div.classList.remove('shake'), 400);
             return; 
         }
 
-        if (this.fichaSeleccionadaId === null) {
-            this.fichaSeleccionadaId = ficha.id_unico;
-            this.view.marcarSeleccionada(div);
-        } else if (this.fichaSeleccionadaId === ficha.id_unico) {
-            this.fichaSeleccionadaId = null;
-            this.view.desmarcarFichas();
-        } else {
-            const matchExitoso = this.model.seleccionarPareja(this.fichaSeleccionadaId, ficha.id_unico);
-            if (matchExitoso) {
-                const divA = document.getElementById(`mj-tile-${this.fichaSeleccionadaId}`);
-                const divB = div;
-                this.view.eliminarFichas(divA, divB);
+        // Find empty slot
+        const emptyIndex = this.slots.indexOf(null);
+        if (emptyIndex === -1) {
+            window.GAME.showToast("¡Huecos llenos!");
+            return;
+        }
+
+        // Logic side
+        this.slots[emptyIndex] = ficha;
+        ficha.estado_visibilidad = false; // "hide" from main board logic
+
+        // View side
+        this.view.animateToSlot(ficha.id_unico, emptyIndex);
+
+        // Check for match after animation
+        setTimeout(() => this.checkMatchInSlots(), 450);
+    }
+
+    checkMatchInSlots() {
+        for (let i = 0; i < this.slots.length; i++) {
+            if (!this.slots[i]) continue;
+            for (let j = i + 1; j < this.slots.length; j++) {
+                if (!this.slots[j]) continue;
                 
-                this.score += 500;
-                this.updateHeaderUI();
-                
-                this.fichaSeleccionadaId = null;
-                this.view.desmarcarFichas();
-                
-                setTimeout(() => this.comprobarEstadoGlobal(), 350);
-            } else {
-                this.fichaSeleccionadaId = ficha.id_unico;
-                this.view.marcarSeleccionada(div);
+                if (this.slots[i].tipo_simbologia === this.slots[j].tipo_simbologia) {
+                    const id1 = this.slots[i].id_unico;
+                    const id2 = this.slots[j].id_unico;
+                    
+                    this.view.eliminarDeSlots(id1, id2);
+                    
+                    this.slots[i] = null;
+                    this.slots[j] = null;
+                    this.compactSlots();
+                    
+                    this.score += 750;
+                    this.updateHeaderUI();
+                    
+                    setTimeout(() => this.comprobarEstadoGlobal(), 350);
+                    return;
+                }
             }
+        }
+        
+        // No match found - check if full
+        if (this.slots.indexOf(null) === -1) {
+            this.enPartida = false;
+            window.GAME.showToast("¡Derrota! No hay más espacio.");
+        }
+    }
+
+    compactSlots() {
+        const newSlots = this.slots.filter(s => s !== null);
+        while (newSlots.length < 4) newSlots.push(null);
+        this.slots = newSlots;
+        
+        // Visual re-sync of slots could be added here if needed, 
+        // but typically Match-2 games just leave gaps or slide them.
+        // Let's slide them for V48.
+        const slotBar = document.getElementById('mj-slot-bar');
+        if (slotBar) {
+            Array.from(slotBar.children).forEach((slot, idx) => {
+                const ficha = this.slots[idx];
+                slot.innerHTML = '';
+                if (ficha) {
+                    // This is a simple shortcut to re-render the div inside the slot
+                    this.view.animateToSlot(ficha.id_unico, idx);
+                }
+            });
         }
     }
 
