@@ -165,10 +165,10 @@ class MahjongView {
             return;
         }
         
-        this.baseTileWidth = 20;  
-        this.baseTileHeight = 26; 
-        this.offsetX = 4;  
-        this.offsetY = -4; 
+        this.baseTileWidth = 24;  // Aumentado para mejor visibilidad en escritorio
+        this.baseTileHeight = 32; 
+        this.offsetX = 6;  
+        this.offsetY = -6; 
         
         this.innerBoard = null;
         this.selectedTileDiv = null;
@@ -234,13 +234,14 @@ class MahjongView {
         const ctrWidth = this.container.clientWidth || window.innerWidth;
         const ctrHeight = this.container.clientHeight || (window.innerHeight - 150);
         
-        const scaleX = (ctrWidth - 20) / 600;
-        const scaleY = (ctrHeight - 20) / 440;
+        // Calculamos escala basada en un diseño base de 640x480
+        const scaleX = (ctrWidth - 40) / 640;
+        const scaleY = (ctrHeight - 40) / 480;
         let scale = Math.min(scaleX, scaleY);
         
         // Safety bounds
-        if (scale < 0.1) scale = 0.5; 
-        if (scale > 2.0) scale = 2.0;
+        if (scale < 0.2) scale = 0.5; 
+        if (scale > 3.0) scale = 3.0; // Permitir que crezcan más en pantallas grandes
 
         this.innerBoard.style.transform = `translate(-50%, -50%) scale(${scale})`;
         this.innerBoard.style.left = '50%';

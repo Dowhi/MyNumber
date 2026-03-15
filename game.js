@@ -371,6 +371,9 @@ class MyNumberGame {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         const el = document.getElementById(`${screenId}-screen`);
         if (el) el.classList.add('active');
+
+        // Toggle fullscreen mode for Mahjong
+        document.body.classList.toggle('mj-fullscreen', screenId === 'mahjong');
         
         // Ensure overlays are closed when navigating
         if (this.gameOverOverlay) this.gameOverOverlay.classList.remove('active');
