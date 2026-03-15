@@ -13,7 +13,7 @@
     <link rel="apple-touch-icon" href="icon-192.png">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=27">
+    <link rel="stylesheet" href="style.css?v=28">
 </head>
 
 <body>
@@ -47,30 +47,33 @@
 
         <div class="cards-container">
                 <!-- Replacement for Red Circles -->
+                <!-- Card 1: Classic -->
                 <div class="card card-blue">
-                    <div>
-                        <div class="card-icon">🌀</div>
-                        <p class="card-title">Modo Clásico</p>
+                    <div class="card-content-main">
+                        <img src="card_classic.png" class="card-img" alt="Números">
+                        <p class="card-title">Clásico</p>
                     </div>
                     <div>
-                        <p class="card-val">Nivel Inicial</p>
+                        <p class="card-val">Nivel 1</p>
                         <button id="card-play-1" class="card-btn">Jugar</button>
                     </div>
                 </div>
+                <!-- Card 2: Onet -->
                 <div class="card card-orange">
-                    <div>
-                        <div class="card-icon">⚡</div>
-                        <p class="card-title">Onet Connect</p>
+                    <div class="card-content-main">
+                        <img src="card_onet.png" class="card-img" alt="Onet">
+                        <p class="card-title">Fauna Fauna</p>
                     </div>
                     <div>
-                        <p class="card-val">Ganar Vidas</p>
+                        <p class="card-val">Gana ❤️</p>
                         <button id="card-play-2" class="card-btn">Jugar</button>
                     </div>
                 </div>
+                <!-- Card 3: Mahjong -->
                 <div class="card" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white;">
-                    <div>
-                        <div class="card-icon">🀄</div>
-                        <p class="card-title">Mahjong</p>
+                    <div class="card-content-main">
+                        <img src="card_mahjong.png" class="card-img" alt="Mahjong">
+                        <p class="card-title">Mahjong Sol</p>
                     </div>
                     <div>
                         <p class="card-val">Solitario</p>
@@ -345,9 +348,9 @@
         </div>
     </div>
 
-    <script src="mahjong.js?v=6"></script>
+    <script src="mahjong.js?v=7"></script>
     <script src="onet.js?v=3"></script>
-    <script src="game.js?v=37"></script>
+    <script src="game.js?v=38"></script>
     <script>
     // Register Service Worker for PWA
     if ('serviceWorker' in navigator) {

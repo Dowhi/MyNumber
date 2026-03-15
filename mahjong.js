@@ -168,7 +168,6 @@ class MahjongView {
 
     initInnerBoard() {
         if (!this.container) return;
-        console.log("DEBUG: Initializing Mahjong InnerBoard...");
         this.container.innerHTML = ''; 
         this.innerBoard = document.createElement('div');
         this.innerBoard.id = 'mj-inner-board';
@@ -176,9 +175,7 @@ class MahjongView {
         this.innerBoard.style.width = '450px'; 
         this.innerBoard.style.height = '320px';
         this.innerBoard.style.margin = 'auto';
-        this.innerBoard.style.border = '1px dashed rgba(255,255,255,0.2)'; // Helper visible en debug
         this.container.appendChild(this.innerBoard);
-        console.log("DEBUG: InnerBoard attached to DOM");
     }
 
     renderTablero(fichas, onTileClick) {
@@ -218,20 +215,23 @@ class MahjongView {
 
     scaleInnerBoard() {
         if (!this.container || !this.innerBoard) return;
+        
+        // Use offsetHeight/Width to get precise content area
         const ctrWidth = this.container.clientWidth;
         const ctrHeight = this.container.clientHeight;
         
-        if (ctrWidth < 50 || ctrHeight < 50) {
-            console.log("Container dimensions too small, retrying scale...", ctrWidth, ctrHeight);
-            return;
-        }
+        if (ctrWidth < 50 || ctrHeight < 50) return;
 
-        const scaleX = (ctrWidth - 20) / 450;
-        const scaleY = (ctrHeight - 40) / 320;
-        const scale = Math.min(1, scaleX, scaleY);
+        // Space allocation: let it use almost the full area minus small padding
+        const scaleX = (ctrWidth - 24) / 450;
+        const scaleY = (ctrHeight - 48) / 320;
         
-        console.log(`Scaling board to: ${scale} (W:${ctrWidth} H:${ctrHeight})`);
-        this.innerBoard.style.transform = `scale(${Math.max(0.4, scale)})`;
+        // Allow it to grow up to 1.5x of the base size if screen is large
+        const scale = Math.min(1.5, scaleX, scaleY);
+        
+        console.log(`MAHJONG SCALE: ${scale.toFixed(2)} based on W:${ctrWidth} H:${ctrHeight}`);
+        
+        this.innerBoard.style.transform = `scale(${scale})`;
         this.innerBoard.style.transformOrigin = 'center center';
     }
 

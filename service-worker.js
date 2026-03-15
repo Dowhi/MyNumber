@@ -1,7 +1,12 @@
-const CACHE_NAME = 'number-match-v29';
+const CACHE_NAME = 'number-match-v30';
 const ASSETS = [
   './',
   './index.html',
+  './mahjong.js',
+  './onet.js',
+  './card_classic.png',
+  './card_onet.png',
+  './card_mahjong.png',
   './manifest.json',
   './icon-192.png',
   './icon-512.png'
