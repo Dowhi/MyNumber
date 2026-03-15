@@ -156,10 +156,10 @@ class MahjongView {
             return;
         }
         
-        this.baseTileWidth = 18;  
-        this.baseTileHeight = 22; 
-        this.offsetX = 4;  
-        this.offsetY = -4; 
+        this.baseTileWidth = 24;  
+        this.baseTileHeight = 30; 
+        this.offsetX = 6;  
+        this.offsetY = -6; 
         
         this.innerBoard = null;
         this.selectedTileDiv = null;
@@ -172,8 +172,8 @@ class MahjongView {
         this.innerBoard = document.createElement('div');
         this.innerBoard.id = 'mj-inner-board';
         this.innerBoard.style.position = 'relative';
-        this.innerBoard.style.width = '450px'; 
-        this.innerBoard.style.height = '320px';
+        this.innerBoard.style.width = '600px'; 
+        this.innerBoard.style.height = '440px';
         this.innerBoard.style.margin = 'auto';
         this.container.appendChild(this.innerBoard);
     }
@@ -222,14 +222,14 @@ class MahjongView {
         
         if (ctrWidth < 50 || ctrHeight < 50) return;
 
-        // Space allocation: let it use almost the full area minus small padding
-        const scaleX = (ctrWidth - 24) / 450;
-        const scaleY = (ctrHeight - 48) / 320;
+        // Space allocation: use almost 100% minus minimal safety margin
+        const scaleX = (ctrWidth - 10) / 600;
+        const scaleY = (ctrHeight - 10) / 440;
         
-        // Allow it to grow up to 1.5x of the base size if screen is large
-        const scale = Math.min(1.5, scaleX, scaleY);
+        // Allowed to grow up to 2.5x to fill large screens
+        const scale = Math.min(2.5, scaleX, scaleY);
         
-        console.log(`MAHJONG SCALE: ${scale.toFixed(2)} based on W:${ctrWidth} H:${ctrHeight}`);
+        console.log(`MAHJONG PRO SCALE: ${scale.toFixed(2)} based on W:${ctrWidth} H:${ctrHeight}`);
         
         this.innerBoard.style.transform = `scale(${scale})`;
         this.innerBoard.style.transformOrigin = 'center center';
