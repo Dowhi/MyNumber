@@ -965,11 +965,11 @@ body {
     flex-direction: column;
     color: white;
 }
-.mahjong-screen .onet-header {
+.mahjong-screen .top-nav {
     background: rgba(255,255,255,0.05);
     border-bottom: 1px solid rgba(255,255,255,0.1);
 }
-.mahjong-screen .onet-header h2 {
+.mahjong-screen .top-nav h2 {
     color: white !important;
 }
 .mahjong-screen .back-btn {
