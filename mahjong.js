@@ -165,8 +165,8 @@ class MahjongView {
             return;
         }
         
-        this.baseTileWidth = 18;  
-        this.baseTileHeight = 22; 
+        this.baseTileWidth = 20;  
+        this.baseTileHeight = 26; 
         this.offsetX = 4;  
         this.offsetY = -4; 
         

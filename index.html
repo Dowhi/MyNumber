@@ -13,7 +13,7 @@
     <link rel="apple-touch-icon" href="icon-192.png">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Cinzel:wght@400;700&family=Quicksand:wght@300;500;700&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=40">
+    <link rel="stylesheet" href="style.css?v=41">
 </head>
 
 <body>
@@ -77,7 +77,7 @@
                     </div>
                     <div>
                         <p class="card-val">Solitario</p>
-                        <button id="card-play-3" class="card-btn" onclick="if(window.GAME) window.GAME.triggerMahjongGame()">Jugar</button>
+                        <button id="card-play-3" class="card-btn">Jugar</button>
                     </div>
                 </div>
             </div>
@@ -338,7 +338,7 @@
     <div id="mahjong-screen" class="screen mahjong-screen bg-celestial">
         <header class="mj-mystic-header">
             <div class="header-back-area">
-                <button class="nav-btn-icon back-btn back-to-home" id="mahjong-quit-btn">
+                <button class="nav-btn-icon back-btn" id="mahjong-quit-btn">
                     <span class="chevron-left"></span>
                 </button>
             </div>
@@ -346,11 +346,11 @@
                 <span class="stats-label text-teal">PUNTUACIÓN</span>
                 <span id="mj-score" class="stats-value text-amber title-font">0</span>
             </div>
-            <div class="header-stats-item text-center">
+            <div class="header-stats-item" style="text-align: center;">
                 <span class="stats-label text-teal">NIVEL</span>
                 <span class="stats-value title-font">1 - Éter</span>
             </div>
-            <div class="header-stats-item text-right">
+            <div class="header-stats-item" style="text-align: right;">
                 <span class="stats-label text-teal">TIEMPO</span>
                 <span id="mj-timer" class="stats-value title-font tabular-nums">00:00</span>
             </div>
@@ -384,9 +384,9 @@
         </footer>
     </div>
 
-    <script src="mahjong.js?v=40"></script>
-    <script src="onet.js?v=40"></script>
-    <script src="game.js?v=40"></script>
+    <script src="mahjong.js?v=41"></script>
+    <script src="onet.js?v=41"></script>
+    <script src="game.js?v=41"></script>
     <script>
     // Register Service Worker for PWA
     if ('serviceWorker' in navigator) {
