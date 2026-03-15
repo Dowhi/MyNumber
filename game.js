@@ -214,38 +214,13 @@ class MyNumberGame {
 
         const cardMahjong = document.getElementById('card-play-3');
         if (cardMahjong) {
-            const startMahjong = (e) => {
-                if (e.type === 'touchstart') e.preventDefault();
-                console.log("DEBUG: Card Mahjong clicked");
-                this.switchScreen('mahjong');
-                
-                // Inicializar The Controller if not yet setup
-                if (!this.mahjongController && window.MahjongController) {
-                    console.log("DEBUG: Creating new MahjongController");
-                    const view = new window.MahjongView('mahjong-container');
-                    this.mahjongController = new window.MahjongController(view, () => {
-                        this.addLife();
-                        this.saveState();
-                    });
-                }
-
-                if (this.mahjongController && window.generarLayoutMahjong) {
-                    try {
-                        console.log("DEBUG: Starting Mahjong game...");
-                        this.mahjongController.iniciarJuego(window.generarLayoutMahjong());
-                    } catch(err) {
-                        console.error("DEBUG: Mahjong Crash:", err);
-                        document.getElementById('mahjong-container').innerHTML = `<p style="color:red; text-align:center;">Runtime Error: ${err.message}</p>`;
-                    }
-                } else {
-                    console.warn("DEBUG: Mahjong not ready. Controller:", !!this.mahjongController, "LayoutGen:", !!window.generarLayoutMahjong);
-                    document.getElementById('mahjong-container').innerHTML = `<p style="color:white; text-align:center; padding: 20px;">Error: El motor Mahjong no se pudo cargar. Reintenta recargar la web.</p>`;
-                }
-            };
-            cardMahjong.addEventListener('click', startMahjong);
-            cardMahjong.addEventListener('touchstart', startMahjong, { passive: false });
+            cardMahjong.addEventListener('click', () => this.startMahjongMinigame());
+            cardMahjong.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                this.startMahjongMinigame();
+            }, { passive: false });
         }
-
+        
         const btnNewGame = document.getElementById('btn-new-game');
         if (btnNewGame) {
             const startNew = (e) => {
@@ -262,10 +237,7 @@ class MyNumberGame {
             btnContinue.addEventListener('touchstart', handleContinue, { passive: false });
         }
 
-        // Modal buttons are handled dynamically in openModal
-
-
-        // Helper
+        // Bottom Nav
         const bindButton = (id, callback, preventDefault = true) => {
             const el = document.getElementById(id);
             if (!el) return;
@@ -277,12 +249,11 @@ class MyNumberGame {
             el.addEventListener('touchstart', handler, { passive: !preventDefault });
         };
 
-        // Bottom Nav
         bindButton('nav-home', () => this.switchScreen('home'));
         bindButton('nav-ranking', () => this.switchScreen('ranking'));
         bindButton('nav-stats', () => this.switchScreen('stats'));
 
-        // All Back Buttons to Home
+        // All Back Buttons
         ['back-to-home', 'back-to-home-ranking', 'back-to-home-stats', 'go-home', 'mahjong-quit-btn'].forEach(id => {
             bindButton(id, () => {
                 if (this.mahjongController) this.mahjongController.enPartida = false;
@@ -290,16 +261,38 @@ class MyNumberGame {
             });
         });
 
-        // Settings (Coming soon)
+        // Settings & General
         ['settings-btn-home', 'settings-btn-game'].forEach(id => {
             bindButton(id, () => this.showToast("Ajustes: Próximamente ⚙️"));
         });
-
-        // Game Over - Start New
         bindButton('go-new-game', () => this.startNewGame());
 
         this.updateHeader();
         this.checkAchievements();
+    }
+
+    startMahjongMinigame() {
+        console.log("DEBUG: External trigger for Mahjong");
+        this.switchScreen('mahjong');
+        
+        if (!this.mahjongController && window.MahjongController) {
+            const view = new window.MahjongView('mahjong-container');
+            this.mahjongController = new window.MahjongController(view, () => {
+                this.stats.lives++;
+                this.saveStats();
+                this.updateHeader();
+                this.showToast("¡Has ganado 1 ❤️!");
+                this.switchScreen('home');
+            });
+        }
+
+        if (this.mahjongController && window.generarLayoutMahjong) {
+            try {
+                this.mahjongController.iniciarJuego(window.generarLayoutMahjong());
+            } catch(err) {
+                console.error("Mahjong Error:", err);
+            }
+        }
     }
 
     updateHeader() {

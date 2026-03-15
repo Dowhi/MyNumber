@@ -74,7 +74,7 @@
                     </div>
                     <div>
                         <p class="card-val">Solitario</p>
-                        <button id="card-play-3" class="card-btn">Jugar</button>
+                        <button id="card-play-3" class="card-btn" onclick="if(window.GAME) window.GAME.startMahjongMinigame()">Jugar</button>
                     </div>
                 </div>
             </div>
@@ -334,7 +334,7 @@
     <!-- MAHJONG MINIGAME SCREEN -->
     <div id="mahjong-screen" class="screen mahjong-screen">
         <div class="onet-header">
-            <button id="mahjong-quit-btn" class="nav-btn-icon back-btn">
+            <button id="mahjong-quit-btn" class="nav-btn-icon back-btn" onclick="if(window.GAME) window.GAME.switchScreen('home')">
                 <span class="chevron-left"></span>
             </button>
             <h2 style="font-size: 18px; font-weight: 700;">Mahjong Solitario</h2>
@@ -345,9 +345,9 @@
         </div>
     </div>
 
-    <script src="mahjong.js?v=4"></script>
+    <script src="mahjong.js?v=5"></script>
     <script src="onet.js?v=3"></script>
-    <script src="game.js?v=29"></script>
+    <script src="game.js?v=31"></script>
     <script>
     // Register Service Worker for PWA
     if ('serviceWorker' in navigator) {
