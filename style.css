@@ -965,74 +965,167 @@ body {
 }
 .onet-difficulty-options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; } .diff-btn { background: #f2f2f7; border: none; border-radius: 12px; padding: 16px 8px; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; transition: all 0.2s ease; } .diff-btn:hover, .diff-btn:active { background: var(--blue-primary) !important; transform: translateY(-2px); } .diff-btn:hover span, .diff-btn:active span { color: white !important; } .diff-time { font-size: 18px; font-weight: 800; color: var(--text-primary); } .diff-reward { font-size: 13px; font-weight: 600; color: #8e8e93; }
 
-/* Mahjong Styles */
-.mahjong-screen {
-    background: #1a1a24; 
-    flex-direction: column;
-    color: white;
-    padding: 0 !important; /* Usar todo el espacio */
-}
-.mahjong-screen .top-nav {
-    background: rgba(255,255,255,0.05);
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-    padding: 15px 20px;
-}
-.mahjong-screen .top-nav h2 {
-    color: white !important;
-}
-.mahjong-screen .back-btn {
-    opacity: 1 !important;
-    z-index: 1000;
-}
-.mahjong-screen .chevron-left::before {
-    color: white !important;
-}
-.mahjong-board-container {
-    flex: 1;
+/* Stitch Mahjong Integration - Mystic Edition */
+.title-font { font-family: 'Cinzel', serif; }
+.text-teal { color: #2dd4bf; }
+.text-amber { color: #fbbf24; }
+.text-teal-light { color: #99f6e4; }
+.text-amber-light { color: #fde68a; }
+
+.bg-celestial {
+    background: radial-gradient(circle at center, #1a3636 0%, #050b0b 100%);
     position: relative;
     overflow: hidden;
+}
+
+.bg-celestial::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-image: url(https://lh3.googleusercontent.com/aida-public/AB6AXuCHOQnVNGlXEiH-DSdwYxTxEPpCUDK-XRW0st5IQIq30Q_dBB0ISR9EhDG5mYdJUTc7xdTmKN4GDA75522SkRy5YxkGznrTP7oB5NCMdITaLZHQVRZdoYhv2GcHyc6czR1WzGaT5LdUiahPtKYHvv3u1l5iwVsRc4HIElddJBUJ_p9i6xACYaPELixd41i0zDr1IldjTOcQjzmqntj0oC_L84Byqmuz1GHs_vNhtI1Ji2NErINe1GDywOPCS-eUjqtMG8dGAAedr9A);
+    background-size: cover;
+    opacity: 0.15;
+    filter: blur(8px);
+    pointer-events: none;
+}
+
+.mj-mystic-header {
+    position: relative;
+    z-index: 100;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+}
+
+.header-stats-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.stats-label {
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    font-weight: 800;
+    opacity: 0.8;
+}
+
+.stats-value {
+    font-size: 16px;
+    font-weight: 700;
+    color: white;
+}
+
+.mj-mystic-footer {
+    position: relative;
+    z-index: 100;
+    background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
+    padding: 20px 0 40px;
+}
+
+.controls-wrapper {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.control-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.1s;
+}
+
+.control-btn:active { transform: scale(0.95); }
+
+.btn-icon-circle {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 5px; /* Mínimo padding */
-    z-index: 10;
+    margin-bottom: 5px;
+    background: rgba(0,0,0,0.3);
+    border-width: 2px;
+    border-style: solid;
+    transition: background 0.2s;
 }
+
+.border-teal { border-color: rgba(45, 212, 191, 0.4); }
+.border-amber { border-color: #fbbf24; }
+.bg-amber-heavy { background: rgba(120, 53, 15, 0.4); }
+
+.svg-teal { width: 22px; height: 22px; color: #5eead4; }
+.svg-amber { width: 28px; height: 28px; color: #fde68a; }
+
+.btn-label {
+    font-size: 10px;
+    font-weight: 500;
+}
+
+/* Updated Tiles for Mystic Edition */
 .mahjong-tile {
     position: absolute;
-    width: 48px;
-    height: 60px;
-    background: #fdfaf0; /* Brighter cream */
-    border: 1px solid #d1c9b3;
-    border-right: 4px solid #b5ad95;
-    border-bottom: 4px solid #b5ad95;
-    border-radius: 6px;
+    width: 42px; /* Adjusted base size */
+    height: 54px;
+    background: linear-gradient(135deg, #f3f4f6 0%, #d1d5db 100%);
+    border-radius: 4px;
+    box-shadow: 0 2px 0 #9ca3af, 0 4px 0 #4b5563, 0 6px 10px rgba(0, 0, 0, 0.5);
+    transition: transform 0.1s, box-shadow 0.1s;
+    cursor: pointer;
+}
+
+.tile-face {
+    border: 1.5px solid #b45309;
+    margin: 3px;
+    height: calc(100% - 6px);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 32px;
-    color: #111; 
-    box-shadow: 3px 6px 10px rgba(0,0,0,0.4);
-    cursor: pointer;
-    user-select: none;
-    transition: transform 0.1s, opacity 0.3s;
+    background: white;
+    border-radius: 2px;
+    overflow: hidden;
 }
+
+.tile-face img {
+    width: 85%;
+    height: 85%;
+    object-fit: contain;
+}
+
 .mahjong-tile.selected {
-    border: 2px solid #3b82f6;
-    box-shadow: 0 0 10px rgba(59, 130, 246, 0.8), 2px 2px 5px rgba(0,0,0,0.4);
-    transform: translateY(-4px); 
-    z-index: 9999 !important; 
+    transform: translateY(-5px);
+    box-shadow: 0 0 15px rgba(251, 191, 36, 0.6), 0 5px 0 #4b5563;
+    z-index: 1000 !important;
 }
+
+.mahjong-tile.selected .tile-face {
+    border-color: #fbbf24;
+    background: #fffbeb;
+}
+
 .mahjong-tile.removed {
     opacity: 0;
     pointer-events: none;
-    transform: scale(1.5);
+    transform: scale(1.5) rotate(15deg);
 }
-.mahjong-tile.shake {
-    animation: mj-shake 0.3s cubic-bezier(.36,.07,.19,.97) both;
-}
+
+.layer-shadow { filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.6)); }
+
 @keyframes mj-shake {
   10%, 90% { transform: translate3d(-1px, 0, 0); }
   20%, 80% { transform: translate3d(2px, 0, 0); }
   30%, 50%, 70% { transform: translate3d(-2px, 0, 0); }
   40%, 60% { transform: translate3d(2px, 0, 0); }
 }
+.mahjong-tile.shake { animation: mj-shake 0.3s cubic-bezier(.36,.07,.19,.97) both; }
