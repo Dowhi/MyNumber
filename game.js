@@ -24,7 +24,7 @@ const STATE = {
 
 class MyNumberGame {
     constructor() {
-        console.log("GAME V48: Constructor started");
+        console.log("GAME V49: Constructor started");
         window.GAME = this; // Set early
         this.board = []; 
         this.selectedIndices = [];

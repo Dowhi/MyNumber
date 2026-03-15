@@ -199,35 +199,35 @@ class MahjongView {
         this.innerBoard.innerHTML = '';
         this.innerBoard.className = 'inner-board layer-shadow';
 
-        // Tile base dimensions in pixels for coordinate mapping
-        // Coordinate unit = half-tile width/height for dense layout
-        const unitW = 28; // 60px / 2 approx
-        const unitH = 37; // 80px / 2 approx
+        const unitW = 28;
+        const unitH = 37;
 
         fichas.forEach(f => {
             if (!f.estado_visibilidad) return;
 
             const div = document.createElement('div');
-            
-            // Stitch Structure: .mahjong-tile > .tile-face > img
+            div.className = `mahjong-tile ${f.flipped ? '' : 'face-down'}`;
+            div.id = `mj-tile-${f.id_unico}`;
+            div.style.zIndex = f.coord_Z * 100 + f.coord_Y * 10 + f.coord_X;
+            div.style.left = `${f.coord_X * unitW}px`;
+            div.style.top = `${f.coord_Y * unitH}px`;
+            div.style.pointerEvents = 'auto';
+
             const face = document.createElement('div');
             face.className = 'tile-face';
             
             const img = document.createElement('img');
-            img.src = IMAGE_MAP[ficha.tipo_simbologia] || IMAGE_MAP["Bambu1"];
-            img.alt = ficha.tipo_simbologia;
+            img.src = IMAGE_MAP[f.tipo_simbologia] || "placeholder.png";
+            img.alt = f.tipo_simbologia;
             
             face.appendChild(img);
             div.appendChild(face);
 
-            div.addEventListener('click', () => onTileClick(ficha, div));
-            div.style.pointerEvents = 'auto';
+            div.onclick = () => clickHandler(f, div);
             this.innerBoard.appendChild(div);
         });
         
-        // Use requestAnimationFrame to ensure DOM is updated before measuring
         requestAnimationFrame(() => this.scaleInnerBoard());
-        // Second pass after a bit just in case of screen transitions
         setTimeout(() => this.scaleInnerBoard(), 300);
     }
 
@@ -329,7 +329,7 @@ class MahjongController {
     }
 
     iniciarJuego(layout) {
-        console.log("MAHJONG: Starting new game V48");
+        console.log("MAHJONG: Starting new game V49");
         const gameLayout = layout || window.generarLayoutMahjong();
         this.model.cargarNivel(gameLayout);
         this.enPartida = true;
