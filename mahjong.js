@@ -146,27 +146,41 @@ class MahjongModel {
 // CLASES COMPLEMENTARIAS: VISTA y CONTROLADOR
 // --------------------------------------------------------------------------------
 
+console.log("MAHJONG V3 LOADED");
+
 class MahjongView {
     constructor(containerId) {
         this.container = document.getElementById(containerId);
-        this.baseTileWidth = 18;  // Píxeles por unidad X
-        this.baseTileHeight = 22; // Píxeles por unidad Y
-        this.offsetX = 4;  // Desplazamiento 3D (Z)
-        this.offsetY = -4; // Desplazamiento 3D (Z)
+        if (!this.container) console.error("Mahjong container not found:", containerId);
         
-        // Inner board to manage absolute positioning without overflowing or ignoring flex
+        this.baseTileWidth = 18;  
+        this.baseTileHeight = 22; 
+        this.offsetX = 4;  
+        this.offsetY = -4; 
+        
+        this.innerBoard = null;
+        this.selectedTileDiv = null;
+        this.initInnerBoard();
+    }
+
+    initInnerBoard() {
+        if (!this.container) return;
+        this.container.innerHTML = ''; // Clear any residual text or errors
         this.innerBoard = document.createElement('div');
+        this.innerBoard.id = 'mj-inner-board';
         this.innerBoard.style.position = 'relative';
         this.innerBoard.style.width = '450px'; 
         this.innerBoard.style.height = '320px';
+        this.innerBoard.style.margin = 'auto';
         this.container.appendChild(this.innerBoard);
-
-        this.selectedTileDiv = null;
+        console.log("InnerBoard initialized in container");
     }
 
     renderTablero(fichas, onTileClick) {
+        if (!this.innerBoard) this.initInnerBoard();
         this.innerBoard.innerHTML = '';
         
+        console.log("Rendering tiles:", fichas.length);
         fichas.sort((a, b) => a.coord_Z - b.coord_Z);
 
         fichas.forEach(ficha => {
@@ -176,7 +190,6 @@ class MahjongView {
             div.className = 'mahjong-tile';
             div.id = `mj-tile-${ficha.id_unico}`;
             
-            // X * mitad_de_ficha
             const left = (ficha.coord_X * this.baseTileWidth) + (ficha.coord_Z * this.offsetX);
             const top = (ficha.coord_Y * this.baseTileHeight) + (ficha.coord_Z * this.offsetY);
             
@@ -185,23 +198,35 @@ class MahjongView {
             div.style.zIndex = ficha.coord_Z * 10 + ficha.coord_X + ficha.coord_Y;
             
             div.textContent = this.obtenerTextoEmoji(ficha);
-            if (ficha.tipo_simbologia === "Flor") div.style.color = ficha.color === "Rojo" ? "red" : "blue";
-            if (ficha.tipo_simbologia === "Estacion") div.style.color = "#008000";
+            if (ficha.tipo_simbologia === "Flor") div.style.color = ficha.color === "Rojo" ? "#e11d48" : "#2563eb";
+            if (ficha.tipo_simbologia === "Estacion") div.style.color = "#16a34a";
 
             div.addEventListener('click', () => onTileClick(ficha, div));
             this.innerBoard.appendChild(div);
         });
         
-        // Scale inner board to fit viewport dynamically
-        this.scaleInnerBoard();
-        window.addEventListener('resize', () => this.scaleInnerBoard());
+        // Use requestAnimationFrame to ensure DOM is updated before measuring
+        requestAnimationFrame(() => this.scaleInnerBoard());
+        // Second pass after a bit just in case of screen transitions
+        setTimeout(() => this.scaleInnerBoard(), 300);
     }
 
     scaleInnerBoard() {
         if (!this.container || !this.innerBoard) return;
-        const ctrWidth = this.container.clientWidth || window.innerWidth;
-        const scale = Math.min(1, (ctrWidth - 20) / 450); 
-        this.innerBoard.style.transform = `scale(${scale})`;
+        const ctrWidth = this.container.clientWidth;
+        const ctrHeight = this.container.clientHeight;
+        
+        if (ctrWidth < 50 || ctrHeight < 50) {
+            console.log("Container dimensions too small, retrying scale...", ctrWidth, ctrHeight);
+            return;
+        }
+
+        const scaleX = (ctrWidth - 20) / 450;
+        const scaleY = (ctrHeight - 40) / 320;
+        const scale = Math.min(1, scaleX, scaleY);
+        
+        console.log(`Scaling board to: ${scale} (W:${ctrWidth} H:${ctrHeight})`);
+        this.innerBoard.style.transform = `scale(${Math.max(0.4, scale)})`;
         this.innerBoard.style.transformOrigin = 'center center';
     }
 

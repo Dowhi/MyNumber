@@ -216,10 +216,12 @@ class MyNumberGame {
         if (cardMahjong) {
             const startMahjong = (e) => {
                 if (e.type === 'touchstart') e.preventDefault();
+                console.log("DEBUG: Card Mahjong clicked");
                 this.switchScreen('mahjong');
                 
                 // Inicializar The Controller if not yet setup
                 if (!this.mahjongController && window.MahjongController) {
+                    console.log("DEBUG: Creating new MahjongController");
                     const view = new window.MahjongView('mahjong-container');
                     this.mahjongController = new window.MahjongController(view, () => {
                         this.addLife();
@@ -229,12 +231,15 @@ class MyNumberGame {
 
                 if (this.mahjongController && window.generarLayoutMahjong) {
                     try {
+                        console.log("DEBUG: Starting Mahjong game...");
                         this.mahjongController.iniciarJuego(window.generarLayoutMahjong());
                     } catch(err) {
+                        console.error("DEBUG: Mahjong Crash:", err);
                         document.getElementById('mahjong-container').innerHTML = `<p style="color:red; text-align:center;">Runtime Error: ${err.message}</p>`;
                     }
                 } else {
-                    document.getElementById('mahjong-container').innerHTML = `<p style="color:white; text-align:center; padding: 20px;">Error: El motor Mahjong no se pudo cargar correctamente. Por favor, asegúrate de recargar la web sin caché.</p>`;
+                    console.warn("DEBUG: Mahjong not ready. Controller:", !!this.mahjongController, "LayoutGen:", !!window.generarLayoutMahjong);
+                    document.getElementById('mahjong-container').innerHTML = `<p style="color:white; text-align:center; padding: 20px;">Error: El motor Mahjong no se pudo cargar. Reintenta recargar la web.</p>`;
                 }
             };
             cardMahjong.addEventListener('click', startMahjong);
