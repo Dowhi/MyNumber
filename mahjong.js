@@ -231,16 +231,21 @@ class MahjongView {
 
     scaleInnerBoard() {
         if (!this.container || !this.innerBoard) return;
-        const ctrWidth = this.container.clientWidth;
-        const ctrHeight = this.container.clientHeight;
-        if (ctrWidth < 50 || ctrHeight < 50) return;
-
-        const scaleX = (ctrWidth - 10) / 600;
-        const scaleY = (ctrHeight - 10) / 440;
-        const scale = Math.min(2.5, scaleX, scaleY);
+        const ctrWidth = this.container.clientWidth || window.innerWidth;
+        const ctrHeight = this.container.clientHeight || (window.innerHeight - 150);
         
-        this.innerBoard.style.transform = `scale(${scale})`;
-        this.innerBoard.style.transformOrigin = 'center center';
+        const scaleX = (ctrWidth - 20) / 600;
+        const scaleY = (ctrHeight - 20) / 440;
+        let scale = Math.min(scaleX, scaleY);
+        
+        // Safety bounds
+        if (scale < 0.1) scale = 0.5; 
+        if (scale > 2.0) scale = 2.0;
+
+        this.innerBoard.style.transform = `translate(-50%, -50%) scale(${scale})`;
+        this.innerBoard.style.left = '50%';
+        this.innerBoard.style.top = '50%';
+        this.innerBoard.style.position = 'absolute';
     }
 
     marcarSeleccionada(div) {

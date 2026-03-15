@@ -998,9 +998,9 @@ body {
     -webkit-backdrop-filter: blur(10px);
     border-bottom: 2px solid rgba(45, 212, 191, 0.3);
     display: grid;
-    grid-template-columns: 50px 1fr 1fr 1fr;
+    grid-template-columns: 60px 1fr 1fr 1fr;
     align-items: center;
-    padding: 8px 16px;
+    padding: 0 16px;
     height: 70px;
     flex-shrink: 0;
 }
