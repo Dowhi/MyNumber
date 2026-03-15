@@ -130,8 +130,20 @@ class MyNumberGame {
         this.gridElement = document.getElementById('game-board');
         try {
             this.onetGame = new OnetGame(this); // Initialize Onet
+            if (typeof MahjongController !== 'undefined') {
+                this.mahjongController = new MahjongController(
+                    new MahjongView('mahjong-container'),
+                    () => {
+                        this.stats.lives++;
+                        this.saveStats();
+                        this.updateLivesDisplay();
+                        this.showToast("¡Has ganado 1 ❤️!");
+                        this.switchScreen('home');
+                    }
+                );
+            }
         } catch (e) {
-            console.error("Failed to initialize OnetGame:", e);
+            console.error("Failed to initialize minigames:", e);
         }
         
         // Modal buttons logic - updated to handle multiple modals safely
@@ -200,6 +212,20 @@ class MyNumberGame {
             cardMarathon.addEventListener('touchstart', startOnet, { passive: false });
         }
 
+        const cardMahjong = document.getElementById('card-play-3');
+        if (cardMahjong) {
+            const startMahjong = (e) => {
+                if (e.type === 'touchstart') e.preventDefault();
+                console.log("Starting Mahjong Minigame...");
+                this.switchScreen('mahjong');
+                if (this.mahjongController && window.generarLayoutMahjong) {
+                    this.mahjongController.iniciarJuego(window.generarLayoutMahjong());
+                }
+            };
+            cardMahjong.addEventListener('click', startMahjong);
+            cardMahjong.addEventListener('touchstart', startMahjong, { passive: false });
+        }
+
         const btnNewGame = document.getElementById('btn-new-game');
         if (btnNewGame) {
             const startNew = (e) => {
@@ -237,8 +263,11 @@ class MyNumberGame {
         bindButton('nav-stats', () => this.switchScreen('stats'));
 
         // All Back Buttons to Home
-        ['back-to-home', 'back-to-home-ranking', 'back-to-home-stats', 'go-home'].forEach(id => {
-            bindButton(id, () => this.switchScreen('home'));
+        ['back-to-home', 'back-to-home-ranking', 'back-to-home-stats', 'go-home', 'mahjong-quit-btn'].forEach(id => {
+            bindButton(id, () => {
+                if (this.mahjongController) this.mahjongController.enPartida = false;
+                this.switchScreen('home');
+            });
         });
 
         // Settings (Coming soon)

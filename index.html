@@ -60,11 +60,21 @@
                 <div class="card card-orange">
                     <div>
                         <div class="card-icon">⚡</div>
-                        <p class="card-title">Maratón</p>
+                        <p class="card-title">Onet Connect</p>
                     </div>
                     <div>
-                        <p class="card-val">Sin Límites</p>
+                        <p class="card-val">Ganar Vidas</p>
                         <button id="card-play-2" class="card-btn">Jugar</button>
+                    </div>
+                </div>
+                <div class="card" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white;">
+                    <div>
+                        <div class="card-icon">🀄</div>
+                        <p class="card-title">Mahjong</p>
+                    </div>
+                    <div>
+                        <p class="card-val">Solitario</p>
+                        <button id="card-play-3" class="card-btn">Jugar</button>
                     </div>
                 </div>
             </div>
@@ -321,8 +331,23 @@
         </div>
     </div>
 
+    <!-- MAHJONG MINIGAME SCREEN -->
+    <div id="mahjong-screen" class="screen mahjong-screen">
+        <div class="onet-header">
+            <button id="mahjong-quit-btn" class="nav-btn-icon back-btn">
+                <span class="chevron-left"></span>
+            </button>
+            <h2 style="font-size: 18px; font-weight: 700;">Mahjong Solitario</h2>
+            <div style="width: 40px;"></div>
+        </div>
+        <div class="mahjong-board-container" id="mahjong-container">
+            <!-- Tiles go here -->
+        </div>
+    </div>
+
+    <script src="mahjong.js?v=1"></script>
     <script src="onet.js?v=3"></script>
-    <script src="game.js?v=25"></script>
+    <script src="game.js?v=26"></script>
     <script>
     // Register Service Worker for PWA
     if ('serviceWorker' in navigator) {
