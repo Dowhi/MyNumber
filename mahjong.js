@@ -149,19 +149,24 @@ class MahjongModel {
 class MahjongView {
     constructor(containerId) {
         this.container = document.getElementById(containerId);
-        this.baseTileWidth = 36; // Píxeles por unidad X (ej: x=2 -> 72px)
-        this.baseTileHeight = 44; // Píxeles por unidad Y (ej: y=2 -> 88px)
-        this.offsetX = 6;  // Desplazamiento 3D (Z)
-        this.offsetY = -6; // Desplazamiento 3D (Z)
+        this.baseTileWidth = 18;  // Píxeles por unidad X
+        this.baseTileHeight = 22; // Píxeles por unidad Y
+        this.offsetX = 4;  // Desplazamiento 3D (Z)
+        this.offsetY = -4; // Desplazamiento 3D (Z)
         
+        // Inner board to manage absolute positioning without overflowing or ignoring flex
+        this.innerBoard = document.createElement('div');
+        this.innerBoard.style.position = 'relative';
+        this.innerBoard.style.width = '450px'; 
+        this.innerBoard.style.height = '320px';
+        this.container.appendChild(this.innerBoard);
+
         this.selectedTileDiv = null;
     }
 
     renderTablero(fichas, onTileClick) {
-        this.container.innerHTML = '';
+        this.innerBoard.innerHTML = '';
         
-        // Ordenar por Z ascendente para correcto z-index nativo, 
-        // aunque usaremos z-index explícito
         fichas.sort((a, b) => a.coord_Z - b.coord_Z);
 
         fichas.forEach(ficha => {
@@ -171,23 +176,33 @@ class MahjongView {
             div.className = 'mahjong-tile';
             div.id = `mj-tile-${ficha.id_unico}`;
             
-            // Posicionamiento absoluto basado en grid
-            // X * mitad_de_ficha (ya que la ficha mide 2 unidades, multiplicamos la unidad base)
+            // X * mitad_de_ficha
             const left = (ficha.coord_X * this.baseTileWidth) + (ficha.coord_Z * this.offsetX);
             const top = (ficha.coord_Y * this.baseTileHeight) + (ficha.coord_Z * this.offsetY);
             
             div.style.left = `${left}px`;
             div.style.top = `${top}px`;
-            div.style.zIndex = ficha.coord_Z * 10 + ficha.coord_X + ficha.coord_Y; // Capas y solapamientos
+            div.style.zIndex = ficha.coord_Z * 10 + ficha.coord_X + ficha.coord_Y;
             
-            // Decoración visual
             div.textContent = this.obtenerTextoEmoji(ficha);
             if (ficha.tipo_simbologia === "Flor") div.style.color = ficha.color === "Rojo" ? "red" : "blue";
             if (ficha.tipo_simbologia === "Estacion") div.style.color = "#008000";
 
             div.addEventListener('click', () => onTileClick(ficha, div));
-            this.container.appendChild(div);
+            this.innerBoard.appendChild(div);
         });
+        
+        // Scale inner board to fit viewport dynamically
+        this.scaleInnerBoard();
+        window.addEventListener('resize', () => this.scaleInnerBoard());
+    }
+
+    scaleInnerBoard() {
+        if (!this.container || !this.innerBoard) return;
+        const ctrWidth = this.container.clientWidth || window.innerWidth;
+        const scale = Math.min(1, (ctrWidth - 20) / 450); 
+        this.innerBoard.style.transform = `scale(${scale})`;
+        this.innerBoard.style.transformOrigin = 'center center';
     }
 
     obtenerTextoEmoji(ficha) {

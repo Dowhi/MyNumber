@@ -216,10 +216,15 @@ class MyNumberGame {
         if (cardMahjong) {
             const startMahjong = (e) => {
                 if (e.type === 'touchstart') e.preventDefault();
-                console.log("Starting Mahjong Minigame...");
                 this.switchScreen('mahjong');
                 if (this.mahjongController && window.generarLayoutMahjong) {
-                    this.mahjongController.iniciarJuego(window.generarLayoutMahjong());
+                    try {
+                        this.mahjongController.iniciarJuego(window.generarLayoutMahjong());
+                    } catch(err) {
+                        document.getElementById('mahjong-container').innerHTML = `<p style="color:red; text-align:center;">Runtime Error: ${err.message}</p>`;
+                    }
+                } else {
+                    document.getElementById('mahjong-container').innerHTML = `<p style="color:white; text-align:center; padding: 20px;">Error: El motor Mahjong no se pudo cargar correctamente. MahjongController is ${typeof MahjongController}. Por favor, recarga la página o borra la caché del navegador.</p>`;
                 }
             };
             cardMahjong.addEventListener('click', startMahjong);
