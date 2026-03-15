@@ -146,12 +146,15 @@ class MahjongModel {
 // CLASES COMPLEMENTARIAS: VISTA y CONTROLADOR
 // --------------------------------------------------------------------------------
 
-console.log("MAHJONG V3 LOADED");
+console.log("MAHJONG V6 LOADED");
 
 class MahjongView {
     constructor(containerId) {
         this.container = document.getElementById(containerId);
-        if (!this.container) console.error("Mahjong container not found:", containerId);
+        if (!this.container) {
+            console.error("FATAL: Mahjong container not found:", containerId);
+            return;
+        }
         
         this.baseTileWidth = 18;  
         this.baseTileHeight = 22; 
@@ -165,15 +168,17 @@ class MahjongView {
 
     initInnerBoard() {
         if (!this.container) return;
-        this.container.innerHTML = ''; // Clear any residual text or errors
+        console.log("DEBUG: Initializing Mahjong InnerBoard...");
+        this.container.innerHTML = ''; 
         this.innerBoard = document.createElement('div');
         this.innerBoard.id = 'mj-inner-board';
         this.innerBoard.style.position = 'relative';
         this.innerBoard.style.width = '450px'; 
         this.innerBoard.style.height = '320px';
         this.innerBoard.style.margin = 'auto';
+        this.innerBoard.style.border = '1px dashed rgba(255,255,255,0.2)'; // Helper visible en debug
         this.container.appendChild(this.innerBoard);
-        console.log("InnerBoard initialized in container");
+        console.log("DEBUG: InnerBoard attached to DOM");
     }
 
     renderTablero(fichas, onTileClick) {

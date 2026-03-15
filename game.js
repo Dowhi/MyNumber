@@ -214,10 +214,10 @@ class MyNumberGame {
 
         const cardMahjong = document.getElementById('card-play-3');
         if (cardMahjong) {
-            cardMahjong.addEventListener('click', () => this.startMahjongMinigame());
+            cardMahjong.addEventListener('click', () => this.triggerMahjongGame());
             cardMahjong.addEventListener('touchstart', (e) => {
                 e.preventDefault();
-                this.startMahjongMinigame();
+                this.triggerMahjongGame();
             }, { passive: false });
         }
         
@@ -271,11 +271,12 @@ class MyNumberGame {
         this.checkAchievements();
     }
 
-    startMahjongMinigame() {
-        console.log("DEBUG: External trigger for Mahjong");
+    triggerMahjongGame() {
+        console.log("CRITICAL: triggerMahjongGame CALLED");
         this.switchScreen('mahjong');
         
         if (!this.mahjongController && window.MahjongController) {
+            console.log("CRITICAL: Creating MahjongController on demand");
             const view = new window.MahjongView('mahjong-container');
             this.mahjongController = new window.MahjongController(view, () => {
                 this.stats.lives++;
@@ -288,10 +289,16 @@ class MyNumberGame {
 
         if (this.mahjongController && window.generarLayoutMahjong) {
             try {
-                this.mahjongController.iniciarJuego(window.generarLayoutMahjong());
+                const layout = window.generarLayoutMahjong();
+                console.log("CRITICAL: Layout generated with items:", layout.length);
+                this.mahjongController.iniciarJuego(layout);
+                console.log("CRITICAL: iniciarJuego process finished");
             } catch(err) {
-                console.error("Mahjong Error:", err);
+                console.error("CRITICAL ERROR starting Mahjong:", err);
+                alert("Error crítico: " + err.message);
             }
+        } else {
+            console.error("CRITICAL: Missing dependencies. Controller:", !!this.mahjongController, "LayoutGen:", !!window.generarLayoutMahjong);
         }
     }
 
