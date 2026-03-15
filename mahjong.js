@@ -199,8 +199,8 @@ class MahjongView {
         this.innerBoard.innerHTML = '';
         this.innerBoard.className = 'inner-board layer-shadow';
 
-        const unitW = 28; // Slightly tight horizontally
-        const unitH = 38; // Slightly more height to see the animal better
+        const unitW = 32; // 64px / 2 = zero horizontal gap
+        const unitH = 42; // 84px / 2 = zero vertical gap
 
         fichas.forEach(f => {
             if (!f.estado_visibilidad) return;
@@ -248,7 +248,7 @@ class MahjongView {
 
         this.innerBoard.style.transform = `translate(-50%, -50%) scale(${scale})`;
         this.innerBoard.style.left = '50%';
-        this.innerBoard.style.top = '58%'; // Centered but leaving space for Top Slots
+        this.innerBoard.style.top = '66%'; // Lowered even further to avoid slots
         this.innerBoard.style.position = 'absolute';
         this.innerBoard.style.display = 'block';
     }
@@ -329,7 +329,7 @@ class MahjongController {
     }
 
     iniciarJuego(layout) {
-        console.log("MAHJONG: Starting new game V54");
+        console.log("MAHJONG: Starting new game V56");
         const gameLayout = layout || window.generarLayoutMahjong();
         this.model.cargarNivel(gameLayout);
         this.enPartida = true;
@@ -504,21 +504,22 @@ class MahjongController {
     }
 }
 
-// Generaremos un layout de 6x7 para fichas máximamente grandes
+// Generaremos un layout piramidal más denso y complejo (V56)
 function generarLayoutMahjong() {
     const layout = [];
     let id_counter = 1;
     
     const tipos = ["Eagle", "Lynx", "Frog", "Squirrel", "Deer", "Snake", "Hedgehog", "Badger", "Stag", "Barn Owl", "Hamster", "Dormouse", "Owl", "Wild Boar"];
     
-    // Calculamos pool para ~64 fichas (base 6x7 + capas superiores)
+    // Pool para aproximadamente 104 fichas (52 pares) para un tablero más lleno
     let pool = [];
-    for(let i = 0; i < 32; i++) { // 32 pares = 64 fichas
+    for(let i = 0; i < 52; i++) { 
         let tipo = tipos[Math.floor(Math.random() * tipos.length)];
         pool.push({tipo: tipo, valor: 100});
         pool.push({tipo: tipo, valor: 100});
     }
     
+    // Shuffle pool
     for (let i = pool.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [pool[i], pool[j]] = [pool[j], pool[i]];
@@ -527,27 +528,48 @@ function generarLayoutMahjong() {
     const addTile = (x, y, z) => {
         if(pool.length === 0) return;
         let t = pool.pop();
-        layout.push({ id: id_counter++, tipo: t.tipo, valor: t.valor, color: t.color, x: x, y: y, z: z });
+        layout.push({ 
+            id: id_counter++, 
+            tipo: t.tipo, 
+            valor: t.valor, 
+            x: x, 
+            y: y, 
+            z: z,
+            flipped: false // Always start face-down
+        });
     };
 
-    // Capa 0: Base 6x7 (Dimensiones exactas solicitadas)
-    for(let r=0; r<7; r++) {
-        for(let c=0; c<6; c++) {
+    // Capa 0: Base Grande 7x8 (56 fichas)
+    for(let r=0; r<8; r++) {
+        for(let c=0; c<7; c++) {
             addTile(c * 2, r * 2, 0);
         }
     }
     
-    // Capa 1: Nivel superior 4x5 (centrado)
-    for(let r=0; r<5; r++) {
-        for(let c=0; c<4; c++) {
+    // Capa 1: Nivel 2 (5x6 centrado = 30 fichas)
+    for(let r=0; r<6; r++) {
+        for(let c=0; c<5; c++) {
             addTile(c * 2 + 2, r * 2 + 2, 1);
         }
     }
 
-    // Capa 2: Ápice 1x2 (para completar las 64 fichas)
-    for(let r=0; r<2; r++) {
-        addTile(5, r * 2 + 5, 2);
+    // Capa 2: Nivel 3 (3x4 centrado = 12 fichas)
+    for(let r=0; r<4; r++) {
+        for(let c=0; c<3; c++) {
+            addTile(c * 2 + 4, r * 2 + 4, 2);
+        }
     }
+
+    // Capa 3: Nivel 4 (2x2 centrado = 4 fichas)
+    for(let r=0; r<2; r++) {
+        for(let c=0; c<2; c++) {
+            addTile(c * 2 + 5, r * 2 + 6, 3);
+        }
+    }
+
+    // Capa 4: Ápice (2 fichas laterales)
+    addTile(6, 7, 4);
+    addTile(7, 7, 4);
 
     return layout;
 }

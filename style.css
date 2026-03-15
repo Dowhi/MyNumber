@@ -1157,8 +1157,8 @@ body {
 /* Updated Tiles for Mystic 3D Edition V49: Dense Layout */
 .mahjong-tile {
     position: absolute;
-    width: 50px; /* Reduced slightly from 60px */
-    height: 70px; /* Reduced slightly from 80px */
+    width: 64px; /* Slightly larger as requested */
+    height: 84px;
     background: #ffffff !important;
     border-radius: 6px;
     box-shadow: 
@@ -1201,20 +1201,27 @@ body {
     display: none !important;
 }
 
-/* Tile back for face-down mechanic */
+/* Tile back for face-down mechanic - OPAQUE and SOLID */
 .mahjong-tile.face-down .tile-face::after {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, #065f46 0%, #064e3b 100%);
+    background: #064e3b !important; /* TOTAL OPAQUE DARK GREEN */
+    background-image: 
+        linear-gradient(135deg, #065f46 0%, #064e3b 100%) !important;
     z-index: 5;
     border-radius: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background-image: 
-        radial-gradient(circle at 50% 50%, rgba(255,255,255,0.1) 0%, transparent 60%),
-        repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,0,0,0.1) 10px, rgba(0,0,0,0.1) 20px);
+    opacity: 1 !important;
+}
+
+/* Removal of any stripes on face up tiles */
+.mahjong-tile:not(.face-down) .tile-face,
+.mahjong-tile:not(.face-down) .tile-face img {
+    background-image: none !important;
+    background: #ffffff !important;
 }
 
 .mahjong-tile.face-down .tile-face::before {
