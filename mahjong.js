@@ -329,7 +329,7 @@ class MahjongController {
     }
 
     iniciarJuego(layout) {
-        console.log("MAHJONG: Starting new game V49");
+        console.log("MAHJONG: Starting new game V50");
         const gameLayout = layout || window.generarLayoutMahjong();
         this.model.cargarNivel(gameLayout);
         this.enPartida = true;

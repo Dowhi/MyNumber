@@ -1,4 +1,4 @@
-const CACHE_NAME = 'number-match-v49';
+const CACHE_NAME = 'number-match-v50';
 const ASSETS = [
   './',
   './index.html',

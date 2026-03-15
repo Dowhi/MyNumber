@@ -1072,6 +1072,14 @@ body {
     padding: 20px 0 30px;
 }
 
+.controls-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+    width: 100%;
+}
+
 .control-btn.circular {
     position: relative;
     padding: 0;
@@ -1090,8 +1098,13 @@ body {
     height: 64px;
     background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
     border: 2.5px solid #2dd4bf;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     box-shadow: 0 0 20px rgba(45, 212, 191, 0.2), inset 0 2px 10px rgba(255,255,255,0.05);
     margin-bottom: 8px;
+    position: relative;
 }
 
 .control-btn.circular.shuffle .btn-icon-circle {
@@ -1100,6 +1113,7 @@ body {
     border-color: #fbbf24;
     background: linear-gradient(135deg, #78350f 0%, #451a03 100%);
     margin-top: -10px;
+    border-radius: 50%;
 }
 
 .control-btn.circular svg {
