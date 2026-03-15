@@ -188,8 +188,8 @@ class MahjongView {
         this.innerBoard = document.createElement('div');
         this.innerBoard.id = 'mj-inner-board';
         this.innerBoard.style.position = 'absolute';
-        this.innerBoard.style.width = '540px'; 
-        this.innerBoard.style.height = '800px';
+        this.innerBoard.style.width = '400px'; 
+        this.innerBoard.style.height = '600px';
         this.innerBoard.style.pointerEvents = 'none'; // Only tiles catch clicks
         this.container.appendChild(this.innerBoard);
     }
@@ -238,17 +238,17 @@ class MahjongView {
         const ctrWidth = isFullscreen ? window.innerWidth : (this.container.clientWidth || 390);
         const ctrHeight = isFullscreen ? window.innerHeight : (this.container.clientHeight || 844);
         
-        // V47 portrait scaling optimization
-        const scaleX = (ctrWidth - 10) / 540;
-        const scaleY = (ctrHeight - 140) / 800; 
-        let scale = Math.min(scaleX, scaleY);
+        // Adjusted scaling for 6x7 layout
+        const scaleX = (ctrWidth - 20) / 400;
+        const scaleY = (ctrHeight - 180) / 600; 
+        let scale = Math.min(scaleX, scaleY) * 0.9; // Extra 10% smaller as requested
         
         if (scale < 0.2) scale = 0.4; 
         if (scale > 4.0) scale = 4.0; 
 
         this.innerBoard.style.transform = `translate(-50%, -50%) scale(${scale})`;
         this.innerBoard.style.left = '50%';
-        this.innerBoard.style.top = '70%'; // Shifted down to accommodate Slot Bar
+        this.innerBoard.style.top = '58%'; // Centered but leaving space for Top Slots
         this.innerBoard.style.position = 'absolute';
         this.innerBoard.style.display = 'block';
     }
@@ -329,7 +329,7 @@ class MahjongController {
     }
 
     iniciarJuego(layout) {
-        console.log("MAHJONG: Starting new game V53");
+        console.log("MAHJONG: Starting new game V54");
         const gameLayout = layout || window.generarLayoutMahjong();
         this.model.cargarNivel(gameLayout);
         this.enPartida = true;

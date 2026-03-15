@@ -1157,9 +1157,9 @@ body {
 /* Updated Tiles for Mystic 3D Edition V49: Dense Layout */
 .mahjong-tile {
     position: absolute;
-    width: 60px; 
-    height: 80px;
-    background: #ffffff; /* Solid white base */
+    width: 50px; /* Reduced slightly from 60px */
+    height: 70px; /* Reduced slightly from 80px */
+    background: #ffffff !important;
     border-radius: 6px;
     box-shadow: 
         1px 0px 0px #d1d5db, 
@@ -1180,7 +1180,7 @@ body {
     align-items: center;
     justify-content: center;
     background: #ffffff !important;
-    background-image: none !important; /* Remove any potential stripes */
+    background-image: none !important;
     border-radius: 4px;
     overflow: hidden;
     position: relative;
@@ -1191,9 +1191,14 @@ body {
 .tile-face img {
     width: 100%;
     height: 100%;
-    object-fit: contain; /* Better for custom tiles */
+    object-fit: contain;
     display: block;
-    background: white;
+    background: #ffffff !important;
+}
+
+.mahjong-tile:not(.face-down) .tile-face::after,
+.mahjong-tile:not(.face-down) .tile-face::before {
+    display: none !important;
 }
 
 /* Tile back for face-down mechanic */
