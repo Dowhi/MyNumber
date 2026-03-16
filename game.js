@@ -24,7 +24,7 @@ const STATE = {
 
 class MyNumberGame {
     constructor() {
-        console.log("GAME V56: Constructor started");
+        console.log("GAME V57: Triple Match Engine Active");
         window.GAME = this; // Set early
         this.board = []; 
         this.selectedIndices = [];

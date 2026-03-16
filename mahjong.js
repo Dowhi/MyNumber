@@ -14,7 +14,7 @@ class FichaMahjong {
         this.coord_Z = coord_Z;
         this.estado_visibilidad = true;
         this.color = color; 
-        this.flipped = false; // V49 Flip mechanic
+        this.flipped = false; 
     }
 }
 
@@ -25,7 +25,6 @@ class MahjongModel {
         this.puntuacion_global = 0;
     }
 
-    // Carga inicial del nivel (Factory Method simplificado)
     cargarNivel(datosFichas) {
         this.fichas = datosFichas.map(f => 
             new FichaMahjong(f.id, f.tipo, f.valor, f.x, f.y, f.z, f.color)
@@ -41,105 +40,31 @@ class MahjongModel {
         return this.fichas.find(f => f.id_unico === id && f.estado_visibilidad);
     }
 
-    // 4. Motor Lógico: Reglas de Bloqueo y Visibilidad (Free Tile)
+    // 4. Motor Lógico: Reglas de Bloqueo (V57 Upgrade)
+    // El usuario pide: "Activa: no tiene ninguna otra ficha encima".
     esLibre(ficha) {
         if (!ficha.estado_visibilidad) return false;
 
         const activas = this.obtenerFichasActivas();
 
-        // 1. Libertad Superior:
-        // Bloqueada si AL MENOS UNA ficha en Z+1 ocupa las mismas coordenadas 2x2.
+        // 1. Libertad Superior (Z-Only Blocking as requested)
+        // Bloqueada si AL MENOS UNA ficha en capas superiores se solapa con ella.
         const bloqueadaSuperior = activas.some(s => {
-            if (s.coord_Z !== ficha.coord_Z + 1) return false;
-            // Evaluamos solapamiento 2D asumiendo huella de 2x2 unidades
+            if (s.coord_Z <= ficha.coord_Z) return false;
+            // Evaluamos solapamiento 2D (huella de 2x2 unidades)
             const overlapX = s.coord_X < ficha.coord_X + 2 && s.coord_X + 2 > ficha.coord_X;
             const overlapY = s.coord_Y < ficha.coord_Y + 2 && s.coord_Y + 2 > ficha.coord_Y;
             return overlapX && overlapY;
         });
 
-        if (bloqueadaSuperior) return false;
-
-        // 2. Libertad Lateral en O(1) simulado por grid entero:
-        // Vecino a la izquierda: exactamente en X-2, intersecando en Y
-        const bloqueadaIzquierda = activas.some(s => {
-            return s.coord_Z === ficha.coord_Z && 
-                   s.coord_X === ficha.coord_X - 2 && 
-                   (s.coord_Y < ficha.coord_Y + 2 && s.coord_Y + 2 > ficha.coord_Y);
-        });
-
-        // Vecino a la derecha: exactamente en X+2, intersecando en Y
-        const bloqueadaDerecha = activas.some(s => {
-            return s.coord_Z === ficha.coord_Z && 
-                   s.coord_X === ficha.coord_X + 2 && 
-                   (s.coord_Y < ficha.coord_Y + 2 && s.coord_Y + 2 > ficha.coord_Y);
-        });
-
-        // La ficha está libre si carece de vecino a la izquierda O a la derecha
-        return !bloqueadaIzquierda || !bloqueadaDerecha;
+        return !bloqueadaSuperior;
     }
 
-    // Regla de emparejamiento (Scripting de Puntuación emulado)
-    sonPareja(fichaA, fichaB) {
-        if (!fichaA || !fichaB || fichaA.id_unico === fichaB.id_unico) return false;
-        
-        // Simbología exacta
-        if (fichaA.tipo_simbologia === fichaB.tipo_simbologia) {
-            // Regla de color para las flores
-            if (fichaA.tipo_simbologia === "Flor") {
-                return fichaA.color === fichaB.color;
-            }
-            return true;
-        }
-
-        // Estaciones (cualquiera con cualquiera)
-        if (fichaA.tipo_simbologia === "Estacion" && fichaB.tipo_simbologia === "Estacion") {
-            return true;
-        }
-
-        return false;
-    }
-
-    // 5. Ciclo de Vida y Gestión de Estados: Validación Lógica y Actualización
-    seleccionarPareja(idA, idB) {
-        const fichaA = this.obtenerFichaPorId(idA);
-        const fichaB = this.obtenerFichaPorId(idB);
-
-        if (this.sonPareja(fichaA, fichaB) && this.esLibre(fichaA) && this.esLibre(fichaB)) {
-            // Remoción (estado_visibilidad = false)
-            fichaA.estado_visibilidad = false;
-            fichaB.estado_visibilidad = false;
-
-            // Scripting de puntuación
-            const puntos_base = fichaA.valor_puntos + fichaB.valor_puntos;
-            if (fichaA.tipo_simbologia === "Flor" || fichaA.tipo_simbologia === "Estacion") {
-                this.puntuacion_global += puntos_base * 2;
-            } else {
-                this.puntuacion_global += puntos_base;
-            }
-
-            return true; // Match exitoso
-        }
-        return false; // Fichas inválidas o bloqueadas
-    }
-
-    // Gestión de Estados del Juego y escaneo de pares
-    obtenerEstadoJuego() {
+    obtenerEstadoJuego(slotsCount) {
         const activas = this.obtenerFichasActivas();
-        if (activas.length === 0) return "VICTORIA";
-
-        // Escaneo buscando pares expuestos
-        for (let i = 0; i < activas.length; i++) {
-            if (!this.esLibre(activas[i])) continue;
-            for (let j = i + 1; j < activas.length; j++) {
-                if (!this.esLibre(activas[j])) continue;
-                if (this.sonPareja(activas[i], activas[j])) {
-                    return "JUGANDO"; // Aún hay movimientos posibles
-                }
-            }
-        }
-        
-        // El requerimiento exige exactamente esta cadena de texto
-        return "Juego bloqueado!!!! Perdiste";
+        if (activas.length === 0 && slotsCount === 0) return "VICTORIA";
+        if (slotsCount >= 7) return "DERROTA"; // Bandeja llena
+        return "JUGANDO";
     }
 }
 
@@ -167,18 +92,9 @@ const IMAGE_MAP = {
 class MahjongView {
     constructor(containerId) {
         this.container = document.getElementById(containerId);
-        if (!this.container) {
-            console.error("FATAL: Mahjong container not found:", containerId);
-            return;
-        }
-        
-        this.baseTileWidth = 38;  // V47 Larger base for portrait
-        this.baseTileHeight = 48; 
-        this.offsetX = 6;  
-        this.offsetY = -6; 
+        if (!this.container) return;
         
         this.innerBoard = null;
-        this.selectedTileDiv = null;
         this.slotBar = document.getElementById('mj-slot-bar');
         this.initInnerBoard();
     }
@@ -190,23 +106,24 @@ class MahjongView {
         this.innerBoard.style.position = 'absolute';
         this.innerBoard.style.width = '400px'; 
         this.innerBoard.style.height = '600px';
-        this.innerBoard.style.pointerEvents = 'none'; // Only tiles catch clicks
+        this.innerBoard.style.pointerEvents = 'none';
         this.container.appendChild(this.innerBoard);
     }
 
-    renderTablero(fichas, clickHandler) {
+    renderTablero(fichas, model, clickHandler) {
         if (!this.innerBoard) return;
         this.innerBoard.innerHTML = '';
         this.innerBoard.className = 'inner-board layer-shadow';
 
-        const unitW = 32; // 64px / 2 = zero horizontal gap
-        const unitH = 42; // 84px / 2 = zero vertical gap
+        const unitW = 32; 
+        const unitH = 42; 
 
         fichas.forEach(f => {
             if (!f.estado_visibilidad) return;
 
+            const isFree = model.esLibre(f);
             const div = document.createElement('div');
-            div.className = `mahjong-tile ${f.flipped ? '' : 'face-down'}`;
+            div.className = `mahjong-tile ${f.flipped ? '' : 'face-down'} ${isFree ? '' : 'blocked'}`;
             div.id = `mj-tile-${f.id_unico}`;
             div.style.zIndex = f.coord_Z * 100 + f.coord_Y * 10 + f.coord_X;
             div.style.left = `${f.coord_X * unitW}px`;
@@ -228,91 +145,73 @@ class MahjongView {
         });
         
         requestAnimationFrame(() => this.scaleInnerBoard());
-        setTimeout(() => this.scaleInnerBoard(), 300);
     }
 
     scaleInnerBoard() {
         if (!this.container || !this.innerBoard) return;
+        const ctrWidth = window.innerWidth;
+        const ctrHeight = window.innerHeight;
         
-        const isFullscreen = document.body.classList.contains('mj-fullscreen');
-        const ctrWidth = isFullscreen ? window.innerWidth : (this.container.clientWidth || 390);
-        const ctrHeight = isFullscreen ? window.innerHeight : (this.container.clientHeight || 844);
-        
-        // Adjusted scaling for 6x7 layout
         const scaleX = (ctrWidth - 20) / 400;
         const scaleY = (ctrHeight - 180) / 600; 
-        let scale = Math.min(scaleX, scaleY) * 0.9; // Extra 10% smaller as requested
+        let scale = Math.min(scaleX, scaleY) * 0.9;
         
         if (scale < 0.2) scale = 0.4; 
         if (scale > 4.0) scale = 4.0; 
 
         this.innerBoard.style.transform = `translate(-50%, -50%) scale(${scale})`;
         this.innerBoard.style.left = '50%';
-        this.innerBoard.style.top = '66%'; // Lowered even further to avoid slots
-        this.innerBoard.style.position = 'absolute';
-        this.innerBoard.style.display = 'block';
+        this.innerBoard.style.top = '66%';
     }
 
-    animateToSlot(fichaId, slotIndex) {
-        const div = document.getElementById(`mj-tile-${fichaId}`);
+    animateToSlot(ficha, slotIndex, onComplete) {
+        const div = document.getElementById(`mj-tile-${ficha.id_unico}`);
         if (!div || !this.slotBar) return;
 
-        // Clone for animation to keep DOM clean
         const rect = div.getBoundingClientRect();
-        const slotRect = this.slotBar.children[slotIndex].getBoundingClientRect();
+        const slotEl = this.slotBar.children[slotIndex];
+        const slotRect = slotEl.getBoundingClientRect();
 
-        div.style.transition = 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+        // Parabolic-like flight: simple transition plus scale and rotation
+        div.style.transition = 'all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
         div.style.zIndex = 2000;
         div.style.pointerEvents = 'none';
 
-        // Convert board space to screen space for animation
         const deltaX = slotRect.left - rect.left;
         const deltaY = slotRect.top - rect.top;
 
-        div.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(0.8) rotate(360deg)`;
+        div.style.transform = `translate(${deltaX}px, ${deltaY}px) scale(0.6) rotate(360deg)`;
         
         setTimeout(() => {
-            // Move into the slot properly
             div.style.transition = 'none';
             div.style.transform = 'none';
             div.style.left = '0';
             div.style.top = '0';
             div.style.position = 'relative';
-            this.slotBar.children[slotIndex].appendChild(div);
-        }, 400);
+            div.className = 'mahjong-tile in-slot';
+            slotEl.appendChild(div);
+            if(onComplete) onComplete();
+        }, 500);
     }
 
-    marcarSeleccionada(div) {
-        if (this.selectedTileDiv) this.selectedTileDiv.classList.remove('selected');
-        this.selectedTileDiv = div;
-        if (div) div.classList.add('selected');
-    }
-    
-    eliminarDeSlots(id1, id2) {
-        const div1 = document.getElementById(`mj-tile-${id1}`);
-        const div2 = document.getElementById(`mj-tile-${id2}`);
-        
-        [div1, div2].forEach(div => {
-            if (div) {
-                div.style.transition = 'all 0.3s ease-out';
-                div.style.transform = 'scale(1.5) rotate(15deg)';
-                div.style.opacity = '0';
-                setTimeout(() => div.remove(), 300);
+    refreshSlots(slots) {
+        if (!this.slotBar) return;
+        Array.from(this.slotBar.children).forEach((el, i) => {
+            el.innerHTML = '';
+            const ficha = slots[i];
+            if (ficha) {
+                const div = document.createElement('div');
+                div.className = 'mahjong-tile in-slot';
+                div.id = `mj-tile-${ficha.id_unico}`;
+                const face = document.createElement('div');
+                face.className = 'tile-face';
+                const img = document.createElement('img');
+                img.src = IMAGE_MAP[ficha.tipo_simbologia];
+                face.appendChild(img);
+                div.appendChild(face);
+                el.appendChild(div);
             }
         });
-    }
-    
-    eliminarFichas(divA, divB) {
-        [divA, divB].forEach(div => {
-            if (div) {
-                div.classList.add('removed');
-                setTimeout(() => div.remove(), 300);
-            }
-        });
-    }
-
-    desmarcarFichas() {
-        this.marcarSeleccionada(null);
     }
 }
 
@@ -325,23 +224,33 @@ class MahjongController {
         this.score = 0;
         this.timerSeconds = 0;
         this.timerInterval = null;
-        this.fichaSeleccionadaId = null;
+        this.slots = []; // Dynamic up to 7
+        this.history = []; // For Undo
+        
+        this.pistasRestantes = 5;
+        this.mezclasRestantes = 3;
     }
 
     iniciarJuego(layout) {
-        console.log("MAHJONG: Starting new game V56");
+        console.log("MAHJONG: Starting new game V57 (Triple Match Mode)");
         const gameLayout = layout || window.generarLayoutMahjong();
         this.model.cargarNivel(gameLayout);
         this.enPartida = true;
         this.score = 0;
         this.timerSeconds = 0;
-        this.slots = [null, null, null, null];
-        this.pistasRestantes = 5;
-        this.mezclasRestantes = 3;
+        this.slots = [];
+        this.history = [];
         
-        // Clear slots UI
+        // Ensure 7 slots UI exist
         const slotBar = document.getElementById('mj-slot-bar');
-        if (slotBar) Array.from(slotBar.children).forEach(s => s.innerHTML = '');
+        if (slotBar) {
+            slotBar.innerHTML = '';
+            for(let i=0; i<7; i++) {
+                const s = document.createElement('div');
+                s.className = 'mj-slot';
+                slotBar.appendChild(s);
+            }
+        }
 
         this.updateHeaderUI();
         this.startTimer();
@@ -379,123 +288,135 @@ class MahjongController {
     }
 
     hint() {
-        if (this.pistasRestantes <= 0) return;
-        this.pistasRestantes--;
-        window.GAME.showToast("Místico: Los espíritus te guían...");
-        this.updateHeaderUI();
+        if (!this.enPartida || this.pistasRestantes <= 0) return;
+        const activas = this.model.obtenerFichasActivas().filter(f => this.model.esLibre(f));
+        // Find 3 of the same type in active
+        const groups = {};
+        activas.forEach(f => { groups[f.tipo_simbologia] = (groups[f.tipo_simbologia] || []); groups[f.tipo_simbologia].push(f); });
+        
+        let found = null;
+        for (let type in groups) if (groups[type].length >= 3) { found = groups[type].slice(0, 3); break; }
+        
+        if (found) {
+            this.pistasRestantes--;
+            this.updateHeaderUI();
+            found.forEach((f, i) => setTimeout(() => {
+                const div = document.getElementById(`mj-tile-${f.id_unico}`);
+                if (div) this.handleTileClick(f, div);
+            }, i * 300));
+        } else {
+            window.GAME.showToast("No hay tríos disponibles ahora.");
+        }
     }
 
     shuffle() {
-        if (this.mezclasRestantes <= 0) return;
+        if (!this.enPartida || this.mezclasRestantes <= 0) return;
         this.mezclasRestantes--;
+        const activas = this.model.obtenerFichasActivas();
+        const positions = activas.map(f => ({x: f.coord_X, y: f.coord_Y, z: f.coord_Z}));
+        // Shuffle positions
+        for (let i = positions.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [positions[i], positions[j]] = [positions[j], positions[i]];
+        }
+        activas.forEach((f, i) => {
+            f.coord_X = positions[i].x;
+            f.coord_Y = positions[i].y;
+            f.coord_Z = positions[i].z;
+        });
         window.GAME.showToast("Místico: Destino reorganizado.");
-        this.iniciarJuego();
+        this.updateHeaderUI();
+        this.render();
     }
 
     undo() {
-        window.GAME.showToast("El destino no puede ser cambiado.");
+        if (!this.enPartida || this.history.length === 0) return;
+        const lastAction = this.history.pop();
+        if (lastAction.type === 'move') {
+            const ficha = lastAction.ficha;
+            // Remove from slots
+            this.slots = this.slots.filter(s => s.id_unico !== ficha.id_unico);
+            ficha.estado_visibilidad = true;
+            this.view.refreshSlots(this.slots);
+            this.render();
+        }
     }
 
     render() {
-        this.view.renderTablero(this.model.fichas, (f, div) => this.handleTileClick(f, div));
+        this.view.renderTablero(this.model.fichas, this.model, (f, div) => this.handleTileClick(f, div));
     }
 
     handleTileClick(ficha, div) {
         if (!this.enPartida) return;
 
-        // Standard Mahjong "free tile" rule
         if (!this.model.esLibre(ficha)) {
             div.classList.add('shake');
             setTimeout(() => div.classList.remove('shake'), 400);
             return; 
         }
 
-        // New V49 Flip mechanic
         if (!ficha.flipped) {
             ficha.flipped = true;
             div.classList.remove('face-down');
             
-            // Subtle flip animation trigger
             div.style.transform = 'scale(1.1) rotateY(180deg)';
-            setTimeout(() => {
-                div.style.transform = 'none';
-            }, 300);
+            setTimeout(() => { div.style.transform = 'none'; }, 300);
             return;
         }
 
-        // Move to logic slot
-        const emptyIndex = this.slots.indexOf(null);
-        if (emptyIndex === -1) {
-            window.GAME.showToast("¡Huecos llenos!");
+        if (this.slots.length >= 7) {
+            window.GAME.showToast("¡Bandeja llena!");
             return;
         }
 
-        this.slots[emptyIndex] = ficha;
-        ficha.estado_visibilidad = false; 
-
-        this.view.animateToSlot(ficha.id_unico, emptyIndex);
-        setTimeout(() => this.checkMatchInSlots(), 450);
-    }
-
-    checkMatchInSlots() {
-        for (let i = 0; i < this.slots.length; i++) {
-            if (!this.slots[i]) continue;
-            for (let j = i + 1; j < this.slots.length; j++) {
-                if (!this.slots[j]) continue;
-                
-                if (this.slots[i].tipo_simbologia === this.slots[j].tipo_simbologia) {
-                    const id1 = this.slots[i].id_unico;
-                    const id2 = this.slots[j].id_unico;
-                    
-                    this.view.eliminarDeSlots(id1, id2);
-                    
-                    this.slots[i] = null;
-                    this.slots[j] = null;
-                    this.compactSlots();
-                    
-                    this.score += 750;
-                    this.updateHeaderUI();
-                    
-                    setTimeout(() => this.comprobarEstadoGlobal(), 350);
-                    return;
-                }
+        // Logic: Insertion with automatic grouping
+        // Find first occurrence of same type
+        let insertIndex = this.slots.findIndex(s => s.tipo_simbologia === ficha.tipo_simbologia);
+        if (insertIndex === -1) {
+            insertIndex = this.slots.length;
+        } else {
+            // Find end of same-type group
+            while (insertIndex < this.slots.length && this.slots[insertIndex].tipo_simbologia === ficha.tipo_simbologia) {
+                insertIndex++;
             }
         }
-        
-        // No match found - check if full
-        if (this.slots.indexOf(null) === -1) {
-            this.enPartida = false;
-            window.GAME.showToast("¡Derrota! No hay más espacio.");
-        }
+
+        // Add to history for Undo
+        this.history.push({ type: 'move', ficha: ficha });
+
+        this.slots.splice(insertIndex, 0, ficha);
+        ficha.estado_visibilidad = false; 
+
+        // Update UI
+        this.view.animateToSlot(ficha, insertIndex, () => {
+            this.view.refreshSlots(this.slots);
+            this.checkMatches();
+        });
     }
 
-    compactSlots() {
-        const newSlots = this.slots.filter(s => s !== null);
-        while (newSlots.length < 4) newSlots.push(null);
-        this.slots = newSlots;
-        
-        // Visual re-sync of slots could be added here if needed, 
-        // but typically Match-2 games just leave gaps or slide them.
-        // Let's slide them for V48.
-        const slotBar = document.getElementById('mj-slot-bar');
-        if (slotBar) {
-            Array.from(slotBar.children).forEach((slot, idx) => {
-                const ficha = this.slots[idx];
-                slot.innerHTML = '';
-                if (ficha) {
-                    // This is a simple shortcut to re-render the div inside the slot
-                    this.view.animateToSlot(ficha.id_unico, idx);
-                }
-            });
-        }
-    }
+    checkMatches() {
+        // Count same types in slots
+        const counts = {};
+        this.slots.forEach(s => { counts[s.tipo_simbologia] = (counts[s.tipo_simbologia] || 0) + 1; });
 
-    comprobarEstadoGlobal() {
-        const estado = this.model.obtenerEstadoJuego();
-        if (estado === "Juego bloqueado!!!! Perdiste") {
+        for (let type in counts) {
+            if (counts[type] >= 3) {
+                // Match 3!
+                this.slots = this.slots.filter(s => s.tipo_simbologia !== type);
+                this.score += 1500;
+                this.updateHeaderUI();
+                this.view.refreshSlots(this.slots);
+                window.GAME.showToast("¡Triple Match! 🥳");
+                
+                // Juice: Confetti effect could go here
+                break; 
+            }
+        }
+
+        const estado = this.model.obtenerEstadoJuego(this.slots.length);
+        if (estado === "DERROTA") {
             this.enPartida = false;
-            clearInterval(this.timerInterval);
-            window.GAME.showToast("No quedan movimientos posibles.");
+            window.GAME.showToast("¡Game Over! Bandeja llena.");
         } else if (estado === "VICTORIA") {
             this.enPartida = false;
             clearInterval(this.timerInterval);
@@ -504,17 +425,18 @@ class MahjongController {
     }
 }
 
-// Generaremos un layout piramidal más denso y complejo (V56)
+// 3. Lógica de Generación de Niveles (V57 Upgrade: Multiples of 3)
 function generarLayoutMahjong() {
     const layout = [];
     let id_counter = 1;
     
     const tipos = ["Eagle", "Lynx", "Frog", "Squirrel", "Deer", "Snake", "Hedgehog", "Badger", "Stag", "Barn Owl", "Hamster", "Dormouse", "Owl", "Wild Boar"];
     
-    // Pool para aproximadamente 104 fichas (52 pares) para un tablero más lleno
+    // Pool for 105 tiles (35 trios)
     let pool = [];
-    for(let i = 0; i < 52; i++) { 
+    for(let i = 0; i < 35; i++) { 
         let tipo = tipos[Math.floor(Math.random() * tipos.length)];
+        pool.push({tipo: tipo, valor: 100});
         pool.push({tipo: tipo, valor: 100});
         pool.push({tipo: tipo, valor: 100});
     }
@@ -535,41 +457,38 @@ function generarLayoutMahjong() {
             x: x, 
             y: y, 
             z: z,
-            flipped: false // Always start face-down
+            flipped: false
         });
     };
 
-    // Capa 0: Base Grande 7x8 (56 fichas)
+    // Capa 0: Base 7x8 (56)
     for(let r=0; r<8; r++) {
         for(let c=0; c<7; c++) {
             addTile(c * 2, r * 2, 0);
         }
     }
     
-    // Capa 1: Nivel 2 (5x6 centrado = 30 fichas)
+    // Capa 1: Nivel 2 (5x6 centrado = 30)
     for(let r=0; r<6; r++) {
         for(let c=0; c<5; c++) {
             addTile(c * 2 + 2, r * 2 + 2, 1);
         }
     }
 
-    // Capa 2: Nivel 3 (3x4 centrado = 12 fichas)
+    // Capa 2: Nivel 3 (3x4 centrado = 12)
     for(let r=0; r<4; r++) {
         for(let c=0; c<3; c++) {
             addTile(c * 2 + 4, r * 2 + 4, 2);
         }
     }
 
-    // Capa 3: Nivel 4 (2x2 centrado = 4 fichas)
+    // Capa 3: Ápice (3x2 + 1 = 7 fichas)
     for(let r=0; r<2; r++) {
-        for(let c=0; c<2; c++) {
-            addTile(c * 2 + 5, r * 2 + 6, 3);
+        for(let c=0; c<3; c++) {
+            addTile(c * 2 + 4, r * 2 + 6, 3);
         }
     }
-
-    // Capa 4: Ápice (2 fichas laterales)
-    addTile(6, 7, 4);
-    addTile(7, 7, 4);
+    addTile(6, 7, 4); 
 
     return layout;
 }
