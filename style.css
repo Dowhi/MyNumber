@@ -1133,27 +1133,28 @@ body {
 .btn-icon-circle::before {
     content: '';
     position: absolute;
-    top: 3px;
-    left: 10px;
-    right: 10px;
-    height: 15px;
-    background: linear-gradient(to bottom, rgba(255,255,255,0.4), transparent);
-    border-radius: 10px 10px 50% 50%;
+    top: 2px;
+    left: 15%;
+    width: 70%;
+    height: 35%;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.6), rgba(255,255,255,0.1));
+    border-radius: 50% 50% 20% 20%;
     pointer-events: none;
 }
 
 .control-btn.circular .btn-icon-circle {
-    width: 28px;
-    height: 28px;
-    background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
-    border: 1.2px solid #2dd4bf;
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #2b451d 0%, #15260e 100%);
+    border: 2px solid #5ab040;
     border-radius: 50%;
+    box-shadow: 0 4px 0 #0d1708, 0 6px 10px rgba(0,0,0,0.5), inset 0px -4px 8px rgba(0,0,0,0.5); /* Inner shadow for 3D */
+    position: relative;
+    overflow: hidden; /* For the glare before */
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 0 8px rgba(45, 212, 191, 0.2), inset 0 1px 3px rgba(255,255,255,0.05);
     margin-bottom: 2px;
-    position: relative;
 }
 
 .control-btn.circular.shuffle .btn-icon-circle {
@@ -1203,41 +1204,43 @@ body {
     text-transform: uppercase;
 }
 
-/* The Brick Style V58 */
+/* The Brick Style V60 */
 .mahjong-tile {
     position: absolute;
     width: 64px;
     height: 84px;
-    background: #FFFFFF !important;
+    background: linear-gradient(to bottom, #ffffff 90%, #224d17 10%) !important;
     border-radius: 10px;
-    /* Depth: Forest Green #224d17 */
+    /* Depth: Forest Green #1a3a11 */
     box-shadow: 
-        0 8px 0 #224d17, /* Grozor lateral 3D */
-        0 10px 15px -3px rgba(0, 0, 0, 0.4); /* Glow/Shadow activa */
+        0px 5px 0px #1a3a11, /* Grozor lateral 3D */
+        0px 8px 15px rgba(0, 0, 0, 0.4); /* Glow/Shadow activa */
     transition: filter 0.2s, transform 0.2s, box-shadow 0.2s;
     cursor: pointer;
     transform-origin: center bottom;
 }
 
 .mahjong-tile.blocked {
-    filter: brightness(60%) contrast(90%);
-    box-shadow: 0 5px 0 #1b3d12; /* Sombra reducida y oscura */
+    filter: brightness(0.5); /* 50% brightness as requested */
+    opacity: 0.8;
+    box-shadow: 0px 5px 0px #1a3a11; /* Keep depth but remove outer glow */
+    cursor: default;
 }
 
 .mahjong-tile.blocked::after {
-    display: none; /* Removed the previous overlay approach */
+    display: none; 
 }
 
 .tile-face {
     height: 100%;
     width: 100%;
     display: flex;
-    padding: 10% !important; /* Requested 10% padding */
+    padding: 15% !important; /* Requested 15% padding */
     box-sizing: border-box;
     align-items: center;
     justify-content: center;
-    background: #FFFFFF !important;
-    border-radius: 8px;
+    background: transparent !important; /* Let the tile background show */
+    border-radius: 10px;
     overflow: hidden;
     position: relative;
     z-index: 2;

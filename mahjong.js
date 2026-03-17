@@ -141,9 +141,12 @@ class MahjongView {
             // Parabola: subida de 100px en el medio
             const parabola = Math.sin(progress * Math.PI) * 100;
             
+            // Ligera rotación en Z para dar sensación de ligereza al volar (requisito)
+            const rotationZ = Math.sin(progress * Math.PI) * 15; // Hasta 15 grados
+
             ghost.style.left = `${curX}px`;
             ghost.style.top = `${curY - parabola}px`;
-            ghost.style.transform = `scale(${1 - progress * 0.4}) rotate(${progress * 360}deg)`;
+            ghost.style.transform = `scale(${1 - progress * 0.4}) rotate(${progress * 360}deg) rotateZ(${rotationZ}deg)`;
             
             if (progress < 1) {
                 requestAnimationFrame(step);
@@ -156,29 +159,44 @@ class MahjongView {
     }
 
     spawnParticles(x, y) {
+        // "Explosión de partículas blancas y verdes (pétalos)"
+        const colors = ['#ffffff', '#224d17', '#80e27e']; 
+        
         for (let i = 0; i < 15; i++) {
             const p = document.createElement('div');
             p.className = 'particle';
+            
             p.style.left = `${x}px`;
             p.style.top = `${y}px`;
+            
+            // Pétalo style
+            p.style.width = `${5 + Math.random() * 5}px`;
+            p.style.height = `${8 + Math.random() * 8}px`;
+            p.style.background = colors[Math.floor(Math.random() * colors.length)];
+            p.style.borderRadius = '50% 0 50% 0'; // Forma de hoja/pétalo
+            
             const angle = Math.random() * Math.PI * 2;
             const velocity = 2 + Math.random() * 5;
             const vx = Math.cos(angle) * velocity;
             const vy = Math.sin(angle) * velocity;
+            const rotSpeed = (Math.random() - 0.5) * 20;
             
             this.particleContainer.appendChild(p);
             
             let curX = x;
             let curY = y;
             let opa = 1;
+            let rot = 0;
             
             const move = () => {
                 curX += vx;
-                curY += vy;
+                curY += vy + 1; // Slight gravity
                 opa -= 0.02;
-                p.style.left = `${curX}px`;
-                p.style.top = `${curY}px`;
+                rot += rotSpeed;
+                
+                p.style.transform = `translate(${curX - x}px, ${curY - y}px) rotate(${rot}deg)`;
                 p.style.opacity = opa;
+                
                 if (opa > 0) requestAnimationFrame(move);
                 else p.remove();
             };
@@ -192,7 +210,7 @@ class MahjongController {
         this.view = view;
         this.model = new MahjongModel();
         this.slots = []; 
-        this.maxSlots = 4; // Solicitado: "los huecos son solo cuatro"
+        this.maxSlots = 6; // Solicitado: "Bandeja... capacidad para 6-8 espacios"
         this.score = 0;
         this.enPartida = false;
         
@@ -215,7 +233,7 @@ class MahjongController {
     }
 
     iniciarJuego() {
-        console.log("MAHJONG V59: Interactivity Fix & Fallback BG");
+        console.log("MAHJONG V60: Brick Style 3D, Match-2, 6 Slots");
         const layout = window.generarLayoutMahjong();
         this.model.cargarNivel(layout);
         this.slots = [];
@@ -231,11 +249,17 @@ class MahjongController {
 
     handleTileClick(ficha, div) {
         if (!this.enPartida || this.slots.length >= this.maxSlots) return;
+        
+        // Fichas bloqueadas vibran, pero no pueden cogerse
         if (!this.model.esLibre(ficha)) {
             div.classList.add('shake');
             setTimeout(() => div.classList.remove('shake'), 400);
             return;
         }
+
+        // Ficha libre pulsada: VIBRACIÓN sutil ("Feedback Visual: Selección")
+        div.style.transform = 'scale(0.9)';
+        setTimeout(() => div.style.transform = '', 100);
 
         // Move to slots
         const slotEl = this.view.slotBar.children[this.slots.length];
@@ -285,8 +309,22 @@ class MahjongController {
         }
 
         if (this.slots.length >= this.maxSlots) {
-            window.GAME.showToast("¡Bandeja llena! Fin del juego.");
+            // "Feedback Visual (Error): Si la bandeja se llena, las fichas tiemblan en color rojo antes del Game Over"
             this.enPartida = false;
+            const bgOriginals = [];
+            
+            Array.from(this.view.slotBar.children).forEach(el => {
+                el.classList.add('shake');
+                const img = el.querySelector('img');
+                if(img) {
+                    img.style.filter = 'drop-shadow(0 0 5px red) brightness(0.7) sepia(1) hue-rotate(-50deg) saturate(3)';
+                }
+            });
+
+            setTimeout(() => {
+                 window.GAME.showToast("¡Bandeja llena! Fin del juego.");
+                 // Reset game over UI if needed, or rely on reload
+            }, 800);
         }
     }
 
