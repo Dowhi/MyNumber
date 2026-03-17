@@ -275,21 +275,21 @@ class MahjongController {
         this.enPartida = false;
         
         window.IMAGE_MAP = {
-            "Eagle": "C:/Users/DOWHI/.gemini/antigravity/brain/7cf81ade-db9e-430f-a184-878a235fc9e1/sticker_style_eagle_1773775041566.png",
-            "Lynx": "C:/Users/DOWHI/.gemini/antigravity/brain/7cf81ade-db9e-430f-a184-878a235fc9e1/sticker_style_lynx_v2_1773775169836.png",
-            "Frog": "C:/Users/DOWHI/.gemini/antigravity/brain/7cf81ade-db9e-430f-a184-878a235fc9e1/sticker_style_frog_dart_1773775056256.png",
-            "Squirrel": "C:/Users/DOWHI/.gemini/antigravity/brain/7cf81ade-db9e-430f-a184-878a235fc9e1/sticker_style_squirrel_v2_1773775186632.png",
-            "Deer": "C:/Users/DOWHI/.gemini/antigravity/brain/7cf81ade-db9e-430f-a184-878a235fc9e1/sticker_style_deer_v2_1773775201032.png",
-            "Snake": "C:/Users/DOWHI/.gemini/antigravity/brain/7cf81ade-db9e-430f-a184-878a235fc9e1/sticker_style_snake_v2_1773775220214.png",
-            "Hedgehog": "C:/Users/DOWHI/.gemini/antigravity/brain/7cf81ade-db9e-430f-a184-878a235fc9e1/sticker_style_hedgehog_v2_1773775237041.png",
-            "Badger": "C:/Users/DOWHI/.gemini/antigravity/brain/7cf81ade-db9e-430f-a184-878a235fc9e1/sticker_style_badger_v2_1773775251390.png",
-            "Stag": "C:/Users/DOWHI/.gemini/antigravity/brain/7cf81ade-db9e-430f-a184-878a235fc9e1/sticker_style_stag_v2_1773775346858.png",
-            "Barn Owl": "C:/Users/DOWHI/.gemini/antigravity/brain/7cf81ade-db9e-430f-a184-878a235fc9e1/sticker_style_lechuza_v2_1773775269698.png",
-            "Hamster": "C:/Users/DOWHI/.gemini/antigravity/brain/7cf81ade-db9e-430f-a184-878a235fc9e1/sticker_style_hamster_v2_1773775283399.png",
-            "Dormouse": "C:/Users/DOWHI/.gemini/antigravity/brain/7cf81ade-db9e-430f-a184-878a235fc9e1/sticker_style_liron_v2_1773775297682.png",
-            "Owl": "C:/Users/DOWHI/.gemini/antigravity/brain/7cf81ade-db9e-430f-a184-878a235fc9e1/sticker_style_owl_v2_1773775331463.png",
-            "Wild Boar": "C:/Users/DOWHI/.gemini/antigravity/brain/7cf81ade-db9e-430f-a184-878a235fc9e1/sticker_style_jabal_v2_1773775316526.png",
-            "Toucan": "C:/Users/DOWHI/.gemini/antigravity/brain/7cf81ade-db9e-430f-a184-878a235fc9e1/sticker_style_toucan_1773775070529.png"
+            "Eagle": "assets/mahjong/stickers/sticker_style_eagle_1773775041566.png",
+            "Lynx": "assets/mahjong/stickers/sticker_style_lynx_v2_1773775169836.png",
+            "Frog": "assets/mahjong/stickers/sticker_style_frog_dart_1773775056256.png",
+            "Squirrel": "assets/mahjong/stickers/sticker_style_squirrel_v2_1773775186632.png",
+            "Deer": "assets/mahjong/stickers/sticker_style_deer_v2_1773775201032.png",
+            "Snake": "assets/mahjong/stickers/sticker_style_snake_v2_1773775220214.png",
+            "Hedgehog": "assets/mahjong/stickers/sticker_style_hedgehog_v2_1773775237041.png",
+            "Badger": "assets/mahjong/stickers/sticker_style_badger_v2_1773775251390.png",
+            "Stag": "assets/mahjong/stickers/sticker_style_stag_v2_1773775346858.png",
+            "Barn Owl": "assets/mahjong/stickers/sticker_style_lechuza_v2_1773775269698.png",
+            "Hamster": "assets/mahjong/stickers/sticker_style_hamster_v2_1773775283399.png",
+            "Dormouse": "assets/mahjong/stickers/sticker_style_liron_v2_1773775297682.png",
+            "Owl": "assets/mahjong/stickers/sticker_style_owl_v2_1773775331463.png",
+            "Wild Boar": "assets/mahjong/stickers/sticker_style_jabal_v2_1773775316526.png",
+            "Toucan": "assets/mahjong/stickers/sticker_style_toucan_1773775070529.png"
         };
     }
 
