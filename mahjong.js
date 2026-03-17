@@ -79,16 +79,31 @@ class MahjongView {
         // Responsive scaler so it never overflows or uncenters
         const resizeBoard = () => {
             if (!this.innerBoard || !this.container) return;
-            const screenW = this.container.clientWidth || window.innerWidth;
-            const maxW = screenW - 10; // 5px padding on each side minimum
-            if (maxW < 408) {
-                const scale = maxW / 408;
-                this.innerBoard.style.transform = `scale(${scale})`;
-                this.innerBoard.style.marginBottom = `-${630 * (1 - scale)}px`;
-            } else {
-                this.innerBoard.style.transform = 'none';
-                this.innerBoard.style.marginBottom = '0px';
-            }
+            // Get available space
+            const slotBarEl = document.getElementById('mj-slot-bar-container');
+            const slotH = slotBarEl ? slotBarEl.offsetHeight : 80;
+            const availableW = this.container.clientWidth;
+            const availableH = this.container.clientHeight - slotH;
+            
+            // Calculate best scale to fit entirely within the available space
+            const baseW = 408;
+            const baseH = 630;
+            
+            // Margins: 10px on sides, 10px above/below
+            const scaleW = (availableW - 20) / baseW;
+            const scaleH = (availableH - 20) / baseH;
+            
+            // Escalar para que encaje 100% en AMBAS direcciones (ancho y alto)
+            const scale = Math.min(1.4, scaleW, scaleH); 
+            
+            this.innerBoard.style.transform = `scale(${scale})`;
+            
+            // Centrado vertical dinámico
+            const visualH = baseH * scale;
+            const offsetH = Math.max(0, (availableH - visualH) / 2);
+            
+            this.innerBoard.style.marginTop = `${offsetH}px`;
+            this.innerBoard.style.marginBottom = `-${baseH - visualH}px`;
         };
 
         window.addEventListener('resize', resizeBoard);
