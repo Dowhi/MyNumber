@@ -1149,8 +1149,8 @@ body {
 }
 
 .control-btn.circular .btn-icon-circle {
-    width: 48px;
-    height: 48px;
+    width: 32px;
+    height: 32px;
     background: linear-gradient(135deg, #2b451d 0%, #15260e 100%);
     border: 2px solid #5ab040;
     border-radius: 50%;
@@ -1164,8 +1164,8 @@ body {
 }
 
 .control-btn.circular.shuffle .btn-icon-circle {
-    width: 34px;
-    height: 34px;
+    width: 24px;
+    height: 24px;
     border-color: #fbbf24;
     background: linear-gradient(135deg, #78350f 0%, #451a03 100%);
     margin-top: -4px;
@@ -1173,14 +1173,14 @@ body {
 }
 
 .control-btn.circular svg {
-    width: 14px;
-    height: 14px;
+    width: 10px;
+    height: 10px;
     color: #5eead4;
 }
 
 .control-btn.circular.shuffle svg {
-    width: 18px;
-    height: 18px;
+    width: 12px;
+    height: 12px;
     color: #fde68a;
 }
 
@@ -1242,7 +1242,7 @@ body {
     height: 100%;
     width: 100%;
     display: flex;
-    padding: 5% !important; /* Requested 5% padding */
+    padding: 1% !important; /* Requested 1% padding */
     box-sizing: border-box;
     align-items: center;
     justify-content: center;

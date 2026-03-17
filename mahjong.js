@@ -308,10 +308,22 @@ class MahjongController {
         Array.from(this.view.slotBar.children).forEach((el, i) => {
             el.innerHTML = '';
             if (this.slots[i]) {
+                const div = document.createElement('div');
+                div.className = 'mahjong-tile in-slot';
+
+                const face = document.createElement('div');
+                face.className = 'tile-face';
+
                 const img = document.createElement('img');
                 img.src = window.IMAGE_MAP[this.slots[i].tipo_simbologia];
-                img.style.width = '80%';
-                el.appendChild(img);
+                img.style.width = '100%';
+                img.style.height = '100%';
+                img.style.objectFit = 'contain';
+                img.draggable = false;
+
+                face.appendChild(img);
+                div.appendChild(face);
+                el.appendChild(div);
             }
         });
     }
