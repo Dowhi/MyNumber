@@ -66,12 +66,33 @@ class MahjongView {
         if (!this.container) return;
         this.innerBoard = document.createElement('div');
         this.innerBoard.id = 'mj-inner-board';
-        this.innerBoard.style.position = 'relative'; // relative instead of absolute avoids overlapping with header/footer
-        this.innerBoard.style.width = '408px'; // Fits 6 columns of 68px width (10 * 34 + 68) 
-        this.innerBoard.style.height = '630px'; // Fits 7 rows 
+        this.innerBoard.style.position = 'relative'; 
+        this.innerBoard.style.width = '408px'; 
+        this.innerBoard.style.height = '630px'; 
         this.innerBoard.style.pointerEvents = 'none';
-        this.innerBoard.style.marginTop = '10px'; // minimal margin
+        this.innerBoard.style.marginTop = '10px';
+        this.innerBoard.style.marginLeft = 'auto';
+        this.innerBoard.style.marginRight = 'auto';
+        this.innerBoard.style.transformOrigin = 'top center';
         this.container.appendChild(this.innerBoard);
+
+        // Responsive scaler so it never overflows or uncenters
+        const resizeBoard = () => {
+            if (!this.innerBoard || !this.container) return;
+            const screenW = this.container.clientWidth || window.innerWidth;
+            const maxW = screenW - 10; // 5px padding on each side minimum
+            if (maxW < 408) {
+                const scale = maxW / 408;
+                this.innerBoard.style.transform = `scale(${scale})`;
+                this.innerBoard.style.marginBottom = `-${630 * (1 - scale)}px`;
+            } else {
+                this.innerBoard.style.transform = 'none';
+                this.innerBoard.style.marginBottom = '0px';
+            }
+        };
+
+        window.addEventListener('resize', resizeBoard);
+        setTimeout(resizeBoard, 10);
     }
 
     initParticles() {
