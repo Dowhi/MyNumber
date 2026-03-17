@@ -66,10 +66,11 @@ class MahjongView {
         if (!this.container) return;
         this.innerBoard = document.createElement('div');
         this.innerBoard.id = 'mj-inner-board';
-        this.innerBoard.style.position = 'absolute';
-        this.innerBoard.style.width = '400px'; 
-        this.innerBoard.style.height = '600px';
+        this.innerBoard.style.position = 'relative'; // relative instead of absolute avoids overlapping with header/footer
+        this.innerBoard.style.width = '408px'; // Fits 6 columns of 68px width (10 * 34 + 68) 
+        this.innerBoard.style.height = '630px'; // Fits 7 rows 
         this.innerBoard.style.pointerEvents = 'none';
+        this.innerBoard.style.marginTop = '10px'; // minimal margin
         this.container.appendChild(this.innerBoard);
     }
 
@@ -83,8 +84,8 @@ class MahjongView {
         if (!this.innerBoard) return;
         this.innerBoard.innerHTML = '';
         
-        const unitW = 32;
-        const unitH = 42;
+        const unitW = 34;
+        const unitH = 45;
 
         fichas.forEach(f => {
             if (!f.estado_visibilidad) return;

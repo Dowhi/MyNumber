@@ -1049,7 +1049,7 @@ body {
 
 #mj-slot-bar {
     background: #3e2723; /* Café Oscuro */
-    padding: 10px;
+    padding: 6px; /* Reduced from 10px to save space */
     border-radius: 25px; /* Muy redondeado */
     display: flex;
     gap: 8px;
@@ -1094,7 +1094,7 @@ body {
     position: relative;
     z-index: 100;
     background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
-    padding: 20px 0 30px;
+    padding: 5px 0 10px; /* Reduced drastically from 20px 0 30px */
 }
 
 .controls-wrapper {
@@ -1203,18 +1203,19 @@ body {
 }
 
 .btn-label {
-    font-size: 7px;
+    color: white;
+    font-size: 8px; /* Reduced to match smaller buttons */
     font-weight: 700;
-    letter-spacing: 0.05em;
-    color: rgba(255,255,255,0.6);
+    letter-spacing: 0.5px;
     text-transform: uppercase;
+    margin-top: 4px;
 }
 
-/* The Brick Style V62 */
+/* The Brick Style V64 */
 .mahjong-tile {
     position: absolute;
-    width: 64px;
-    height: 84px;
+    width: 68px; /* Increased from 64px to use horizontal space */
+    height: 90px; /* Increased from 84px proportionally */
     background: linear-gradient(to bottom, #ffffff 88%, #1a3a11 12%) !important;
     border-radius: 10px;
     border: 1px solid rgba(0,0,0,0.25); /* Bordes más definidos como solicitado */
