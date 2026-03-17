@@ -20,17 +20,35 @@ class MahjongModel {
         return this.fichas.filter(f => f.estado_visibilidad);
     }
 
-    // Lógica de Bloqueo Pro: Cualquier píxel de capa superior bloquea
+    // Lógica de Bloqueo Pro: Bloqueo Superior + Bloqueo Lateral (Clásico Mahjong)
     esLibre(ficha) {
         if (!ficha.estado_visibilidad) return false;
         const activas = this.obtenerFichasActivas();
         
-        return !activas.some(s => {
-            if (s.coord_Z <= ficha.coord_Z) return false;
-            // Detección de solapamiento 2x2 unidades (huella de la ficha)
-            return (s.coord_X < ficha.coord_X + 2 && s.coord_X + 2 > ficha.coord_X &&
-                    s.coord_Y < ficha.coord_Y + 2 && s.coord_Y + 2 > ficha.coord_Y);
-        });
+        let isBlockedOnTop = false;
+        let isBlockedLeft = false;
+        let isBlockedRight = false;
+
+        for (const s of activas) {
+            if (s.id_unico === ficha.id_unico) continue;
+
+            const xOverlap = s.coord_X < ficha.coord_X + 2 && s.coord_X + 2 > ficha.coord_X;
+            const yOverlap = s.coord_Y < ficha.coord_Y + 2 && s.coord_Y + 2 > ficha.coord_Y;
+
+            // Bloqueo Superior: Alguna ficha solapa en una capa superior
+            if (s.coord_Z > ficha.coord_Z && xOverlap && yOverlap) {
+                isBlockedOnTop = true;
+            }
+
+            // Bloqueo Lateral: Fichas en la misma capa a la izquierda O derecha
+            if (s.coord_Z === ficha.coord_Z && yOverlap) {
+                if (s.coord_X === ficha.coord_X - 2) isBlockedLeft = true;
+                if (s.coord_X === ficha.coord_X + 2) isBlockedRight = true;
+            }
+        }
+
+        // Una ficha no es libre si tiene otra encima, O si tiene fichas a AMBOS lados simultáneamente (Mahjong Clásico)
+        return !isBlockedOnTop && !(isBlockedLeft && isBlockedRight);
     }
 }
 
