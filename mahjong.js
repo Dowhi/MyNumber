@@ -275,20 +275,21 @@ class MahjongController {
         this.enPartida = false;
         
         window.IMAGE_MAP = {
-            "Eagle": "assets/mahjong/tiles/eagle.png",
-            "Lynx": "assets/mahjong/tiles/lynx.png",
-            "Frog": "assets/mahjong/tiles/frog.png",
-            "Squirrel": "assets/mahjong/tiles/squirrel.png",
-            "Deer": "assets/mahjong/tiles/deer.png",
-            "Snake": "assets/mahjong/tiles/snake.png",
-            "Hedgehog": "assets/mahjong/tiles/hedgehog.png",
-            "Badger": "assets/mahjong/tiles/badger.png",
-            "Stag": "assets/mahjong/tiles/stag.png",
-            "Barn Owl": "assets/mahjong/tiles/barn_owl.png",
-            "Hamster": "assets/mahjong/tiles/hamster.png",
-            "Dormouse": "assets/mahjong/tiles/dormouse.png",
-            "Owl": "assets/mahjong/tiles/owl.png",
-            "Wild Boar": "assets/mahjong/tiles/wild_boar.png"
+            "Eagle": "C:/Users/DOWHI/.gemini/antigravity/brain/7cf81ade-db9e-430f-a184-878a235fc9e1/sticker_style_eagle_1773775041566.png",
+            "Lynx": "C:/Users/DOWHI/.gemini/antigravity/brain/7cf81ade-db9e-430f-a184-878a235fc9e1/sticker_style_lynx_v2_1773775169836.png",
+            "Frog": "C:/Users/DOWHI/.gemini/antigravity/brain/7cf81ade-db9e-430f-a184-878a235fc9e1/sticker_style_frog_dart_1773775056256.png",
+            "Squirrel": "C:/Users/DOWHI/.gemini/antigravity/brain/7cf81ade-db9e-430f-a184-878a235fc9e1/sticker_style_squirrel_v2_1773775186632.png",
+            "Deer": "C:/Users/DOWHI/.gemini/antigravity/brain/7cf81ade-db9e-430f-a184-878a235fc9e1/sticker_style_deer_v2_1773775201032.png",
+            "Snake": "C:/Users/DOWHI/.gemini/antigravity/brain/7cf81ade-db9e-430f-a184-878a235fc9e1/sticker_style_snake_v2_1773775220214.png",
+            "Hedgehog": "C:/Users/DOWHI/.gemini/antigravity/brain/7cf81ade-db9e-430f-a184-878a235fc9e1/sticker_style_hedgehog_v2_1773775237041.png",
+            "Badger": "C:/Users/DOWHI/.gemini/antigravity/brain/7cf81ade-db9e-430f-a184-878a235fc9e1/sticker_style_badger_v2_1773775251390.png",
+            "Stag": "C:/Users/DOWHI/.gemini/antigravity/brain/7cf81ade-db9e-430f-a184-878a235fc9e1/sticker_style_stag_v2_1773775346858.png",
+            "Barn Owl": "C:/Users/DOWHI/.gemini/antigravity/brain/7cf81ade-db9e-430f-a184-878a235fc9e1/sticker_style_lechuza_v2_1773775269698.png",
+            "Hamster": "C:/Users/DOWHI/.gemini/antigravity/brain/7cf81ade-db9e-430f-a184-878a235fc9e1/sticker_style_hamster_v2_1773775283399.png",
+            "Dormouse": "C:/Users/DOWHI/.gemini/antigravity/brain/7cf81ade-db9e-430f-a184-878a235fc9e1/sticker_style_liron_v2_1773775297682.png",
+            "Owl": "C:/Users/DOWHI/.gemini/antigravity/brain/7cf81ade-db9e-430f-a184-878a235fc9e1/sticker_style_owl_v2_1773775331463.png",
+            "Wild Boar": "C:/Users/DOWHI/.gemini/antigravity/brain/7cf81ade-db9e-430f-a184-878a235fc9e1/sticker_style_jabal_v2_1773775316526.png",
+            "Toucan": "C:/Users/DOWHI/.gemini/antigravity/brain/7cf81ade-db9e-430f-a184-878a235fc9e1/sticker_style_toucan_1773775070529.png"
         };
     }
 
@@ -453,7 +454,7 @@ class MahjongController {
 // Generador de Niveles Aleatorios (No piramidal, para V61)
 function generarLayoutMahjong() {
     const layout = [];
-    const tipos = ["Eagle", "Lynx", "Frog", "Squirrel", "Deer", "Snake", "Hedgehog", "Badger", "Stag", "Barn Owl", "Hamster", "Dormouse", "Owl", "Wild Boar"];
+    const tipos = ["Eagle", "Lynx", "Frog", "Squirrel", "Deer", "Snake", "Hedgehog", "Badger", "Stag", "Barn Owl", "Hamster", "Dormouse", "Owl", "Wild Boar", "Toucan"];
     let pool = [];
 
     // Generaremos 42 pares = 84 fichas para encajar en la cuadrícula sin sobrecargar
