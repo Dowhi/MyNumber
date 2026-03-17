@@ -24,7 +24,7 @@ const STATE = {
 
 class MyNumberGame {
     constructor() {
-        console.log("GAME V58: Brick Style 3D Active");
+        console.log("GAME V59: Critical Bug Fixes");
         window.GAME = this; // Set early
         this.board = []; 
         this.selectedIndices = [];

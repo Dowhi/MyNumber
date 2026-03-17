@@ -38,9 +38,21 @@ class MahjongView {
     constructor(containerId) {
         this.container = document.getElementById(containerId);
         this.slotBar = document.getElementById('mj-slot-bar');
-        this.innerBoard = document.getElementById('mj-inner-board');
+        this.innerBoard = null;
+        this.initInnerBoard();
         this.particleContainer = null;
         this.initParticles();
+    }
+
+    initInnerBoard() {
+        if (!this.container) return;
+        this.innerBoard = document.createElement('div');
+        this.innerBoard.id = 'mj-inner-board';
+        this.innerBoard.style.position = 'absolute';
+        this.innerBoard.style.width = '400px'; 
+        this.innerBoard.style.height = '600px';
+        this.innerBoard.style.pointerEvents = 'none';
+        this.container.appendChild(this.innerBoard);
     }
 
     initParticles() {
@@ -66,6 +78,7 @@ class MahjongView {
             div.style.zIndex = f.coord_Z * 100 + f.coord_Y * 10 + f.coord_X;
             div.style.left = `${f.coord_X * unitW}px`;
             div.style.top = `${f.coord_Y * unitH}px`;
+            div.style.pointerEvents = 'auto'; // Ensure clickable
             
             const face = document.createElement('div');
             face.className = 'tile-face';
@@ -202,7 +215,7 @@ class MahjongController {
     }
 
     iniciarJuego() {
-        console.log("MAHJONG V58: Brick Style & Match-2 Active");
+        console.log("MAHJONG V59: Interactivity Fix & Fallback BG");
         const layout = window.generarLayoutMahjong();
         this.model.cargarNivel(layout);
         this.slots = [];

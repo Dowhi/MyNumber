@@ -1041,7 +1041,7 @@ body {
 
 #mj-slot-bar-container {
     width: 100%;
-    padding: 10px 0;
+    padding: 2px 0; /* Reduced vertical space as requested */
     display: flex;
     justify-content: center;
     z-index: 100;
@@ -1353,12 +1353,17 @@ body {
 }
 .mahjong-tile.shake { animation: mj-shake 0.3s cubic-bezier(.36,.07,.19,.97) both; }
 
-/* Background Static and Blurred */
+/* Background Static and Blurred - Fallback to gradient if image not found */
 .mahjong-screen {
-    background: url('assets/backgrounds/nature_bg.jpg') center/cover no-repeat fixed;
+    background: radial-gradient(circle at center, #1b3d12 0%, #0d1a09 100%) no-repeat fixed;
     position: relative;
     overflow: hidden;
     padding: 0 !important;
+}
+
+/* Use the available background if possible, but keep fallback */
+.mj-fullscreen .mahjong-screen {
+    background-color: #0d1a09;
 }
 
 .mahjong-screen::before {
