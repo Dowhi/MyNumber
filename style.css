@@ -1221,8 +1221,7 @@ body {
     border: 1px solid rgba(0,0,0,0.25); /* Bordes más definidos como solicitado */
     /* Depth: Forest Green #1a3a11 */
     box-shadow: 
-        0px 7px 0px #1a3a11, /* Grozor lateral 3D AUMENTADO */
-        0px 12px 18px rgba(0, 0, 0, 0.55); /* Glow/Shadow activa AUMENTADA para ver las que están debajo */
+        0px 7px 0px #1a3a11; /* Keep only the 3D depth, remove the outer group shadow */
     transition: filter 0.2s, transform 0.2s, box-shadow 0.2s;
     cursor: pointer;
     transform-origin: center bottom;
@@ -1231,7 +1230,7 @@ body {
 .mahjong-tile.blocked {
     filter: brightness(0.7); /* Slightly brighter so we can see what's underneath */
     opacity: 0.9;
-    box-shadow: 0px 7px 0px #1a3a11, 0px 6px 12px rgba(0, 0, 0, 0.45); /* Mantenemos cierta sombra para sensación de capa */
+    box-shadow: 0px 7px 0px #1a3a11; /* Remove secondary shadow */
     cursor: default;
 }
 
@@ -1243,7 +1242,7 @@ body {
     height: 100%;
     width: 100%;
     display: flex;
-    padding: 1% !important; /* Requested 1% padding */
+    padding: 0 !important; /* No padding: image occupies 100% of tile face */
     box-sizing: border-box;
     align-items: center;
     justify-content: center;

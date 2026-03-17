@@ -98,9 +98,10 @@ class MahjongView {
             
             this.innerBoard.style.transform = `scale(${scale})`;
             
-            // Centrado vertical dinámico: el usuario quiere reducir el hueco superior a la mitad
+            // Centrado vertical dinámico: el usuario quiere reducir el hueco superior a la mitad de lo que había (era /4)
             const visualH = baseH * scale;
-            const offsetH = Math.max(0, (availableH - visualH) / 4); // Cambiado de /2 a /4 para subirlo y dejar menos aire
+            const offsetH = Math.max(0, (availableH - visualH) / 8); // Cambiado a /8 para pegar aún más el bloque arriba
+
 
             
             this.innerBoard.style.marginTop = `${offsetH}px`;
