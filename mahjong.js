@@ -79,6 +79,9 @@ class MahjongView {
             div.style.left = `${f.coord_X * unitW}px`;
             div.style.top = `${f.coord_Y * unitH}px`;
             div.style.pointerEvents = 'auto'; // Ensure clickable
+            if (f.faceDown) {
+                div.classList.add('face-down');
+            }
             
             const face = document.createElement('div');
             face.className = 'tile-face';
@@ -210,7 +213,7 @@ class MahjongController {
         this.view = view;
         this.model = new MahjongModel();
         this.slots = []; 
-        this.maxSlots = 6; // Solicitado: "Bandeja... capacidad para 6-8 espacios"
+        this.maxSlots = 4; // Vuelto a 4 como solicitado por el usuario
         this.score = 0;
         this.enPartida = false;
         
@@ -233,7 +236,7 @@ class MahjongController {
     }
 
     iniciarJuego() {
-        console.log("MAHJONG V60: Brick Style 3D, Match-2, 6 Slots");
+        console.log("MAHJONG V61: Random Layout, 4 Slots, Face-Down mechanics");
         const layout = window.generarLayoutMahjong();
         this.model.cargarNivel(layout);
         this.slots = [];
@@ -254,6 +257,17 @@ class MahjongController {
         if (!this.model.esLibre(ficha)) {
             div.classList.add('shake');
             setTimeout(() => div.classList.remove('shake'), 400);
+            return;
+        }
+
+        // Si es libre y está boca abajo, simplemente se voltea y no se juega
+        if (ficha.faceDown) {
+            ficha.faceDown = false;
+            div.classList.remove('face-down');
+            // Feedback
+            div.style.transform = 'scale(1.1) rotateY(180deg)';
+            div.style.transition = 'transform 0.4s';
+            setTimeout(() => { div.style.transform = ''; div.style.transition = ''; }, 400);
             return;
         }
 
@@ -367,15 +381,18 @@ class MahjongController {
     }
 }
 
-// Generador de Niveles (Múltiplos de 2 ahora para Match-2)
+// Generador de Niveles Aleatorios (No piramidal, para V61)
 function generarLayoutMahjong() {
     const layout = [];
     const tipos = ["Eagle", "Lynx", "Frog", "Squirrel", "Deer", "Snake", "Hedgehog", "Badger", "Stag", "Barn Owl", "Hamster", "Dormouse", "Owl", "Wild Boar"];
     let pool = [];
-    for(let i=0; i<50; i++) {
+
+    // Generaremos 42 pares = 84 fichas para encajar en la cuadrícula sin sobrecargar
+    for(let i=0; i<42; i++) {
         const t = tipos[Math.floor(Math.random()*tipos.length)];
-        pool.push(t, t); // Pares
+        pool.push(t, t); 
     }
+
     // Shuffle pool
     for(let i=pool.length-1; i>0; i--) {
         const j = Math.floor(Math.random()*(i+1));
@@ -385,19 +402,58 @@ function generarLayoutMahjong() {
     let id = 1;
     const add = (x, y, z) => {
         if (!pool.length) return;
-        layout.push({ id_unico: id++, tipo_simbologia: pool.pop(), coord_X: x, coord_Y: y, coord_Z: z });
+        // ~25% probabilidad boca abajo para niveles random
+        const isFaceDown = Math.random() < 0.25; 
+        layout.push({ 
+            id_unico: id++, 
+            tipo_simbologia: pool.pop(), 
+            coord_X: x, 
+            coord_Y: y, 
+            coord_Z: z,
+            faceDown: isFaceDown
+        });
     };
 
-    // Pyramidal Layout restyled for V58
-    for(let z=0; z<4; z++) {
-        const size = 6 - z;
-        const offset = z;
-        for(let r=0; r<size; r++) {
-            for(let c=0; c<size; c++) {
-                add(c*2 + offset, r*2 + offset, z);
+    // Distribución aleatoria pero en retícula (Grid)
+    // Coordenadas en unidades de 1/2 ficha (c*2 = 1 ficha entera)
+    // Grid: 6x7 = 42 huecos posibles por capa
+    const gridRows = 7;
+    const gridCols = 6;
+
+    // Capa 0: Base fuerte
+    for (let r=0; r<gridRows; r++) {
+        for(let c=0; c<gridCols; c++) {
+            if(Math.random() > 0.2) add(c*2, r*2, 0); // 80% densidad
+        }
+    }
+
+    // Capas superiores aleatorias
+    for (let z=1; z<=3; z++) {
+        for (let r=0; r<gridRows; r++) {
+            for(let c=0; c<gridCols; c++) {
+                // Solo colocar si existe una base sólida directa (simplificación)
+                const hasBase = layout.some(f => f.coord_X === c*2 && f.coord_Y === r*2 && f.coord_Z === z-1);
+                if(hasBase && Math.random() > 0.6) { // 40% densidad si hay base
+                    add(c*2, r*2, z);
+                }
             }
         }
     }
+
+    // Si sobramos en el pool (lo cual es muy probable porque 84 fichas pueden no caber en la primera pasada con este randomizer), 
+    // forzaremos colocarlas en huecos libres de capas bajas
+    let emergencyZ = 0;
+    while(pool.length > 0) {
+        let placed = false;
+        for (let r=0; r<gridRows && pool.length > 0; r++) {
+            for(let c=0; c<gridCols && pool.length > 0; c++) {
+                 // Try stacking
+                 add(c*2, r*2, emergencyZ);
+            }
+        }
+        emergencyZ++;
+    }
+
     return layout;
 }
 

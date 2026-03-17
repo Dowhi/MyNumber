@@ -364,8 +364,6 @@
                         <div class="mj-slot" data-index="1"></div>
                         <div class="mj-slot" data-index="2"></div>
                         <div class="mj-slot" data-index="3"></div>
-                        <div class="mj-slot" data-index="4"></div>
-                        <div class="mj-slot" data-index="5"></div>
                     </div>
                 </div>
                 <!-- Rendered via JS -->
@@ -374,15 +372,15 @@
         <footer class="mj-mystic-footer">
             <div class="controls-wrapper">
                 <button class="control-btn circular hint" onclick="if(window.GAME && window.GAME.mahjongController) window.GAME.mahjongController.hint()">
+                    <span class="btn-badge" id="mj-hint-count">5</span>
                     <div class="btn-icon-circle">
-                        <span class="btn-badge" id="mj-hint-count">5</span>
                         <svg class="svg-teal" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.663 17h4.674a1 1 0 00.922-.617l2.108-4.742A4 4 0 105.196 9.5l2.357 4.636a1 1 0 00.91.864z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
                     </div>
                     <span class="btn-label">Pistas</span>
                 </button>
                 <button class="control-btn circular shuffle main-action" onclick="if(window.GAME && window.GAME.mahjongController) window.GAME.mahjongController.shuffle()">
+                    <span class="btn-badge" id="mj-shuffle-count">3</span>
                     <div class="btn-icon-circle">
-                         <span class="btn-badge" id="mj-shuffle-count">3</span>
                          <svg class="svg-amber" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
                     </div>
                     <span class="btn-label">MEZCLAR</span>
@@ -398,9 +396,9 @@
     </div>
     </div>
 
-    <script src="mahjong.js?v=60"></script>
-    <script src="onet.js?v=60"></script>
-    <script src="game.js?v=60"></script>
+    <script src="mahjong.js?v=61"></script>
+    <script src="onet.js?v=61"></script>
+    <script src="game.js?v=61"></script>
     <script>
     // Register Service Worker for PWA
     if ('serviceWorker' in navigator) {
