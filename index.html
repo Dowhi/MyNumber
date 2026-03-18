@@ -11,7 +11,8 @@
     <title>Number Match - Premium</title>
     <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="icon-192.png">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Cinzel:wght@400;700&family=Quicksand:wght@300;500;700&display=swap"
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Cinzel:wght@400;700&family=Quicksand:wght@300;500;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="style.css?v=48">
 </head>
@@ -33,19 +34,19 @@
             </nav>
 
             <div class="user-header">
-            <div class="user-info">
-                <span class="user-welcome">¡Hola!</span>
-                <div class="user-name-row">
-                    <span id="display-name" class="user-name">Jugador</span>
-                    <button id="edit-name-btn" class="edit-btn">✎</button>
+                <div class="user-info">
+                    <span class="user-welcome">¡Hola!</span>
+                    <div class="user-name-row">
+                        <span id="display-name" class="user-name">Jugador</span>
+                        <button id="edit-name-btn" class="edit-btn">✎</button>
+                    </div>
+                </div>
+                <div id="achievements-mini" class="achievements-mini">
+                    <!-- Logros se cargarán aquí -->
                 </div>
             </div>
-            <div id="achievements-mini" class="achievements-mini">
-                <!-- Logros se cargarán aquí -->
-            </div>
-        </div>
 
-        <div class="cards-container">
+            <div class="cards-container">
                 <!-- Replacement for Red Circles -->
                 <!-- Card 1: Classic -->
                 <div class="card card-blue">
@@ -258,103 +259,105 @@
             <p>No quedan movimientos posibles.</p>
             <h3 id="final-score" style="font-size: 40px; margin-bottom: 20px;">0</h3>
             <button id="go-new-game" class="btn-primary" style="width: 100%;">Nueva Partida</button>
-            <button id="go-home" class="btn-secondary"
-                style="width: 100%; margin-top: 10px;">Volver al Inicio</button>
+            <button id="go-home" class="btn-secondary" style="width: 100%; margin-top: 10px;">Volver al Inicio</button>
         </div>
         <div id="toast-container"></div>
 
 
-    <div id="modal-confirm" class="modal-overlay">
-        <div class="modal-content">
-            <h3 class="modal-title" id="modal-title">¿Nueva Partida?</h3>
-            <p class="modal-text" id="modal-text">¿Seguro que quieres abandonar la partida actual y empezar una nueva?</p>
-            <div class="modal-btns">
-                <button class="modal-btn confirm" id="modal-confirm-btn">Confirmar</button>
-                <button class="modal-btn cancel" id="modal-cancel-btn">Cancelar</button>
+        <div id="modal-confirm" class="modal-overlay">
+            <div class="modal-content">
+                <h3 class="modal-title" id="modal-title">¿Nueva Partida?</h3>
+                <p class="modal-text" id="modal-text">¿Seguro que quieres abandonar la partida actual y empezar una
+                    nueva?</p>
+                <div class="modal-btns">
+                    <button class="modal-btn confirm" id="modal-confirm-btn">Confirmar</button>
+                    <button class="modal-btn cancel" id="modal-cancel-btn">Cancelar</button>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- ONET MINIGAME SCREEN -->
-    <div id="onet-screen" class="screen onet-screen">
-        <div id="onet-start-overlay" class="onet-overlay active" style="flex-direction: column;">
-            <div class="onet-modal animate-pop">
-                <h2>Onet Connect</h2>
-                <p>Selecciona tu reto:</p>
-                <div class="onet-difficulty-options">
-                    <button class="diff-btn" data-time="90" data-lives="1">
-                        <span class="diff-time">1:30</span>
-                        <span class="diff-reward">❤️ x1</span>
-                    </button>
-                    <button class="diff-btn" data-time="60" data-lives="2">
-                        <span class="diff-time">1:00</span>
-                        <span class="diff-reward">❤️ x2</span>
+        <!-- ONET MINIGAME SCREEN -->
+        <div id="onet-screen" class="screen onet-screen">
+            <div id="onet-start-overlay" class="onet-overlay active" style="flex-direction: column;">
+                <div class="onet-modal animate-pop">
+                    <h2>Onet Connect</h2>
+                    <p>Selecciona tu reto:</p>
+                    <div class="onet-difficulty-options">
+                        <button class="diff-btn" data-time="90" data-lives="1">
+                            <span class="diff-time">1:30</span>
+                            <span class="diff-reward">❤️ x1</span>
+                        </button>
+                        <button class="diff-btn" data-time="60" data-lives="2">
+                            <span class="diff-time">1:00</span>
+                            <span class="diff-reward">❤️ x2</span>
+                        </button>
+                    </div>
+                    <button id="onet-show-help" class="btn-secondary" style="margin-top: 15px; width: 100%;">¿Cómo
+                        jugar?</button>
+                    <button id="onet-quit-btn" class="btn-secondary" style="margin-top: 10px; width: 100%;">Volver al
+                        Inicio</button>
+                </div>
+            </div>
+            <div class="onet-header">
+                <div class="timer-container">
+                    <div id="onet-timer-bar" class="timer-bar"></div>
+                </div>
+                <div class="onet-stats">
+                    <span id="onet-pairs-count">0/15</span>
+                    <span>Parejas</span>
+                </div>
+                <button id="onet-help-btn" class="onet-help-trigger">❓</button>
+            </div>
+            <div class="onet-board-container">
+                <div id="onet-board" class="onet-grid"></div>
+                <canvas id="onet-canvas"></canvas>
+            </div>
+            <div class="onet-footer">
+                <button id="onet-hint-btn" class="btn-primary">💡 Pista</button>
+            </div>
+
+            <div id="onet-result-overlay" class="onet-overlay">
+                <div class="onet-modal">
+                    <h2 id="onet-result-title">¡Victoria!</h2>
+                    <p id="onet-result-text">Has ganado 1 Vida ❤️</p>
+                    <button id="onet-close-btn" class="btn-primary">Volver al Inicio</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ONET INSTRUCTIONS MODAL -->
+        <div id="onet-help-modal" class="overlay">
+            <div class="onet-help-content animate-pop">
+                <h3>Cómo Jugar Onet</h3>
+                <p>1. Conecta parejas de figuras iguales.</p>
+                <p>2. El camino no puede tener más de 2 giros de 90°.</p>
+                <p>3. Despeja todo el tablero antes de que acabe el tiempo.</p>
+                <p>4. ¡Gana una Vida extra ❤️ si lo logras!</p>
+                <button id="onet-help-close" class="btn-primary" style="margin-top: 20px;">¡Entendido!</button>
+            </div>
+        </div>
+
+        <!-- Mystic Mahjong Screen -->
+        <div id="mahjong-screen" class="screen mahjong-screen bg-celestial">
+            <header class="mj-mystic-header">
+                <div class="header-back-area">
+                    <button class="nav-btn-icon back-btn" id="mahjong-quit-btn">
+                        <span class="chevron-left"></span>
                     </button>
                 </div>
-                <button id="onet-show-help" class="btn-secondary" style="margin-top: 15px; width: 100%;">¿Cómo jugar?</button>
-                <button id="onet-quit-btn" class="btn-secondary" style="margin-top: 10px; width: 100%;">Volver al Inicio</button>
-            </div>
-        </div>
-        <div class="onet-header">
-            <div class="timer-container">
-                <div id="onet-timer-bar" class="timer-bar"></div>
-            </div>
-            <div class="onet-stats">
-                <span id="onet-pairs-count">0/15</span>
-                <span>Parejas</span>
-            </div>
-            <button id="onet-help-btn" class="onet-help-trigger">❓</button>
-        </div>
-        <div class="onet-board-container">
-            <div id="onet-board" class="onet-grid"></div>
-            <canvas id="onet-canvas"></canvas>
-        </div>
-        <div class="onet-footer">
-            <button id="onet-hint-btn" class="btn-primary">💡 Pista</button>
-        </div>
-
-        <div id="onet-result-overlay" class="onet-overlay">
-            <div class="onet-modal">
-                <h2 id="onet-result-title">¡Victoria!</h2>
-                <p id="onet-result-text">Has ganado 1 Vida ❤️</p>
-                <button id="onet-close-btn" class="btn-primary">Volver al Inicio</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- ONET INSTRUCTIONS MODAL -->
-    <div id="onet-help-modal" class="overlay">
-        <div class="onet-help-content animate-pop">
-            <h3>Cómo Jugar Onet</h3>
-            <p>1. Conecta parejas de figuras iguales.</p>
-            <p>2. El camino no puede tener más de 2 giros de 90°.</p>
-            <p>3. Despeja todo el tablero antes de que acabe el tiempo.</p>
-            <p>4. ¡Gana una Vida extra ❤️ si lo logras!</p>
-            <button id="onet-help-close" class="btn-primary" style="margin-top: 20px;">¡Entendido!</button>
-        </div>
-    </div>
-
-    <!-- Mystic Mahjong Screen -->
-    <div id="mahjong-screen" class="screen mahjong-screen bg-celestial">
-        <header class="mj-mystic-header">
-            <div class="header-back-area">
-                <button class="nav-btn-icon back-btn" id="mahjong-quit-btn">
-                    <span class="chevron-left"></span>
-                </button>
-            </div>
-            <div class="header-stats-item">
-                <span class="stats-label text-teal">PUNTUACIÓN</span>
-                <span id="mj-score" class="stats-value text-amber title-font">0</span>
-            </div>
-            <div class="header-stats-item" style="text-align: center;">
-                <span class="stats-label text-teal">NIVEL</span>
-                <span class="stats-value title-font">1 - Éter</span>
-            </div>
-            <div class="header-stats-item" style="text-align: right;">
-                <span class="stats-label text-teal">TIEMPO</span>
-                <span id="mj-timer" class="stats-value title-font tabular-nums">00:00</span>
-            </div>
-        </header>
+                <div class="header-stats-item">
+                    <span class="stats-label text-teal">PUNTUACIÓN</span>
+                    <span id="mj-score" class="stats-value text-amber title-font">0</span>
+                </div>
+                <div class="header-stats-item" style="text-align: center;">
+                    <span class="stats-label text-teal">NIVEL</span>
+                    <span class="stats-value title-font">1 - Éter</span>
+                </div>
+                <div class="header-stats-item" style="text-align: right;">
+                    <span class="stats-label text-teal">TIEMPO</span>
+                    <span id="mj-timer" class="stats-value title-font tabular-nums">00:00</span>
+                </div>
+            </header>
 
             <main class="mahjong-board-container" id="mahjong-container">
                 <!-- Slot Bar for Match-2 -->
@@ -369,47 +372,64 @@
                 <!-- Rendered via JS -->
             </main>
 
-        <footer class="mj-mystic-footer">
-            <div class="controls-wrapper">
-                <button class="control-btn circular hint" onclick="if(window.GAME && window.GAME.mahjongController) window.GAME.mahjongController.hint()">
-                    <span class="btn-badge" id="mj-hint-count">5</span>
-                    <div class="btn-icon-circle">
-                        <svg class="svg-teal" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9.663 17h4.674a1 1 0 00.922-.617l2.108-4.742A4 4 0 105.196 9.5l2.357 4.636a1 1 0 00.91.864z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-                    </div>
-                    <span class="btn-label">Pistas</span>
-                </button>
-                <button class="control-btn circular shuffle main-action" onclick="if(window.GAME && window.GAME.mahjongController) window.GAME.mahjongController.shuffle()">
-                    <span class="btn-badge" id="mj-shuffle-count">3</span>
-                    <div class="btn-icon-circle">
-                         <svg class="svg-amber" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-                    </div>
-                    <span class="btn-label">MEZCLAR</span>
-                </button>
-                <button class="control-btn circular undo" onclick="if(window.GAME && window.GAME.mahjongController) window.GAME.mahjongController.undo()">
-                    <div class="btn-icon-circle">
-                        <svg class="svg-teal" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-                    </div>
-                    <span class="btn-label">Deshacer</span>
-                </button>
-            </div>
-        </footer>
-    </div>
+            <footer class="mj-mystic-footer">
+                <div class="controls-wrapper">
+                    <button class="control-btn circular hint"
+                        onclick="if(window.GAME && window.GAME.mahjongController) window.GAME.mahjongController.hint()">
+                        <span class="btn-badge" id="mj-hint-count">5</span>
+                        <div class="btn-icon-circle">
+                            <svg class="svg-teal" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M9.663 17h4.674a1 1 0 00.922-.617l2.108-4.742A4 4 0 105.196 9.5l2.357 4.636a1 1 0 00.91.864z"
+                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                            </svg>
+                        </div>
+                        <span class="btn-label">Pistas</span>
+                    </button>
+                    <button class="control-btn circular shuffle main-action"
+                        onclick="if(window.GAME && window.GAME.mahjongController) window.GAME.mahjongController.shuffle()">
+                        <span class="btn-badge" id="mj-shuffle-count">3</span>
+                        <div class="btn-icon-circle">
+                            <svg class="svg-amber" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                                    stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                            </svg>
+                        </div>
+                        <span class="btn-label">MEZCLAR</span>
+                    </button>
+                    <button class="control-btn circular undo"
+                        onclick="if(window.GAME && window.GAME.mahjongController) window.GAME.mahjongController.undo()">
+                        <div class="btn-icon-circle">
+                            <svg class="svg-teal" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" stroke-linecap="round"
+                                    stroke-linejoin="round" stroke-width="2"></path>
+                            </svg>
+                        </div>
+                        <span class="btn-label">Deshacer</span>
+                    </button>
+                </div>
+            </footer>
+        </div>
     </div>
 
-    <script src="mahjong.js?v=61"></script>
+    <script src="mahjong.js?v=67"></script>
     <script src="onet.js?v=61"></script>
     <script src="game.js?v=61"></script>
     <script>
-    // Register Service Worker for PWA
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('./service-worker.js')
-            .then((reg) => {
-                console.log('✅ Service Worker registrado:', reg.scope);
-            })
-            .catch((err) => {
-                console.error('❌ Error al registrar Service Worker:', err);
-            });
-    }
+        // Register Service Worker for PWA
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./service-worker.js')
+                .then((reg) => {
+                    console.log('✅ Service Worker registrado:', reg.scope);
+                })
+                .catch((err) => {
+                    console.error('❌ Error al registrar Service Worker:', err);
+                });
+        }
     </script>
 </body>
 

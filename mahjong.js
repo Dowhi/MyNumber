@@ -122,8 +122,10 @@ class MahjongView {
         if (!this.innerBoard) return;
         this.innerBoard.innerHTML = '';
 
-        // Grid de 5 columnas: unitW más ancho para que quepan 5 fichas en el ancho disponible
-        const unitW = 68; // Ancho de ficha (68px = ancho completo de ficha)
+        // Grid de 5 columnas: unitW ajustado para encajar 5 fichas en 408px
+        // 408px / 5 columnas = 81.6px por columna, pero cada ficha ocupa 2 unidades X
+        // Usamos unitW = 40.8 para que 5 fichas * 2 * 40.8 = 408px exactos
+        const unitW = 40.8; // Ancho de unidad (cada ficha ocupa 2 unidades = 81.6px)
         const unitH = 45;
 
         fichas.forEach(f => {
@@ -275,6 +277,8 @@ class MahjongController {
         this.score = 0;
         this.enPartida = false;
         this.lastFlippedTile = null; // Track last flipped face-down tile
+        this.timerInterval = null;
+        this.startTime = null;
 
         window.IMAGE_MAP = {
             "Eagle": "assets/mahjong/stickers/sticker_style_eagle_1773775041566.png",
@@ -302,8 +306,26 @@ class MahjongController {
         this.slots = [];
         this.score = 0;
         this.enPartida = true;
+        this.startTime = Date.now();
+        this.startTimer();
         this.render();
         this.updateUI();
+    }
+
+    startTimer() {
+        if (this.timerInterval) clearInterval(this.timerInterval);
+        this.timerInterval = setInterval(() => {
+            const elapsed = Math.floor((Date.now() - this.startTime) / 1000);
+            const mins = Math.floor(elapsed / 60).toString().padStart(2, '0');
+            const secs = (elapsed % 60).toString().padStart(2, '0');
+            const timerEl = document.getElementById('mj-timer');
+            if (timerEl) timerEl.textContent = `${mins}:${secs}`;
+        }, 1000);
+    }
+
+    stopTimer() {
+        if (this.timerInterval) clearInterval(this.timerInterval);
+        this.timerInterval = null;
     }
 
     render() {
@@ -418,14 +440,14 @@ class MahjongController {
             Array.from(this.view.slotBar.children).forEach(el => {
                 el.classList.add('shake');
                 const img = el.querySelector('img');
-                if(img) {
+                if (img) {
                     img.style.filter = 'drop-shadow(0 0 5px red) brightness(0.7) sepia(1) hue-rotate(-50deg) saturate(3)';
                 }
             });
 
             setTimeout(() => {
-                 window.GAME.showToast("¡Bandeja llena! Fin del juego.");
-                 // Reset game over UI if needed, or rely on reload
+                window.GAME.showToast("¡Bandeja llena! Fin del juego.");
+                // Reset game over UI if needed, or rely on reload
             }, 800);
         }
     }
@@ -457,9 +479,9 @@ class MahjongController {
 
     shuffle() {
         const activas = this.model.obtenerFichasActivas();
-        const pos = activas.map(f => ({x: f.coord_X, y: f.coord_Y, z: f.coord_Z}));
-        for(let i=pos.length-1; i>0; i--) {
-            const j = Math.floor(Math.random() * (i+1));
+        const pos = activas.map(f => ({ x: f.coord_X, y: f.coord_Y, z: f.coord_Z }));
+        for (let i = pos.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
             [pos[i], pos[j]] = [pos[j], pos[i]];
         }
         activas.forEach((f, i) => {
@@ -476,14 +498,14 @@ function generarLayoutMahjong() {
     let pool = [];
 
     // Generaremos 42 pares = 84 fichas para encajar en la cuadrícula sin sobrecargar
-    for(let i=0; i<42; i++) {
-        const t = tipos[Math.floor(Math.random()*tipos.length)];
+    for (let i = 0; i < 42; i++) {
+        const t = tipos[Math.floor(Math.random() * tipos.length)];
         pool.push(t, t);
     }
 
     // Shuffle pool
-    for(let i=pool.length-1; i>0; i--) {
-        const j = Math.floor(Math.random()*(i+1));
+    for (let i = pool.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
         [pool[i], pool[j]] = [pool[j], pool[i]];
     }
 
@@ -504,42 +526,59 @@ function generarLayoutMahjong() {
 
     // Distribución aleatoria pero en retícula (Grid)
     // Coordenadas en unidades de 1/2 ficha (c*2 = 1 ficha entera)
-    // Grid: 6x7 = 42 huecos posibles por capa
+    // Grid: 5 columnas x 7 filas = 35 huecos posibles por capa
     const gridRows = 7;
-    const gridCols = 6;
+    const gridCols = 5; // 5 columnas para que quepan sin espacios
 
-    // Capa 0: Base fuerte
-    for (let r=0; r<gridRows; r++) {
-        for(let c=0; c<gridCols; c++) {
-            if(Math.random() > 0.2) add(c*2, r*2, 0); // 80% densidad
+    // Capa 0: Base fuerte - llenar completamente para tener base sólida
+    for (let r = 0; r < gridRows; r++) {
+        for (let c = 0; c < gridCols; c++) {
+            add(c * 2, r * 2, 0); // 100% densidad en capa base
         }
     }
 
-    // Capas superiores aleatorias
-    for (let z=1; z<=3; z++) {
-        for (let r=0; r<gridRows; r++) {
-            for(let c=0; c<gridCols; c++) {
-                // Solo colocar si existe una base sólida directa (simplificación)
-                const hasBase = layout.some(f => f.coord_X === c*2 && f.coord_Y === r*2 && f.coord_Z === z-1);
-                if(hasBase && Math.random() > 0.6) { // 40% densidad si hay base
-                    add(c*2, r*2, z);
+    // Capas superiores: SOLO colocar si hay AL MENOS 2 fichas debajo (regla de 2 fichas mínimo)
+    for (let z = 1; z <= 3; z++) {
+        for (let r = 0; r < gridRows; r++) {
+            for (let c = 0; c < gridCols; c++) {
+                // Contar cuántas fichas hay directamente debajo
+                const supportCount = layout.filter(f =>
+                    f.coord_Z === z - 1 &&
+                    Math.abs(f.coord_X - c * 2) <= 2 &&
+                    Math.abs(f.coord_Y - r * 2) <= 2
+                ).length;
+
+                // Solo colocar si hay al menos 2 fichas de soporte
+                if (supportCount >= 2 && Math.random() > 0.5) {
+                    add(c * 2, r * 2, z);
                 }
             }
         }
     }
 
-    // Si sobramos en el pool (lo cual es muy probable porque 84 fichas pueden no caber en la primera pasada con este randomizer),
-    // forzaremos colocarlas en huecos libres de capas bajas
-    let emergencyZ = 0;
-    while(pool.length > 0) {
+    // Si sobran fichas en el pool, colocarlas en huecos válidos de capas bajas
+    let emergencyZ = 1;
+    while (pool.length > 0 && emergencyZ <= 3) {
         let placed = false;
-        for (let r=0; r<gridRows && pool.length > 0; r++) {
-            for(let c=0; c<gridCols && pool.length > 0; c++) {
-                 // Try stacking
-                 add(c*2, r*2, emergencyZ);
+        for (let r = 0; r < gridRows && pool.length > 0; r++) {
+            for (let c = 0; c < gridCols && pool.length > 0; c++) {
+                // Verificar si hay al menos 2 fichas de soporte
+                const supportCount = layout.filter(f =>
+                    f.coord_Z === emergencyZ - 1 &&
+                    Math.abs(f.coord_X - c * 2) <= 2 &&
+                    Math.abs(f.coord_Y - r * 2) <= 2
+                ).length;
+
+                if (supportCount >= 2) {
+                    const exists = layout.some(f => f.coord_X === c * 2 && f.coord_Y === r * 2 && f.coord_Z === emergencyZ);
+                    if (!exists) {
+                        add(c * 2, r * 2, emergencyZ);
+                        placed = true;
+                    }
+                }
             }
         }
-        emergencyZ++;
+        if (!placed) emergencyZ++;
     }
 
     return layout;
