@@ -427,6 +427,9 @@ class MahjongController {
                     this.score += 500;
                     this.updateUI();
                     setTimeout(() => this.refreshSlotsUI(), 300);
+
+                    // Check win condition
+                    this.checkWinCondition();
                     return;
                 }
             }
@@ -449,6 +452,57 @@ class MahjongController {
                 window.GAME.showToast("¡Bandeja llena! Fin del juego.");
                 // Reset game over UI if needed, or rely on reload
             }, 800);
+        }
+    }
+
+    checkWinCondition() {
+        const activas = this.model.obtenerFichasActivas();
+        if (activas.length === 0 && this.slots.length === 0) {
+            // Victoria!
+            this.stopTimer();
+            this.showConfetti();
+            this.addLifeToMainGame();
+            setTimeout(() => {
+                window.GAME.showToast("¡Victoria! +1 Vida ❤️");
+            }, 500);
+        }
+    }
+
+    showConfetti() {
+        const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff', '#ffa500', '#ff69b4'];
+
+        for (let i = 0; i < 150; i++) {
+            const confetti = document.createElement('div');
+            confetti.style.position = 'fixed';
+            confetti.style.width = `${8 + Math.random() * 8}px`;
+            confetti.style.height = `${8 + Math.random() * 8}px`;
+            confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+            confetti.style.left = `${Math.random() * 100}vw`;
+            confetti.style.top = '-20px';
+            confetti.style.zIndex = '99999';
+            confetti.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+            confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+
+            document.body.appendChild(confetti);
+
+            const fallDuration = 2000 + Math.random() * 2000;
+            const fallDelay = Math.random() * 500;
+
+            setTimeout(() => {
+                confetti.style.transition = `top ${fallDuration}ms ease-in, transform ${fallDuration}ms linear`;
+                confetti.style.top = '110vh';
+                confetti.style.transform = `rotate(${720 + Math.random() * 360}deg)`;
+
+                setTimeout(() => confetti.remove(), fallDuration + fallDelay);
+            }, fallDelay);
+        }
+    }
+
+    addLifeToMainGame() {
+        if (window.GAME && window.GAME.stats) {
+            window.GAME.stats.lives = (window.GAME.stats.lives || 0) + 1;
+            window.GAME.saveStats();
+            window.GAME.updateHeader();
         }
     }
 
