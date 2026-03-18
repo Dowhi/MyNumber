@@ -126,7 +126,7 @@ class MahjongView {
         // Cada ficha mide 81px ancho x 90px alto
         // Coordenadas: 2 unidades por ficha en X, 1 unidad en Y
         const unitW = 40.5; // Mitad del ancho de ficha (81px / 2)
-        const unitH = 90;   // Alto de ficha (sin espacio vertical)
+        const unitH = 45;   // Mitad del alto de ficha para solapamiento (90px / 2)
 
         fichas.forEach(f => {
             if (!f.estado_visibilidad) return;
