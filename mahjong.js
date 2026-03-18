@@ -545,7 +545,7 @@ class MahjongController {
     }
 }
 
-// Generador de Niveles Aleatorios - Layout 5 columnas x 7 filas
+// Generador de Niveles Aleatorios - Layout 5 columnas x 7 filas escalonado
 function generarLayoutMahjong() {
     const layout = [];
     const tipos = ["Eagle", "Lynx", "Frog", "Squirrel", "Deer", "Snake", "Hedgehog", "Badger", "Stag", "Barn Owl", "Hamster", "Dormouse", "Owl", "Wild Boar", "Toucan"];
@@ -578,17 +578,26 @@ function generarLayoutMahjong() {
     };
 
     // CAPA 0: Base completa 5x7 (35 fichas)
+    // Coordenadas: cada ficha ocupa 2 unidades en X e Y
     for (let row = 0; row < 7; row++) {
         for (let col = 0; col < 5; col++) {
             add(col * 2, row * 2, 0);
         }
     }
 
-    // CAPA 1: 20 fichas aleatorias sobre la base
+    // CAPA 1: 20 fichas en posiciones intermedias (entre dos fichas de la capa 0)
+    // Se colocan desplazadas 1 unidad en X e Y para quedar en medio
     const positionsZ1 = [];
+    for (let row = 0; row < 6; row++) {
+        for (let col = 0; col < 4; col++) {
+            // Posición intermedia: entre (col*2, row*2) y ((col+1)*2, (row+1)*2)
+            positionsZ1.push({ x: col * 2 + 1, y: row * 2 + 1 });
+        }
+    }
+    // Añadir posiciones intermedias en horizontal
     for (let row = 0; row < 7; row++) {
-        for (let col = 0; col < 5; col++) {
-            positionsZ1.push({ row, col });
+        for (let col = 0; col < 4; col++) {
+            positionsZ1.push({ x: col * 2 + 1, y: row * 2 });
         }
     }
     // Shuffle posiciones
@@ -596,16 +605,17 @@ function generarLayoutMahjong() {
         const j = Math.floor(Math.random() * (i + 1));
         [positionsZ1[i], positionsZ1[j]] = [positionsZ1[j], positionsZ1[i]];
     }
-    // Colocar 20 fichas en posiciones aleatorias
+    // Colocar 20 fichas en posiciones intermedias
     for (let i = 0; i < 20 && i < positionsZ1.length; i++) {
-        add(positionsZ1[i].col * 2, positionsZ1[i].row * 2, 1);
+        add(positionsZ1[i].x, positionsZ1[i].y, 1);
     }
 
-    // CAPA 2: 5 fichas aleatorias en la cima
+    // CAPA 2: 5 fichas en posiciones intermedias de la capa 1 (entre 2-3 fichas)
     const positionsZ2 = [];
-    for (let row = 1; row < 6; row++) {
-        for (let col = 1; col < 4; col++) {
-            positionsZ2.push({ row, col });
+    for (let row = 1; row < 5; row++) {
+        for (let col = 1; col < 3; col++) {
+            // Posición que queda entre varias fichas de la capa 1
+            positionsZ2.push({ x: col * 2 + 1, y: row * 2 + 1 });
         }
     }
     // Shuffle posiciones
@@ -613,9 +623,9 @@ function generarLayoutMahjong() {
         const j = Math.floor(Math.random() * (i + 1));
         [positionsZ2[i], positionsZ2[j]] = [positionsZ2[j], positionsZ2[i]];
     }
-    // Colocar 5 fichas en posiciones aleatorias
+    // Colocar 5 fichas en posiciones intermedias
     for (let i = 0; i < 5 && i < positionsZ2.length; i++) {
-        add(positionsZ2[i].col * 2, positionsZ2[i].row * 2, 2);
+        add(positionsZ2[i].x, positionsZ2[i].y, 2);
     }
 
     return layout;
