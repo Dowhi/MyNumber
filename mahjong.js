@@ -67,8 +67,8 @@ class MahjongView {
         this.innerBoard = document.createElement('div');
         this.innerBoard.id = 'mj-inner-board';
         this.innerBoard.style.position = 'relative';
-        this.innerBoard.style.width = '972px'; // 12 fichas * 81px
-        this.innerBoard.style.height = '720px'; // 8 fichas * 90px
+        this.innerBoard.style.width = '405px'; // 5 fichas * 81px
+        this.innerBoard.style.height = '630px'; // 7 fichas * 90px
         this.innerBoard.style.pointerEvents = 'none';
         this.innerBoard.style.marginTop = '10px';
         this.innerBoard.style.marginLeft = 'auto';
@@ -491,14 +491,14 @@ class MahjongController {
     }
 }
 
-// Generador de Niveles Aleatorios - Layout estilo Mahjong Clásico
+// Generador de Niveles Aleatorios - Layout 5 columnas x 7 filas
 function generarLayoutMahjong() {
     const layout = [];
     const tipos = ["Eagle", "Lynx", "Frog", "Squirrel", "Deer", "Snake", "Hedgehog", "Badger", "Stag", "Barn Owl", "Hamster", "Dormouse", "Owl", "Wild Boar", "Toucan"];
     let pool = [];
 
-    // Generaremos 72 pares = 144 fichas (layout clásico completo)
-    for (let i = 0; i < 72; i++) {
+    // Generaremos 35 pares = 70 fichas para 5x7 layout
+    for (let i = 0; i < 35; i++) {
         const t = tipos[Math.floor(Math.random() * tipos.length)];
         pool.push(t, t);
     }
@@ -523,78 +523,60 @@ function generarLayoutMahjong() {
         });
     };
 
-    // Layout estilo "Tortuga" clásico de Mahjong
-    // Coordenadas: cada ficha ocupa 2 unidades de ancho, 1 de alto
-    // Base: 12 fichas ancho x 8 fichas alto aproximadamente
+    // Layout 5 columnas x 7 filas escalonado
+    // Cada ficha ocupa 2 unidades en X, 1 unidad en Y
 
-    // CAPA 0: Base completa en forma rectangular
-    for (let row = 0; row < 8; row++) {
-        for (let col = 0; col < 12; col++) {
+    // CAPA 0: Base completa 5x7
+    for (let row = 0; row < 7; row++) {
+        for (let col = 0; col < 5; col++) {
             add(col * 2, row * 2, 0);
         }
     }
 
-    // CAPA 1: Patrón escalonado dejando huecos
-    for (let row = 1; row < 7; row++) {
-        for (let col = 1; col < 11; col++) {
-            if (Math.random() > 0.15) { // 85% densidad
+    // CAPA 1: 4x6 centrado
+    for (let row = 1; row < 6; row++) {
+        for (let col = 1; col < 4; col++) {
+            if (Math.random() > 0.1) { // 90% densidad
                 add(col * 2, row * 2, 1);
             }
         }
     }
 
-    // CAPA 2: Más escalonado, menos fichas
-    for (let row = 2; row < 6; row++) {
-        for (let col = 2; col < 10; col++) {
+    // CAPA 2: 3x5 centrado
+    for (let row = 2; row < 5; row++) {
+        for (let col = 1; col < 4; col++) {
             if (Math.random() > 0.2) { // 80% densidad
                 add(col * 2, row * 2, 2);
             }
         }
     }
 
-    // CAPA 3: Centro del diseño
-    for (let row = 3; row < 5; row++) {
-        for (let col = 3; col < 9; col++) {
-            if (Math.random() > 0.25) { // 75% densidad
-                add(col * 2, row * 2, 3);
-            }
+    // CAPA 3: 2x3 cima
+    for (let row = 3; row < 4; row++) {
+        for (let col = 2; col < 3; col++) {
+            add(col * 2, row * 2, 3);
         }
-    }
-
-    // CAPA 4: Pico superior
-    for (let row = 3; row < 5; row++) {
-        for (let col = 4; col < 8; col++) {
-            if (Math.random() > 0.3) { // 70% densidad
-                add(col * 2, row * 2, 4);
-            }
-        }
-    }
-
-    // CAPA 5: Cúspide
-    for (let col = 5; col < 7; col++) {
-        add(col * 2, 4 * 2, 5);
     }
 
     // Ficha final en la cima
     if (pool.length > 0) {
-        add(6 * 2, 4 * 2, 6);
+        add(4 * 2, 3 * 2, 4);
     }
 
     // Rellenar pool sobrante en posiciones aleatorias válidas
     while (pool.length > 0) {
         let placed = false;
-        for (let z = 0; z <= 5 && !placed; z++) {
-            for (let row = 0; row < 8 && !placed; row++) {
-                for (let col = 0; col < 12 && !placed; col++) {
+        for (let z = 0; z <= 3 && !placed; z++) {
+            for (let row = 0; row < 7 && !placed; row++) {
+                for (let col = 0; col < 5 && !placed; col++) {
                     const exists = layout.some(f => f.coord_X === col * 2 && f.coord_Y === row * 2 && f.coord_Z === z);
                     if (!exists) {
-                        // Verificar soporte: al menos 1 ficha debajo adyacente
-                        const hasSupport = layout.some(f =>
+                        const hasSupport = z === 0 || layout.some(f =>
                             f.coord_Z === z - 1 &&
                             Math.abs(f.coord_X - col * 2) <= 2 &&
                             Math.abs(f.coord_Y - row * 2) <= 2
                         );
-                        if (hasSupport || z === 0) {
+                        if (hasSupport) {
                             add(col * 2, row * 2, z);
                             placed = true;
                         }
