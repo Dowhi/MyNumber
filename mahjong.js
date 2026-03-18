@@ -67,8 +67,8 @@ class MahjongView {
         this.innerBoard = document.createElement('div');
         this.innerBoard.id = 'mj-inner-board';
         this.innerBoard.style.position = 'relative';
-        this.innerBoard.style.width = '408px';
-        this.innerBoard.style.height = '630px';
+        this.innerBoard.style.width = '972px'; // 12 fichas * 81px
+        this.innerBoard.style.height = '720px'; // 8 fichas * 90px
         this.innerBoard.style.pointerEvents = 'none';
         this.innerBoard.style.marginTop = '10px';
         this.innerBoard.style.marginLeft = 'auto';
@@ -122,11 +122,11 @@ class MahjongView {
         if (!this.innerBoard) return;
         this.innerBoard.innerHTML = '';
 
-        // Grid de 5 columnas: unitW ajustado para encajar 5 fichas en 408px
-        // 408px / 5 columnas = 81.6px por columna, pero cada ficha ocupa 2 unidades X
-        // Usamos unitW = 40.8 para que 5 fichas * 2 * 40.8 = 408px exactos
-        const unitW = 40.8; // Ancho de unidad (cada ficha ocupa 2 unidades = 81.6px)
-        const unitH = 45;
+        // Layout clásico Mahjong: fichas contiguas sin espacios
+        // Cada ficha mide 81px ancho x 90px alto
+        // Coordenadas: 2 unidades por ficha en X, 1 unidad en Y
+        const unitW = 40.5; // Mitad del ancho de ficha (81px / 2)
+        const unitH = 90;   // Alto de ficha (sin espacio vertical)
 
         fichas.forEach(f => {
             if (!f.estado_visibilidad) return;
@@ -491,14 +491,14 @@ class MahjongController {
     }
 }
 
-// Generador de Niveles Aleatorios (No piramidal, para V61)
+// Generador de Niveles Aleatorios - Layout estilo Mahjong Clásico
 function generarLayoutMahjong() {
     const layout = [];
     const tipos = ["Eagle", "Lynx", "Frog", "Squirrel", "Deer", "Snake", "Hedgehog", "Badger", "Stag", "Barn Owl", "Hamster", "Dormouse", "Owl", "Wild Boar", "Toucan"];
     let pool = [];
 
-    // Generaremos 42 pares = 84 fichas para encajar en la cuadrícula sin sobrecargar
-    for (let i = 0; i < 42; i++) {
+    // Generaremos 72 pares = 144 fichas (layout clásico completo)
+    for (let i = 0; i < 72; i++) {
         const t = tipos[Math.floor(Math.random() * tipos.length)];
         pool.push(t, t);
     }
@@ -512,8 +512,7 @@ function generarLayoutMahjong() {
     let id = 1;
     const add = (x, y, z) => {
         if (!pool.length) return;
-        // ~25% probabilidad boca abajo para niveles random
-        const isFaceDown = Math.random() < 0.25;
+        const isFaceDown = Math.random() < 0.2;
         layout.push({
             id_unico: id++,
             tipo_simbologia: pool.pop(),
@@ -524,61 +523,86 @@ function generarLayoutMahjong() {
         });
     };
 
-    // Distribución aleatoria pero en retícula (Grid)
-    // Coordenadas en unidades de 1/2 ficha (c*2 = 1 ficha entera)
-    // Grid: 5 columnas x 7 filas = 35 huecos posibles por capa
-    const gridRows = 7;
-    const gridCols = 5; // 5 columnas para que quepan sin espacios
+    // Layout estilo "Tortuga" clásico de Mahjong
+    // Coordenadas: cada ficha ocupa 2 unidades de ancho, 1 de alto
+    // Base: 12 fichas ancho x 8 fichas alto aproximadamente
 
-    // Capa 0: Base fuerte - llenar completamente para tener base sólida
-    for (let r = 0; r < gridRows; r++) {
-        for (let c = 0; c < gridCols; c++) {
-            add(c * 2, r * 2, 0); // 100% densidad en capa base
+    // CAPA 0: Base completa en forma rectangular
+    for (let row = 0; row < 8; row++) {
+        for (let col = 0; col < 12; col++) {
+            add(col * 2, row * 2, 0);
         }
     }
 
-    // Capas superiores: SOLO colocar si hay AL MENOS 2 fichas debajo (regla de 2 fichas mínimo)
-    for (let z = 1; z <= 3; z++) {
-        for (let r = 0; r < gridRows; r++) {
-            for (let c = 0; c < gridCols; c++) {
-                // Contar cuántas fichas hay directamente debajo
-                const supportCount = layout.filter(f =>
-                    f.coord_Z === z - 1 &&
-                    Math.abs(f.coord_X - c * 2) <= 2 &&
-                    Math.abs(f.coord_Y - r * 2) <= 2
-                ).length;
-
-                // Solo colocar si hay al menos 2 fichas de soporte
-                if (supportCount >= 2 && Math.random() > 0.5) {
-                    add(c * 2, r * 2, z);
-                }
+    // CAPA 1: Patrón escalonado dejando huecos
+    for (let row = 1; row < 7; row++) {
+        for (let col = 1; col < 11; col++) {
+            if (Math.random() > 0.15) { // 85% densidad
+                add(col * 2, row * 2, 1);
             }
         }
     }
 
-    // Si sobran fichas en el pool, colocarlas en huecos válidos de capas bajas
-    let emergencyZ = 1;
-    while (pool.length > 0 && emergencyZ <= 3) {
-        let placed = false;
-        for (let r = 0; r < gridRows && pool.length > 0; r++) {
-            for (let c = 0; c < gridCols && pool.length > 0; c++) {
-                // Verificar si hay al menos 2 fichas de soporte
-                const supportCount = layout.filter(f =>
-                    f.coord_Z === emergencyZ - 1 &&
-                    Math.abs(f.coord_X - c * 2) <= 2 &&
-                    Math.abs(f.coord_Y - r * 2) <= 2
-                ).length;
+    // CAPA 2: Más escalonado, menos fichas
+    for (let row = 2; row < 6; row++) {
+        for (let col = 2; col < 10; col++) {
+            if (Math.random() > 0.2) { // 80% densidad
+                add(col * 2, row * 2, 2);
+            }
+        }
+    }
 
-                if (supportCount >= 2) {
-                    const exists = layout.some(f => f.coord_X === c * 2 && f.coord_Y === r * 2 && f.coord_Z === emergencyZ);
+    // CAPA 3: Centro del diseño
+    for (let row = 3; row < 5; row++) {
+        for (let col = 3; col < 9; col++) {
+            if (Math.random() > 0.25) { // 75% densidad
+                add(col * 2, row * 2, 3);
+            }
+        }
+    }
+
+    // CAPA 4: Pico superior
+    for (let row = 3; row < 5; row++) {
+        for (let col = 4; col < 8; col++) {
+            if (Math.random() > 0.3) { // 70% densidad
+                add(col * 2, row * 2, 4);
+            }
+        }
+    }
+
+    // CAPA 5: Cúspide
+    for (let col = 5; col < 7; col++) {
+        add(col * 2, 4 * 2, 5);
+    }
+
+    // Ficha final en la cima
+    if (pool.length > 0) {
+        add(6 * 2, 4 * 2, 6);
+    }
+
+    // Rellenar pool sobrante en posiciones aleatorias válidas
+    while (pool.length > 0) {
+        let placed = false;
+        for (let z = 0; z <= 5 && !placed; z++) {
+            for (let row = 0; row < 8 && !placed; row++) {
+                for (let col = 0; col < 12 && !placed; col++) {
+                    const exists = layout.some(f => f.coord_X === col * 2 && f.coord_Y === row * 2 && f.coord_Z === z);
                     if (!exists) {
-                        add(c * 2, r * 2, emergencyZ);
-                        placed = true;
+                        // Verificar soporte: al menos 1 ficha debajo adyacente
+                        const hasSupport = layout.some(f =>
+                            f.coord_Z === z - 1 &&
+                            Math.abs(f.coord_X - col * 2) <= 2 &&
+                            Math.abs(f.coord_Y - row * 2) <= 2
+                        );
+                        if (hasSupport || z === 0) {
+                            add(col * 2, row * 2, z);
+                            placed = true;
+                        }
                     }
                 }
             }
         }
-        if (!placed) emergencyZ++;
+        if (!placed) break;
     }
 
     return layout;
