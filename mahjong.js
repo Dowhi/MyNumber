@@ -126,7 +126,7 @@ class MahjongView {
         // 408px / 5 columnas = 81.6px por columna, pero cada ficha ocupa 2 unidades X
         // Usamos unitW = 40.8 para que 5 fichas * 2 * 40.8 = 408px exactos
         const unitW = 40.8; // Ancho de unidad (cada ficha ocupa 2 unidades = 81.6px)
-        const unitH = 45;
+        const unitH = 50; // Alto de unidad: 45px ficha + 5px espacio vertical
 
         fichas.forEach(f => {
             if (!f.estado_visibilidad) return;
