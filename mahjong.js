@@ -24,7 +24,7 @@ class MahjongModel {
     esLibre(ficha) {
         if (!ficha.estado_visibilidad) return false;
         const activas = this.obtenerFichasActivas();
-        
+
         let isBlockedOnTop = false;
         let isBlockedLeft = false;
         let isBlockedRight = false;
@@ -66,9 +66,9 @@ class MahjongView {
         if (!this.container) return;
         this.innerBoard = document.createElement('div');
         this.innerBoard.id = 'mj-inner-board';
-        this.innerBoard.style.position = 'relative'; 
-        this.innerBoard.style.width = '408px'; 
-        this.innerBoard.style.height = '630px'; 
+        this.innerBoard.style.position = 'relative';
+        this.innerBoard.style.width = '408px';
+        this.innerBoard.style.height = '630px';
         this.innerBoard.style.pointerEvents = 'none';
         this.innerBoard.style.marginTop = '10px';
         this.innerBoard.style.marginLeft = 'auto';
@@ -84,26 +84,26 @@ class MahjongView {
             const slotH = slotBarEl ? slotBarEl.offsetHeight : 80;
             const availableW = this.container.clientWidth;
             const availableH = this.container.clientHeight - slotH;
-            
+
             // Calculate best scale to fit entirely within the available space
             const baseW = 408;
             const baseH = 630;
-            
+
             // Margins: 10px on sides, 10px above/below
             const scaleW = (availableW - 20) / baseW;
             const scaleH = (availableH - 20) / baseH;
-            
+
             // Escalar para que encaje 100% en AMBAS direcciones (ancho y alto)
-            const scale = Math.min(1.4, scaleW, scaleH); 
-            
+            const scale = Math.min(1.4, scaleW, scaleH);
+
             this.innerBoard.style.transform = `scale(${scale})`;
-            
+
             // Centrado vertical dinámico: el usuario quiere reducir el hueco superior a la mitad de lo que había (era /4)
             const visualH = baseH * scale;
             const offsetH = Math.max(0, (availableH - visualH) / 8); // Cambiado a /8 para pegar aún más el bloque arriba
 
 
-            
+
             this.innerBoard.style.marginTop = `${offsetH}px`;
             this.innerBoard.style.marginBottom = `-${baseH - visualH}px`;
         };
@@ -121,32 +121,33 @@ class MahjongView {
     renderTablero(fichas, model, clickHandler) {
         if (!this.innerBoard) return;
         this.innerBoard.innerHTML = '';
-        
-        const unitW = 34;
+
+        // Grid de 5 columnas: unitW más ancho para que quepan 5 fichas en el ancho disponible
+        const unitW = 68; // Ancho de ficha (68px = ancho completo de ficha)
         const unitH = 45;
 
         fichas.forEach(f => {
             if (!f.estado_visibilidad) return;
             const isFree = model.esLibre(f);
-            
+
             const div = document.createElement('div');
             div.className = `mahjong-tile ${isFree ? '' : 'blocked'}`;
             div.id = `mj-tile-${f.id_unico}`;
             div.style.zIndex = f.coord_Z * 100 + f.coord_Y * 10 + f.coord_X;
             div.style.left = `${f.coord_X * unitW}px`;
             div.style.top = `${f.coord_Y * unitH}px`;
-            div.style.pointerEvents = 'auto'; // Ensure clickable
+            div.style.pointerEvents = 'auto';
             if (f.faceDown) {
                 div.classList.add('face-down');
             }
-            
+
             const face = document.createElement('div');
             face.className = 'tile-face';
             const img = document.createElement('img');
             img.src = window.IMAGE_MAP[f.tipo_simbologia] || "assets/mahjong/tiles/eagle.png";
             face.appendChild(img);
             div.appendChild(face);
-            
+
             div.onclick = () => clickHandler(f, div);
             this.innerBoard.appendChild(div);
         });
@@ -194,20 +195,20 @@ class MahjongView {
         const step = (now) => {
             const progress = Math.min(1, (now - startTime) / duration);
             const ease = progress * (2 - progress); // easeOutQuad
-            
+
             const curX = startX + (endX - startX) * progress;
             const curY = startY + (endY - startY) * progress;
-            
+
             // Parabola: subida de 100px en el medio
             const parabola = Math.sin(progress * Math.PI) * 100;
-            
+
             // Ligera rotación en Z para dar sensación de ligereza al volar (requisito)
             const rotationZ = Math.sin(progress * Math.PI) * 15; // Hasta 15 grados
 
             ghost.style.left = `${curX}px`;
             ghost.style.top = `${curY - parabola}px`;
             ghost.style.transform = `scale(${1 - progress * 0.4}) rotate(${progress * 360}deg) rotateZ(${rotationZ}deg)`;
-            
+
             if (progress < 1) {
                 requestAnimationFrame(step);
             } else {
@@ -220,43 +221,43 @@ class MahjongView {
 
     spawnParticles(x, y) {
         // "Explosión de partículas blancas y verdes (pétalos)"
-        const colors = ['#ffffff', '#224d17', '#80e27e']; 
-        
+        const colors = ['#ffffff', '#224d17', '#80e27e'];
+
         for (let i = 0; i < 15; i++) {
             const p = document.createElement('div');
             p.className = 'particle';
-            
+
             p.style.left = `${x}px`;
             p.style.top = `${y}px`;
-            
+
             // Pétalo style
             p.style.width = `${5 + Math.random() * 5}px`;
             p.style.height = `${8 + Math.random() * 8}px`;
             p.style.background = colors[Math.floor(Math.random() * colors.length)];
             p.style.borderRadius = '50% 0 50% 0'; // Forma de hoja/pétalo
-            
+
             const angle = Math.random() * Math.PI * 2;
             const velocity = 2 + Math.random() * 5;
             const vx = Math.cos(angle) * velocity;
             const vy = Math.sin(angle) * velocity;
             const rotSpeed = (Math.random() - 0.5) * 20;
-            
+
             this.particleContainer.appendChild(p);
-            
+
             let curX = x;
             let curY = y;
             let opa = 1;
             let rot = 0;
-            
+
             const move = () => {
                 curX += vx;
                 curY += vy + 1; // Slight gravity
                 opa -= 0.02;
                 rot += rotSpeed;
-                
+
                 p.style.transform = `translate(${curX - x}px, ${curY - y}px) rotate(${rot}deg)`;
                 p.style.opacity = opa;
-                
+
                 if (opa > 0) requestAnimationFrame(move);
                 else p.remove();
             };
@@ -269,11 +270,12 @@ class MahjongController {
     constructor(view) {
         this.view = view;
         this.model = new MahjongModel();
-        this.slots = []; 
+        this.slots = [];
         this.maxSlots = 4; // Vuelto a 4 como solicitado por el usuario
         this.score = 0;
         this.enPartida = false;
-        
+        this.lastFlippedTile = null; // Track last flipped face-down tile
+
         window.IMAGE_MAP = {
             "Eagle": "assets/mahjong/stickers/sticker_style_eagle_1773775041566.png",
             "Lynx": "assets/mahjong/stickers/sticker_style_lynx_v2_1773775169836.png",
@@ -310,7 +312,7 @@ class MahjongController {
 
     handleTileClick(ficha, div) {
         if (!this.enPartida || this.slots.length >= this.maxSlots) return;
-        
+
         // Fichas bloqueadas vibran, pero no pueden cogerse
         if (!this.model.esLibre(ficha)) {
             div.classList.add('shake');
@@ -320,12 +322,28 @@ class MahjongController {
 
         // Si es libre y está boca abajo, simplemente se voltea y no se juega
         if (ficha.faceDown) {
+            // Voltear la última ficha volteada (si existe) de nuevo boca abajo
+            if (this.lastFlippedTile && this.lastFlippedTile.ficha !== ficha) {
+                this.lastFlippedTile.ficha.faceDown = true;
+                this.lastFlippedTile.div.classList.add('face-down');
+                this.lastFlippedTile.div.style.transform = 'scale(1.1) rotateY(180deg)';
+                this.lastFlippedTile.div.style.transition = 'transform 0.4s';
+                setTimeout(() => {
+                    this.lastFlippedTile.div.style.transform = '';
+                    this.lastFlippedTile.div.style.transition = '';
+                }, 400);
+            }
+
+            // Voltear la nueva ficha boca arriba
             ficha.faceDown = false;
             div.classList.remove('face-down');
             // Feedback
             div.style.transform = 'scale(1.1) rotateY(180deg)';
             div.style.transition = 'transform 0.4s';
             setTimeout(() => { div.style.transform = ''; div.style.transition = ''; }, 400);
+
+            // Guardar referencia a la última ficha volteada
+            this.lastFlippedTile = { ficha, div };
             return;
         }
 
@@ -370,7 +388,7 @@ class MahjongController {
 
     checkMatches() {
         if (this.slots.length < 2) return;
-        
+
         // Match 2 Logic
         for (let i = 0; i < this.slots.length; i++) {
             for (let j = i + 1; j < this.slots.length; j++) {
@@ -379,11 +397,11 @@ class MahjongController {
                     const matchX = this.view.slotBar.getBoundingClientRect().left + 150;
                     const matchY = this.view.slotBar.getBoundingClientRect().top;
                     this.view.spawnParticles(matchX, matchY);
-                    
+
                     const f1 = this.slots[i];
                     const f2 = this.slots[j];
                     this.slots = this.slots.filter(s => s !== f1 && s !== f2);
-                    
+
                     this.score += 500;
                     this.updateUI();
                     setTimeout(() => this.refreshSlotsUI(), 300);
@@ -396,7 +414,7 @@ class MahjongController {
             // "Feedback Visual (Error): Si la bandeja se llena, las fichas tiemblan en color rojo antes del Game Over"
             this.enPartida = false;
             const bgOriginals = [];
-            
+
             Array.from(this.view.slotBar.children).forEach(el => {
                 el.classList.add('shake');
                 const img = el.querySelector('img');
@@ -460,7 +478,7 @@ function generarLayoutMahjong() {
     // Generaremos 42 pares = 84 fichas para encajar en la cuadrícula sin sobrecargar
     for(let i=0; i<42; i++) {
         const t = tipos[Math.floor(Math.random()*tipos.length)];
-        pool.push(t, t); 
+        pool.push(t, t);
     }
 
     // Shuffle pool
@@ -473,12 +491,12 @@ function generarLayoutMahjong() {
     const add = (x, y, z) => {
         if (!pool.length) return;
         // ~25% probabilidad boca abajo para niveles random
-        const isFaceDown = Math.random() < 0.25; 
-        layout.push({ 
-            id_unico: id++, 
-            tipo_simbologia: pool.pop(), 
-            coord_X: x, 
-            coord_Y: y, 
+        const isFaceDown = Math.random() < 0.25;
+        layout.push({
+            id_unico: id++,
+            tipo_simbologia: pool.pop(),
+            coord_X: x,
+            coord_Y: y,
             coord_Z: z,
             faceDown: isFaceDown
         });
@@ -510,7 +528,7 @@ function generarLayoutMahjong() {
         }
     }
 
-    // Si sobramos en el pool (lo cual es muy probable porque 84 fichas pueden no caber en la primera pasada con este randomizer), 
+    // Si sobramos en el pool (lo cual es muy probable porque 84 fichas pueden no caber en la primera pasada con este randomizer),
     // forzaremos colocarlas en huecos libres de capas bajas
     let emergencyZ = 0;
     while(pool.length > 0) {
