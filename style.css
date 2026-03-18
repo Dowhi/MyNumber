@@ -1631,7 +1631,8 @@ body {
     inset: 0;
     /* Replicating the provided vibrant green ornate picture via inline SVG */
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 84'%3E%3Cdefs%3E%3ClinearGradient id='bg' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%230ac336'/%3E%3Cstop offset='100%25' stop-color='%23019417'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='84' fill='url(%23bg)'/%3E%3Crect x='6' y='6' width='52' height='72' rx='6' fill='none' stroke='%238df5a0' stroke-width='1.5' opacity='0.8'/%3E%3Cpath d='M8 14 C12 14 14 12 14 8 M12 12 C16 16 12 18 10 16' fill='none' stroke='%238df5a0' stroke-width='1.5' opacity='0.8'/%3E%3Cpath d='M56 14 C52 14 50 12 50 8 M52 12 C48 16 52 18 54 16' fill='none' stroke='%238df5a0' stroke-width='1.5' opacity='0.8'/%3E%3Cpath d='M8 70 C12 70 14 72 14 76 M12 72 C16 68 12 66 10 68' fill='none' stroke='%238df5a0' stroke-width='1.5' opacity='0.8'/%3E%3Cpath d='M56 70 C52 70 50 72 50 76 M52 72 C48 68 52 66 54 68' fill='none' stroke='%238df5a0' stroke-width='1.5' opacity='0.8'/%3E%3C/svg%3E") !important;
-    background-size: cover;
+    background-size: 100% 100% !important;
+    background-position: center !important;
     z-index: 5;
     border-radius: 10px;
     display: flex;
