@@ -497,8 +497,8 @@ function generarLayoutMahjong() {
     const tipos = ["Eagle", "Lynx", "Frog", "Squirrel", "Deer", "Snake", "Hedgehog", "Badger", "Stag", "Barn Owl", "Hamster", "Dormouse", "Owl", "Wild Boar", "Toucan"];
     let pool = [];
 
-    // Generaremos 35 pares = 70 fichas para 5x7 layout
-    for (let i = 0; i < 35; i++) {
+    // Generaremos 30 pares = 60 fichas para layout 5x7 + capas aleatorias
+    for (let i = 0; i < 30; i++) {
         const t = tipos[Math.floor(Math.random() * tipos.length)];
         pool.push(t, t);
     }
@@ -523,68 +523,45 @@ function generarLayoutMahjong() {
         });
     };
 
-    // Layout 5 columnas x 7 filas escalonado
-    // Cada ficha ocupa 2 unidades en X, 1 unidad en Y
-
-    // CAPA 0: Base completa 5x7
+    // CAPA 0: Base completa 5x7 (35 fichas)
     for (let row = 0; row < 7; row++) {
         for (let col = 0; col < 5; col++) {
             add(col * 2, row * 2, 0);
         }
     }
 
-    // CAPA 1: 4x6 centrado
+    // CAPA 1: 20 fichas aleatorias sobre la base
+    const positionsZ1 = [];
+    for (let row = 0; row < 7; row++) {
+        for (let col = 0; col < 5; col++) {
+            positionsZ1.push({ row, col });
+        }
+    }
+    // Shuffle posiciones
+    for (let i = positionsZ1.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [positionsZ1[i], positionsZ1[j]] = [positionsZ1[j], positionsZ1[i]];
+    }
+    // Colocar 20 fichas en posiciones aleatorias
+    for (let i = 0; i < 20 && i < positionsZ1.length; i++) {
+        add(positionsZ1[i].col * 2, positionsZ1[i].row * 2, 1);
+    }
+
+    // CAPA 2: 5 fichas aleatorias en la cima
+    const positionsZ2 = [];
     for (let row = 1; row < 6; row++) {
         for (let col = 1; col < 4; col++) {
-            if (Math.random() > 0.1) { // 90% densidad
-                add(col * 2, row * 2, 1);
-            }
+            positionsZ2.push({ row, col });
         }
     }
-
-    // CAPA 2: 3x5 centrado
-    for (let row = 2; row < 5; row++) {
-        for (let col = 1; col < 4; col++) {
-            if (Math.random() > 0.2) { // 80% densidad
-                add(col * 2, row * 2, 2);
-            }
-        }
+    // Shuffle posiciones
+    for (let i = positionsZ2.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [positionsZ2[i], positionsZ2[j]] = [positionsZ2[j], positionsZ2[i]];
     }
-
-    // CAPA 3: 2x3 cima
-    for (let row = 3; row < 4; row++) {
-        for (let col = 2; col < 3; col++) {
-            add(col * 2, row * 2, 3);
-        }
-    }
-
-    // Ficha final en la cima
-    if (pool.length > 0) {
-        add(4 * 2, 3 * 2, 4);
-    }
-
-    // Rellenar pool sobrante en posiciones aleatorias válidas
-    while (pool.length > 0) {
-        let placed = false;
-        for (let z = 0; z <= 3 && !placed; z++) {
-            for (let row = 0; row < 7 && !placed; row++) {
-                for (let col = 0; col < 5 && !placed; col++) {
-                    const exists = layout.some(f => f.coord_X === col * 2 && f.coord_Y === row * 2 && f.coord_Z === z);
-                    if (!exists) {
-                        const hasSupport = z === 0 || layout.some(f =>
-                            f.coord_Z === z - 1 &&
-                            Math.abs(f.coord_X - col * 2) <= 2 &&
-                            Math.abs(f.coord_Y - row * 2) <= 2
-                        );
-                        if (hasSupport) {
-                            add(col * 2, row * 2, z);
-                            placed = true;
-                        }
-                    }
-                }
-            }
-        }
-        if (!placed) break;
+    // Colocar 5 fichas en posiciones aleatorias
+    for (let i = 0; i < 5 && i < positionsZ2.length; i++) {
+        add(positionsZ2[i].col * 2, positionsZ2[i].row * 2, 2);
     }
 
     return layout;
