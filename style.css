@@ -1358,8 +1358,8 @@ body {
 
 #mj-slot-bar-container {
     width: 100%;
-    padding: 2px 0;
-    /* Reduced vertical space as requested */
+    padding: 0;
+    margin-bottom: 5px;
     display: flex;
     justify-content: center;
     z-index: 100;
