@@ -1359,7 +1359,7 @@ body {
 #mj-slot-bar-container {
     width: 100%;
     padding: 0;
-    margin-bottom: 5px;
+    margin-bottom: 2px;
     display: flex;
     justify-content: center;
     z-index: 100;
@@ -1402,12 +1402,12 @@ body {
     height: 58px !important;
     margin: 0 !important;
     transform: none !important;
-    border-radius: 10px !important;
-    box-shadow: 0px 3px 0px #1a3a11, 0px 4px 5px rgba(0, 0, 0, 0.4) !important;
+    border-radius: 18px !important;
+    box-shadow: 6px 6px 0px #1a3a11, 0px 4px 5px rgba(0, 0, 0, 0.4) !important;
 }
 
 .mahjong-tile.in-slot .tile-face {
-    border-radius: 10px !important;
+    border-radius: 18px !important;
 }
 
 /* Slots cleaned up */
@@ -1552,8 +1552,8 @@ body {
     /* Bordes más definidos como solicitado */
     /* Depth: Forest Green #1a3a11 */
     box-shadow:
-        0px 8px 0px #1a3a11,
-        0px 10px 8px rgba(0, 0, 0, 0.4);
+        8px 8px 0px #1a3a11,
+        10px 10px 8px rgba(0, 0, 0, 0.4);
     /* 3D depth with drop shadow */
     transition: filter 0.2s, transform 0.2s, box-shadow 0.2s;
     cursor: pointer;
@@ -1586,7 +1586,7 @@ body {
     justify-content: center;
     background: transparent !important;
     /* Let the tile background show */
-    border-radius: 10px;
+    border-radius: 18px;
     overflow: hidden;
     position: relative;
     z-index: 2;

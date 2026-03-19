@@ -100,7 +100,7 @@ class MahjongView {
 
             // Centrado vertical dinámico: el usuario quiere reducir el hueco superior a la mitad de lo que había (era /4)
             const visualH = baseH * scale;
-            const offsetH = Math.max(0, (availableH - visualH) / 8); // Cambiado a /8 para pegar aún más el bloque arriba
+            const offsetH = Math.max(0, (availableH - visualH) / 24); // Cambiado a /24 para pegar aún más el bloque arriba
 
 
 
