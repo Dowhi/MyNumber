@@ -1393,7 +1393,7 @@ body {
     box-sizing: border-box;
 }
 
-/* Ficha inside slot - Estilo 3D escalado */
+/* Ficha inside slot - Estilo consistente con tablero */
 .mahjong-tile.in-slot {
     position: relative !important;
     left: 0 !important;
@@ -1402,17 +1402,18 @@ body {
     height: 58px !important;
     margin: 0 !important;
     transform: none !important;
-    background: #1a3a11 !important;
-    border-radius: 8px !important;
-    box-shadow: 0px 3px 4px rgba(0, 0, 0, 0.4) !important;
+    background: #27a243 !important;
+    border-radius: 7px !important;
+    box-shadow: 0 3px 5px rgba(0,0,0,0.4), inset 0 -3px 0 rgba(0,0,0,0.2) !important;
     border: none !important;
 }
 
 .mahjong-tile.in-slot .tile-face {
     position: absolute !important;
-    inset: 1px 1px 5px 1px !important;
-    background: #ffffff !important;
+    inset: 2px 2px 6px 2px !important;
+    background: #f7f2e4 !important;
     border-radius: 4px !important;
+    border: 1px solid rgba(39, 162, 67, 0.3) !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
@@ -1547,75 +1548,47 @@ body {
     margin-top: 4px;
 }
 
-/* The Brick Style V65 - Premium 3D Overhaul */
+/* Mahjong Tiles - Estilo Referencia: cara crema + cuerpo verde lateral 3D */
 .mahjong-tile {
     position: absolute;
     width: 81px;
     height: 90px;
-    background: #1a3a11 !important; /* Cuerpo verde bosque profundo */
-    border-radius: 12px; /* Redondeo base suave */
-    /* Iluminación: Drop Shadow 90° (Abajo) */
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.4);
-    transition: filter 0.2s, transform 0.2s, box-shadow 0.2s;
+    /* Verde como cuerpo lateral 3D visible */
+    background: #27a243 !important;
+    border-radius: 10px;
+    /* Sombra para profundidad y separación */
+    box-shadow:
+        0 5px 8px rgba(0, 0, 0, 0.45),
+        inset 0 -4px 0 rgba(0, 0, 0, 0.25);
+    transition: filter 0.15s, transform 0.15s;
     cursor: pointer;
     transform-origin: center bottom;
     border: none !important;
 }
 
 .mahjong-tile.blocked {
-    filter: brightness(0.6) contrast(1.1); /* Ambient Occlusion para jerarquía */
-    opacity: 0.98;
+    filter: brightness(0.72);
     cursor: default;
 }
 
+/* Cara visible con icono */
 .tile-face {
     position: absolute;
-    inset: 2px 2px 8px 2px; /* Elevación en eje Z y margen del cuerpo */
-    background: #ffffff !important; /* Fondo blanco puro */
-    border-radius: 5px; /* Radio de curvatura superior de 5px */
+    /* Margen lateral fino (cuerpo verde) + más espacio abajo = efecto 3D */
+    inset: 3px 3px 9px 3px;
+    background: #f7f2e4 !important; /* Crema/blanca como en la imagen */
+    border-radius: 6px;
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
     z-index: 2;
-    /* Biselado de doble etapa */
-    border: 1px solid rgba(0, 0, 0, 0.05);
-    box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.8), inset 0 -1px 1px rgba(0, 0, 0, 0.1);
-}
-
-/* Specular Highlight: Brillo superficial 10% superior */
-.tile-face::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 12%;
-    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.15) 0%, transparent 100%);
-    pointer-events: none;
-}
-
-.tile-face img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    padding: 15%; /* Margen de seguridad del 15% */
-}
-
-.tile-face {
-    margin: 0;
-    height: 100%;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #ffffff !important;
-    background-image: none !important;
-    border-radius: 4px;
-    overflow: hidden;
-    position: relative;
-    z-index: 2;
-    border: 1px solid #f4f4f5;
+    /* Borde interior decorativo verde suave */
+    border: 2px solid rgba(39, 162, 67, 0.35);
+    /* Sombra interior para dar relieve */
+    box-shadow:
+        inset 0 1px 3px rgba(255,255,255,0.9),
+        inset 0 -1px 2px rgba(0,0,0,0.1);
 }
 
 .tile-face img {
@@ -1623,7 +1596,7 @@ body {
     height: 100%;
     object-fit: contain;
     display: block;
-    background: #ffffff !important;
+    padding: 6%; /* Pequeño margen para que respire el icono */
 }
 
 .mahjong-tile:not(.face-down) .tile-face::after,
